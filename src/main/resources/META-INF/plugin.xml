@@ -1,0 +1,39 @@
+<idea-plugin>
+    <id>com.aquasecurity.plugins.intellij-Trivy</id>
+    <name>Trivy Findings Explorer</name>
+    <vendor email="owen.rumney@aquasec.com" url="https://aquasecurity.github.io/trivy">Aqua Security</vendor>
+    <idea-version since-build="203.*" />
+
+    <description><![CDATA[Trivy integration for Jetbrains tools.<br />
+Scan your project for package vulnerabilities and infrastructure as code misconfigurations using Trivy.<br />
+Navigate your Trivy results in the Findings Explorer with additional information in the Help Pane about how to resolve.
+    ]]></description>
+    <change-notes>
+        - Initial release
+    </change-notes>
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Trivy Findings" secondary="true" icon="com.aquasecurity.plugins.trivy.icons.TrivyIcons.Trivy"
+                    anchor="left"
+                    factoryClass="com.aquasecurity.plugins.trivy.ui.TrivyWindowFactory"/>
+        <notificationGroup id="Trivy Notifications" displayType="BALLOON"/>
+        <applicationConfigurable parentId="tools" instance="com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable"
+                                 id="com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable"
+                                 displayName="Trivy: Settings"/>
+        <applicationService serviceImplementation="com.aquasecurity.plugins.trivy.settings.TrivySettingState"/>
+    </extensions>
+
+    <actions>
+        <action id="com.aquasecurity.plugins.trivy.actions.RunScannerAction" icon="AllIcons.Debugger.ThreadRunning"
+                class="com.aquasecurity.plugins.trivy.actions.RunScannerAction" text="Run Trivy"
+                description="Run trivy now to update results"/>
+        <action id="com.aquasecurity.plugins.trivy.actions.ClearResultsAction"
+                icon="VcsCodeReviewIcons.Delete"
+                class="com.aquasecurity.plugins.trivy.actions.ClearResultsAction" text="Clear Results"
+                description="Clear results window"/>
+        <action id="com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction" icon="AllIcons.General.Settings"
+                class="com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction" text="Show settings"
+                description="Show Settings dialog"/>
+    </actions>
+</idea-plugin>
