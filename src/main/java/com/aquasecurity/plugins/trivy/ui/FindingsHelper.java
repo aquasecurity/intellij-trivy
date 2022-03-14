@@ -2,6 +2,8 @@ package com.aquasecurity.plugins.trivy.ui;
 
 import com.aquasecurity.plugins.trivy.model.Misconfiguration;
 import com.aquasecurity.plugins.trivy.model.Vulnerability;
+import com.intellij.ui.JBColor;
+import com.intellij.util.ui.JBCachingScalableIcon;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import org.jdesktop.swingx.JXHyperlink;
@@ -20,6 +22,7 @@ public class FindingsHelper extends JPanel {
     public FindingsHelper() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(JBUI.Borders.empty(10));
+        setBackground(JBColor.PanelBackground);
     }
 
 

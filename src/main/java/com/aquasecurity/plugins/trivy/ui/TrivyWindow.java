@@ -16,6 +16,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,7 @@ public class TrivyWindow extends SimpleToolWindowPanel {
     public TrivyWindow(Project project) {
         super(false, true);
 
+        this.setBackground(JBColor.PanelBackground);
         this.project = project;
         this.findingsHelper = new FindingsHelper();
         configureToolbar();

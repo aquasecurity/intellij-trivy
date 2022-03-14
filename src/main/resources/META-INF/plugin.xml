@@ -10,6 +10,7 @@ Navigate your Trivy results in the Findings Explorer with additional information
     ]]></description>
     <change-notes>
         - Initial release
+        - Update background colour support in tree nodes
     </change-notes>
     <depends>com.intellij.modules.platform</depends>
 
