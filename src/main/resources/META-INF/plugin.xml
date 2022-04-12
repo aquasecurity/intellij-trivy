@@ -2,15 +2,16 @@
     <id>com.aquasecurity.plugins.intellij-Trivy</id>
     <name>Trivy Findings Explorer</name>
     <vendor email="owen.rumney@aquasec.com" url="https://aquasecurity.github.io/trivy">Aqua Security</vendor>
-    <idea-version since-build="203.*" />
+    <idea-version since-build="203.*"/>
 
     <description><![CDATA[Trivy integration for Jetbrains tools.<br />
 Scan your project for package vulnerabilities and infrastructure as code misconfigurations using Trivy.<br />
 Navigate your Trivy results in the Findings Explorer with additional information in the Help Pane about how to resolve.
     ]]></description>
-    <change-notes>
-        - Initial release
-        - Update background colour support in tree nodes
+    <change-notes><![CDATA[v1.0.3 - Fix support for higher versions of IDE<br/>
+v1.0.2 - Fix background for treenode cells<br/>
+v1.0.1 - Fix bug where no results are found <br />
+v1.0.0 - Initial release <br />]]>
     </change-notes>
     <depends>com.intellij.modules.platform</depends>
 
@@ -19,7 +20,8 @@ Navigate your Trivy results in the Findings Explorer with additional information
                     anchor="left"
                     factoryClass="com.aquasecurity.plugins.trivy.ui.TrivyWindowFactory"/>
         <notificationGroup id="Trivy Notifications" displayType="BALLOON"/>
-        <applicationConfigurable parentId="tools" instance="com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable"
+        <applicationConfigurable parentId="tools"
+                                 instance="com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable"
                                  id="com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable"
                                  displayName="Trivy: Settings"/>
         <applicationService serviceImplementation="com.aquasecurity.plugins.trivy.settings.TrivySettingState"/>

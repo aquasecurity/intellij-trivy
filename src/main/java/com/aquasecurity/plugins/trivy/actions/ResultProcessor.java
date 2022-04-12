@@ -1,7 +1,6 @@
 package com.aquasecurity.plugins.trivy.actions;
 
 import com.aquasecurity.plugins.trivy.model.Findings;
-import com.aquasecurity.plugins.trivy.model.Root;
 import com.aquasecurity.plugins.trivy.ui.TrivyWindow;
 import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup;
 import com.fasterxml.jackson.databind.ObjectMapper;

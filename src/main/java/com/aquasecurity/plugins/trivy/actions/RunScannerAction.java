@@ -33,11 +33,12 @@ public class RunScannerAction extends AnAction {
             return;
         }
 
-        File resultFile = null;
+        File resultFile;
         try {
             resultFile = File.createTempFile("Trivy", ".json");
         } catch (IOException ex) {
             TrivyNotificationGroup.notifyError(project, ex.getLocalizedMessage());
+            return;
         }
 
         TrivyBackgroundRunTask runner = new TrivyBackgroundRunTask(project, resultFile, ResultProcessor::updateResults);

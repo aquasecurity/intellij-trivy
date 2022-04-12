@@ -2,7 +2,7 @@ package com.aquasecurity.plugins.trivy.model;
 
 import java.util.Date;
 
-public class ImageConfig{
+public class ImageConfig {
     public String architecture;
     public Date created;
     public String os;
