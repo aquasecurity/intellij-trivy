@@ -1,4 +1,3 @@
-
 package com.aquasecurity.plugins.trivy.ui.treenodes;
 
 

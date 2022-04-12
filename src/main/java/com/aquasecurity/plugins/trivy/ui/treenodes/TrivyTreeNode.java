@@ -7,5 +7,5 @@ public interface TrivyTreeNode {
 
     String getTitle();
 
-    String getTooltip() ;
+    String getTooltip();
 }

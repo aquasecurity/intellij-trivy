@@ -1,7 +1,6 @@
 package com.aquasecurity.plugins.trivy.ui.treenodes;
 
 import com.aquasecurity.plugins.trivy.icons.TrivyIcons;
-import com.aquasecurity.plugins.trivy.model.Finding;
 import com.aquasecurity.plugins.trivy.model.Misconfiguration;
 
 import javax.swing.*;

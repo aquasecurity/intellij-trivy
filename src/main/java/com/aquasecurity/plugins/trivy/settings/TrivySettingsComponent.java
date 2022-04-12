@@ -20,7 +20,7 @@ public class TrivySettingsComponent {
     public TrivySettingsComponent() {
 
         TrivyPath.addBrowseFolderListener("Trivy binary path", "Set the explicit path to Trivy",
-                ProjectManager.getInstance().getDefaultProject(), FileChooserDescriptorFactory.createSingleFileDescriptor()               );
+                ProjectManager.getInstance().getDefaultProject(), FileChooserDescriptorFactory.createSingleFileDescriptor());
 
         settingsPanel = FormBuilder.createFormBuilder()
                 .addLabeledComponent(new JBLabel("Specific Trivy path: "), TrivyPath, 1, true)
@@ -44,7 +44,6 @@ public class TrivySettingsComponent {
     public void setTrivyPath(@NotNull String newText) {
         TrivyPath.setText(newText);
     }
-
 
 
 }

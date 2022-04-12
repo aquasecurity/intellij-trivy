@@ -19,11 +19,11 @@ public class ShowTrivySettingsAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
 
         Project project = e.getProject();
-        if ( project == null) {
-            return ;
+        if (project == null) {
+            return;
         }
 
         TrivySettingsConfigurable configurable = new TrivySettingsConfigurable();
-       ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
+        ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
     }
 }

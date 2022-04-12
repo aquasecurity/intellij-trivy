@@ -1,7 +1,6 @@
 package com.aquasecurity.plugins.trivy.ui.treenodes;
 
 import com.aquasecurity.plugins.trivy.icons.TrivyIcons;
-import com.aquasecurity.plugins.trivy.model.Result;
 
 import javax.swing.*;
 
@@ -33,7 +32,7 @@ public class IconHelper {
                 return TrivyIcons.Nuget;
             case "pip":
             case "pipenv":
-            case"python-pkg":
+            case "python-pkg":
                 return TrivyIcons.Python;
             case "terraform":
                 return TrivyIcons.Terraform;

@@ -1,6 +1,7 @@
 package com.aquasecurity.plugins.trivy.ui;
 
 import com.aquasecurity.plugins.trivy.ui.treenodes.TrivyTreeNode;
+import com.intellij.ui.JBColor;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -29,6 +30,7 @@ class FindingTreeRenderer extends DefaultTreeCellRenderer {
             TrivyTreeNode node = (TrivyTreeNode) value;
             setIcon(node.getIcon());
             setText(node.getTitle());
+            setBackgroundNonSelectionColor(JBColor.PanelBackground);
             setToolTipText(node.getTooltip());
         }
         return this;

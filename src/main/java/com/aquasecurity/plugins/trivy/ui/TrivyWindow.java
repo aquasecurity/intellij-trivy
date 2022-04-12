@@ -16,6 +16,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,7 @@ public class TrivyWindow extends SimpleToolWindowPanel {
     public TrivyWindow(Project project) {
         super(false, true);
 
+        this.setBackground(JBColor.PanelBackground);
         this.project = project;
         this.findingsHelper = new FindingsHelper();
         configureToolbar();
@@ -69,9 +71,12 @@ public class TrivyWindow extends SimpleToolWindowPanel {
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Findings by type");
 
 
-        findings.results.forEach(f->{
-            FileTreeNode fileTreeNode = new FileTreeNode(f);
-            rootNode.add(fileTreeNode);
+        findings.results.forEach(f -> {
+            if (f.misconfigurations != null &&  f.misconfigurations.size() > 0
+                    || f.vulnerabilities != null &&  f.vulnerabilities.size() > 0) {
+                FileTreeNode fileTreeNode = new FileTreeNode(f);
+                rootNode.add(fileTreeNode);
+            }
         });
 
         this.root = new Tree(rootNode);
@@ -84,7 +89,6 @@ public class TrivyWindow extends SimpleToolWindowPanel {
             }
         });
     }
-
 
 
     void doMouseClicked(MouseEvent me) {
@@ -103,7 +107,7 @@ public class TrivyWindow extends SimpleToolWindowPanel {
             this.findingsHelper.setMisconfiguration(node.getMisconfiguration(), findingLocation.Filename);
             openFileLocation(findingLocation);
         } else if (lastSelectedNode instanceof VulnerabilityTreeNode) {
-            VulnerabilityTreeNode node = (VulnerabilityTreeNode)  lastSelectedNode;
+            VulnerabilityTreeNode node = (VulnerabilityTreeNode) lastSelectedNode;
             Location findingLocation = node.getLocation();
             if (findingLocation == null) {
                 return;
@@ -114,7 +118,7 @@ public class TrivyWindow extends SimpleToolWindowPanel {
     }
 
     private void openFileLocation(Location findingLocation) {
-        VirtualFile file = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Paths.get(project.getBasePath(),findingLocation.Filename));
+        VirtualFile file = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Paths.get(project.getBasePath(), findingLocation.Filename));
         OpenFileDescriptor ofd = new OpenFileDescriptor(project, file, findingLocation.StartLine - 1, 0);
         if (ofd == null) {
             return;

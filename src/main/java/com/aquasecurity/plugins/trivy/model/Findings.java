@@ -3,7 +3,6 @@ package com.aquasecurity.plugins.trivy.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Findings {
 

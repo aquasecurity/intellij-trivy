@@ -24,25 +24,25 @@ public class FileTreeNode extends DefaultMutableTreeNode implements TrivyTreeNod
             List<MisconfigurationTreeNode> visited = new ArrayList<>();
             result.misconfigurations.forEach(ms -> {
 
-                    if (visited.stream().noneMatch(v -> Objects.equals(v.misconfiguration.id, ms.id))) {
-                        visited.add(new MisconfigurationTreeNode(ms));
-                    }
-                    Optional<MisconfigurationTreeNode> findingNode = visited.stream().filter(vf -> Objects.equals(vf.misconfiguration.id, ms.id)).findFirst();
-                    if (findingNode.isPresent()) {
-                        MisconfigurationTreeNode node = findingNode.get();
-                        node.add(new LocationTreeNode(result.target, result.type, ms));
-                    }
-                });
+                if (visited.stream().noneMatch(v -> Objects.equals(v.misconfiguration.id, ms.id))) {
+                    visited.add(new MisconfigurationTreeNode(ms));
+                }
+                Optional<MisconfigurationTreeNode> findingNode = visited.stream().filter(vf -> Objects.equals(vf.misconfiguration.id, ms.id)).findFirst();
+                if (findingNode.isPresent()) {
+                    MisconfigurationTreeNode node = findingNode.get();
+                    node.add(new LocationTreeNode(result.target, result.type, ms));
+                }
+            });
 
-                visited.forEach(this::add);
-            }
+            visited.forEach(this::add);
+        }
 
         if (result.vulnerabilities != null && result.vulnerabilities.size() > 0) {
             List<VulnerablePackageTreeNode> visited = new ArrayList<>();
             result.vulnerabilities.forEach(vulnerability -> {
 
                 if (visited.stream().noneMatch(v -> Objects.equals(v.vulnerability.pkgName, vulnerability.pkgName))) {
-                    visited.add(new VulnerablePackageTreeNode(vulnerability ));
+                    visited.add(new VulnerablePackageTreeNode(vulnerability));
                 }
                 Optional<VulnerablePackageTreeNode> findingNode = visited.stream().filter(vf -> Objects.equals(vf.vulnerability.pkgName, vulnerability.pkgName)).findFirst();
                 if (findingNode.isPresent()) {
