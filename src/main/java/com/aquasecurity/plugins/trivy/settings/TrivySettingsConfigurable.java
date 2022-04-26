@@ -38,7 +38,15 @@ public class TrivySettingsConfigurable implements Configurable {
     @Override
     public boolean isModified() {
         TrivySettingState settings = TrivySettingState.getInstance();
-        boolean modified = !TrivySettingsComponent.getTrivyPath().equals(settings.TrivyPath);
+        boolean modified = !TrivySettingsComponent.getTrivyPath().equals(settings.TrivyPath) ||
+                !TrivySettingsComponent.getCriticalSeverityRequired() == settings.CriticalSeverity ||
+                !TrivySettingsComponent.getHighSeverityRequired() == settings.HighSeverity ||
+                !TrivySettingsComponent.getMediumSeverityRequired() == settings.MediumSeverity||
+                !TrivySettingsComponent.getLowSeverityRequired() == settings.LowSeverity         ||
+                !TrivySettingsComponent.getUnknownSeverityRequired() == settings.UnknownSeverity ||
+                !TrivySettingsComponent.getOfflineScanRequired() == settings.OfflineScan ||
+                !TrivySettingsComponent.getShowOnlyFixed() == settings.IgnoreUnfixed
+                ;
         return modified;
     }
 
@@ -46,12 +54,28 @@ public class TrivySettingsConfigurable implements Configurable {
     public void apply() {
         TrivySettingState settings = TrivySettingState.getInstance();
         settings.TrivyPath = TrivySettingsComponent.getTrivyPath();
+        settings.CriticalSeverity = TrivySettingsComponent.getCriticalSeverityRequired();
+        settings.HighSeverity = TrivySettingsComponent.getHighSeverityRequired();
+        settings.MediumSeverity = TrivySettingsComponent.getMediumSeverityRequired();
+        settings.LowSeverity = TrivySettingsComponent.getLowSeverityRequired();
+        settings.UnknownSeverity = TrivySettingsComponent.getUnknownSeverityRequired();
+        settings.OfflineScan = TrivySettingsComponent.getOfflineScanRequired();
+        settings.IgnoreUnfixed = TrivySettingsComponent.getShowOnlyFixed();
+
     }
 
     @Override
     public void reset() {
         TrivySettingState settings = TrivySettingState.getInstance();
         TrivySettingsComponent.setTrivyPath(settings.TrivyPath);
+        TrivySettingsComponent.setCriticalSeverity(settings.CriticalSeverity);
+        TrivySettingsComponent.setHighSeverity(settings.HighSeverity);
+        TrivySettingsComponent.setMediumSeverity(settings.MediumSeverity);
+        TrivySettingsComponent.setLowSeverity(settings.LowSeverity);
+        TrivySettingsComponent.setUnknownSeverity(settings.UnknownSeverity);
+        TrivySettingsComponent.setOfflineScan(settings.OfflineScan);
+        TrivySettingsComponent.setIgnoreUnfixed(settings.IgnoreUnfixed);
+
     }
 
     @Override
