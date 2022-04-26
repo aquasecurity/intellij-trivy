@@ -17,6 +17,14 @@ import org.jetbrains.annotations.Nullable;
 public class TrivySettingState implements PersistentStateComponent<TrivySettingState> {
 
     public String TrivyPath = "trivy";
+    public boolean CriticalSeverity = true;
+    public boolean HighSeverity = true;
+    public boolean MediumSeverity = true;
+    public boolean LowSeverity = true;
+    public boolean UnknownSeverity = true;
+    public boolean OfflineScan = false;
+    public boolean IgnoreUnfixed = false;
+
 
     public static TrivySettingState getInstance() {
         return ApplicationManager.getApplication().getService(TrivySettingState.class);

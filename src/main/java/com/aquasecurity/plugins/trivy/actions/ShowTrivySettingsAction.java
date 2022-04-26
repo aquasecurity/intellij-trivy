@@ -1,6 +1,5 @@
 package com.aquasecurity.plugins.trivy.actions;
 
-import com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
@@ -23,7 +22,6 @@ public class ShowTrivySettingsAction extends AnAction {
             return;
         }
 
-        TrivySettingsConfigurable configurable = new TrivySettingsConfigurable();
-        ShowSettingsUtil.getInstance().editConfigurable(project, configurable);
+        ShowSettingsUtil.getInstance().showSettingsDialog(project, "Trivy: Settings");
     }
 }

@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.aquasecurity.plugins'
-version '1.0.3'
+version '1.2.1'
 
 repositories {
     mavenCentral()

@@ -37,10 +37,22 @@ class TrivyBackgroundRunTask extends Task.Backgroundable implements Runnable {
 
     @Override
     public void run() {
+        String severities = getRequiredSeverities();
+
         List<String> commandParts = new ArrayList<>();
         commandParts.add(TrivySettingState.getInstance().TrivyPath);
         commandParts.add("fs");
         commandParts.add("--security-checks=config,vuln");
+        commandParts.add(String.format("--severity=%s", severities));
+
+        if (TrivySettingState.getInstance().OfflineScan) {
+            commandParts.add("--offline-scan");
+        }
+
+        if (TrivySettingState.getInstance().IgnoreUnfixed) {
+            commandParts.add("--ignore-unfixed");
+        }
+
         commandParts.add("--format=json");
         commandParts.add(String.format("--output=%s", resultFile.getAbsolutePath()));
         commandParts.add(this.project.getBasePath());
@@ -70,5 +82,27 @@ class TrivyBackgroundRunTask extends Task.Backgroundable implements Runnable {
             TrivyNotificationGroup.notifyError(project, e.getLocalizedMessage());
         }
 
+    }
+
+    private String getRequiredSeverities() {
+        List<String> requiredSeverities = new ArrayList<>();
+
+        if (TrivySettingState.getInstance().CriticalSeverity) {
+            requiredSeverities.add("CRITICAL");
+        }
+        if (TrivySettingState.getInstance().HighSeverity) {
+            requiredSeverities.add("HIGH");
+        }
+        if (TrivySettingState.getInstance().MediumSeverity) {
+            requiredSeverities.add("MEDIUM");
+        }
+        if (TrivySettingState.getInstance().LowSeverity) {
+            requiredSeverities.add("LOW");
+        }
+        if (TrivySettingState.getInstance().UnknownSeverity) {
+            requiredSeverities.add("UNKNOWN");
+        }
+
+        return String.join(",", requiredSeverities);
     }
 }
