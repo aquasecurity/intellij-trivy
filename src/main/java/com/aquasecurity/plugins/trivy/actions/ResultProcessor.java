@@ -3,6 +3,7 @@ package com.aquasecurity.plugins.trivy.actions;
 import com.aquasecurity.plugins.trivy.model.Findings;
 import com.aquasecurity.plugins.trivy.ui.TrivyWindow;
 import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -22,7 +23,10 @@ public class ResultProcessor {
 
         Findings findings;
         try {
-            findings = new ObjectMapper().readValue(resultFile, Findings.class);
+            ObjectMapper findingsMapper = new ObjectMapper();
+            findingsMapper.disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
+            findings = findingsMapper.readValue(resultFile, Findings.class);
+
         } catch (IOException e) {
             TrivyNotificationGroup.notifyError(project, String.format("Failed to deserialize the results file. %s", e.getLocalizedMessage()));
             return;
