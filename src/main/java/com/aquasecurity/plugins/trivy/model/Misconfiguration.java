@@ -33,4 +33,7 @@ public class Misconfiguration {
     public Layer layer;
     @JsonProperty("IacMetadata")
     public IacMetadata iacMetadata;
+
+    @JsonProperty("CauseMetadata")
+    public IacMetadata causeMetadata;
 }

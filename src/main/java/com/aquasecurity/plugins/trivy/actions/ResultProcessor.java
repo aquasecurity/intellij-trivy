@@ -25,6 +25,7 @@ public class ResultProcessor {
         try {
             ObjectMapper findingsMapper = new ObjectMapper();
             findingsMapper.disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
+            findingsMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             findings = findingsMapper.readValue(resultFile, Findings.class);
 
         } catch (IOException e) {
