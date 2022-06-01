@@ -45,7 +45,8 @@ public class TrivySettingsConfigurable implements Configurable {
                 !TrivySettingsComponent.getLowSeverityRequired() == settings.LowSeverity         ||
                 !TrivySettingsComponent.getUnknownSeverityRequired() == settings.UnknownSeverity ||
                 !TrivySettingsComponent.getOfflineScanRequired() == settings.OfflineScan ||
-                !TrivySettingsComponent.getShowOnlyFixed() == settings.IgnoreUnfixed
+                !TrivySettingsComponent.getShowOnlyFixed() == settings.IgnoreUnfixed ||
+                !TrivySettingsComponent.getSecretScanning() == settings.SecretScanning
                 ;
         return modified;
     }
@@ -61,7 +62,7 @@ public class TrivySettingsConfigurable implements Configurable {
         settings.UnknownSeverity = TrivySettingsComponent.getUnknownSeverityRequired();
         settings.OfflineScan = TrivySettingsComponent.getOfflineScanRequired();
         settings.IgnoreUnfixed = TrivySettingsComponent.getShowOnlyFixed();
-
+settings.SecretScanning = TrivySettingsComponent.getSecretScanning();
     }
 
     @Override
@@ -75,6 +76,7 @@ public class TrivySettingsConfigurable implements Configurable {
         TrivySettingsComponent.setUnknownSeverity(settings.UnknownSeverity);
         TrivySettingsComponent.setOfflineScan(settings.OfflineScan);
         TrivySettingsComponent.setIgnoreUnfixed(settings.IgnoreUnfixed);
+        TrivySettingsComponent.setSecretScanning(settings.SecretScanning);
 
     }
 

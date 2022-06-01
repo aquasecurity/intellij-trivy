@@ -8,7 +8,9 @@
 Scan your project for package vulnerabilities and infrastructure as code misconfigurations using Trivy.<br />
 Navigate your Trivy results in the Findings Explorer with additional information in the Help Pane about how to resolve.
     ]]></description>
-    <change-notes><![CDATA[v1.3.0 - Support changes to the Trivy output with backward compatibility<br />
+    <change-notes><![CDATA[v1.4.0 - Add support for secrets, fix links<br />
+v1.3.1 - Fix issue where results with no line number don't open<br />
+v1.3.0 - Support changes to the Trivy output with backward compatibility<br />
 v1.2.2 - Handling unexpected fields in the results better<br />
 v1.2.1 - Support more platform version<br />
 v1.2.0 - Add settings for offline scan and ignoring unfixed<br />

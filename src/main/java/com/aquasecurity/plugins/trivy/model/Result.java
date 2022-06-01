@@ -13,8 +13,12 @@ public class Result {
     public String type;
     @JsonProperty("Vulnerabilities")
     public List<Vulnerability> vulnerabilities;
+
     @JsonProperty("MisconfSummary")
     public MisconfSummary misconfSummary;
     @JsonProperty("Misconfigurations")
     public List<Misconfiguration> misconfigurations;
+
+    @JsonProperty("Secrets")
+    public List<Secret> secrets;
 }

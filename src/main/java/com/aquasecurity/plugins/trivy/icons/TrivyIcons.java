@@ -23,8 +23,11 @@ public interface TrivyIcons {
     Icon Npm = IconLoader.getIcon("/icons/npm.svg", TrivyIcons.class);
     Icon Nuget = IconLoader.getIcon("/icons/nuget.svg", TrivyIcons.class);
     Icon Python = IconLoader.getIcon("/icons/python.svg", TrivyIcons.class);
+
+    Icon Secret = IconLoader.getIcon("/icons/secret.svg", TrivyIcons.class);
     Icon Terraform = IconLoader.getIcon("/icons/terraform.svg", TrivyIcons.class);
     Icon Yaml = IconLoader.getIcon("/icons/yaml.svg", TrivyIcons.class);
     Icon Yarn = IconLoader.getIcon("/icons/yarn.svg", TrivyIcons.class);
+
     Icon Unidentified = IconLoader.getIcon("/icons/trivy.svg", TrivyIcons.class);
 }

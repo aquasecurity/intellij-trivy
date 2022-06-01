@@ -42,7 +42,13 @@ class TrivyBackgroundRunTask extends Task.Backgroundable implements Runnable {
         List<String> commandParts = new ArrayList<>();
         commandParts.add(TrivySettingState.getInstance().TrivyPath);
         commandParts.add("fs");
-        commandParts.add("--security-checks=config,vuln");
+
+        String requiredChecks = "config,vuln";
+        if (TrivySettingState.getInstance().SecretScanning) {
+            requiredChecks = String.format("%s,secret", requiredChecks);
+        }
+
+        commandParts.add(String.format("--security-checks=%s", requiredChecks));
         commandParts.add(String.format("--severity=%s", severities));
 
         if (TrivySettingState.getInstance().OfflineScan) {

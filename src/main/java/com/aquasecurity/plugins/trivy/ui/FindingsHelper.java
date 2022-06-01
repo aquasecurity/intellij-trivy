@@ -1,7 +1,10 @@
 package com.aquasecurity.plugins.trivy.ui;
 
 import com.aquasecurity.plugins.trivy.model.Misconfiguration;
+import com.aquasecurity.plugins.trivy.model.Secret;
 import com.aquasecurity.plugins.trivy.model.Vulnerability;
+import com.intellij.ide.BrowserUtil;
+import com.intellij.openapi.roots.ui.componentsList.components.ScrollablePanel;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
@@ -9,14 +12,18 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.URI;
 import java.util.List;
 
-public class FindingsHelper extends JPanel {
+public class FindingsHelper extends ScrollablePanel {
 
-    private Misconfiguration misconfig;
+
     private String filepath;
     private Vulnerability vulnerability;
+    private Misconfiguration misconfig;
+    private Secret secret;
 
     public FindingsHelper() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -27,12 +34,14 @@ public class FindingsHelper extends JPanel {
 
     private void updateHelp() {
         removeAll();
-        if (this.misconfig == null && this.vulnerability == null) {
+        if (this.misconfig == null &&
+                this.vulnerability == null &&
+                this.secret == null) {
             return;
         }
 
         if (this.misconfig != null) {
-            addHelpSection("", misconfig.description);
+            addHelpSection(misconfig.title, misconfig.description);
             addHelpSection("ID", misconfig.id);
             addHelpSection("Severity", misconfig.severity);
             addHelpSection("Resolution", misconfig.resolution);
@@ -57,6 +66,13 @@ public class FindingsHelper extends JPanel {
                 addLinkSection(vulnerability.references);
             }
         }
+
+        if (this.secret != null) {
+            addHelpSection("", secret.title);
+            addHelpSection("Severity", secret.severity);
+            addHelpSection("Match", secret.match);
+            addHelpSection("Filename", filepath);
+        }
     }
 
     private void addLinkSection(List<String> links) {
@@ -79,6 +95,15 @@ public class FindingsHelper extends JPanel {
             hyperlink.setToolTipText(link);
             hyperlink.setClickedColor(hyperlink.getUnclickedColor());
             hyperlink.setBorder(JBUI.Borders.emptyTop(5));
+            hyperlink.setEnabled(true);
+            hyperlink.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    BrowserUtil.browse(URI.create(e.getActionCommand()));
+                }
+            });
+
+
             section.add(hyperlink);
 
         });
@@ -110,7 +135,18 @@ public class FindingsHelper extends JPanel {
 
     public void setMisconfiguration(Misconfiguration misconfig, String filepath) {
         this.vulnerability = null;
+        this.secret = null;
         this.misconfig = misconfig;
+        this.filepath = filepath;
+        updateHelp();
+        this.validate();
+        this.repaint();
+    }
+
+    public void setSecret(Secret secret, String filepath) {
+        this.vulnerability = null;
+        this.misconfig = null;
+        this.secret = secret;
         this.filepath = filepath;
         updateHelp();
         this.validate();
@@ -119,8 +155,9 @@ public class FindingsHelper extends JPanel {
 
     public void setVulnerability(Vulnerability vulnerability, String filename) {
         this.misconfig = null;
+        this.secret = null;
         this.vulnerability = vulnerability;
-        this.filepath = filepath;
+        this.filepath = filename;
         updateHelp();
         this.validate();
         this.repaint();

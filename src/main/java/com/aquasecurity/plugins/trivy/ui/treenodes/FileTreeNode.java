@@ -11,14 +11,22 @@ import java.util.Optional;
 
 public class FileTreeNode extends DefaultMutableTreeNode implements TrivyTreeNode {
 
-    private final Result result;
+    private String target;
+    private String type;
+    private String className;
 
     public FileTreeNode(Result result) {
-        this.result = result;
-
         if (result == null) {
             return;
         }
+        this.target = result.target;
+        this.type = result.type;
+        this.className = result.ClassName;
+
+        update(result);
+    }
+
+public void update(Result result) {
 
         if (result.misconfigurations != null && result.misconfigurations.size() > 0) {
             List<MisconfigurationTreeNode> visited = new ArrayList<>();
@@ -54,17 +62,37 @@ public class FileTreeNode extends DefaultMutableTreeNode implements TrivyTreeNod
             visited.forEach(this::add);
         }
 
+        if (result.secrets != null && result.secrets.size() > 0) {
+            List<SecretTreeNode> visited = new ArrayList<>();
+            result.secrets.forEach(secret -> {
+                if (visited.stream().noneMatch(v -> Objects.equals(v.secret.ruleID, secret.ruleID))) {
+                    visited.add(new SecretTreeNode(secret, result.target));
+                }
+                Optional<SecretTreeNode> findingNode = visited.stream().filter(vf -> Objects.equals(vf.secret.ruleID, secret.ruleID)).findFirst();
+                if (findingNode.isPresent()) {
+                    SecretTreeNode node = findingNode.get();
+                    //node.add(new SecretTreeNode(secret, result.target));
+                }
+            });
+
+            visited.forEach(this::add);
+        }
+
 
     }
 
     @Override
     public Icon getIcon() {
-        return IconHelper.getFileIcon(result.type);
+        String iconType = this.type;
+        if (iconType == null || Objects.equals(iconType, "")) {
+            iconType = this.className;
+        }
+        return IconHelper.getFileIcon(iconType);
     }
 
     @Override
     public String getTitle() {
-        return result.target;
+        return this.target;
     }
 
     @Override
@@ -72,6 +100,9 @@ public class FileTreeNode extends DefaultMutableTreeNode implements TrivyTreeNod
         return "";
     }
 
+    public String getTarget() {
+        return this.target;
+    }
 
 }
 
