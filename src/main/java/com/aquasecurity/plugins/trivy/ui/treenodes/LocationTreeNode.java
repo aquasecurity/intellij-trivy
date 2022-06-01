@@ -44,8 +44,8 @@ public class LocationTreeNode extends DefaultMutableTreeNode implements TrivyTre
     }
 
     public Location getLocation() {
-        int startline =0;
-        int endline = 0;
+        int startline =1;
+        int endline = 1;
         if (misconfiguration.causeMetadata != null) {
             startline = misconfiguration.causeMetadata.startLine;
             endline = misconfiguration.causeMetadata.endLine;
@@ -53,6 +53,15 @@ public class LocationTreeNode extends DefaultMutableTreeNode implements TrivyTre
             startline = misconfiguration.iacMetadata.startLine;
             endline = misconfiguration.iacMetadata.endLine;
         }
+
+        if (startline <= 0) {
+            startline = 1;
+        }
+
+        if (endline <= 0) {
+            endline = 1;
+        }
+
          return new Location(filepath, startline, endline);
     }
 

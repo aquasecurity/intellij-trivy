@@ -1,9 +1,12 @@
 package com.aquasecurity.plugins.trivy.ui;
 
+import com.aquasecurity.plugins.trivy.model.Finding;
 import com.aquasecurity.plugins.trivy.model.Findings;
 import com.aquasecurity.plugins.trivy.model.Location;
+import com.aquasecurity.plugins.trivy.model.Result;
 import com.aquasecurity.plugins.trivy.ui.treenodes.FileTreeNode;
 import com.aquasecurity.plugins.trivy.ui.treenodes.LocationTreeNode;
+import com.aquasecurity.plugins.trivy.ui.treenodes.SecretTreeNode;
 import com.aquasecurity.plugins.trivy.ui.treenodes.VulnerabilityTreeNode;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -18,6 +21,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.ScrollPaneFactory;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,12 +30,15 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TrivyWindow extends SimpleToolWindowPanel {
 
     private final Project project;
     private final FindingsHelper findingsHelper;
     private Tree root;
+
 
     public TrivyWindow(Project project) {
         super(false, true);
@@ -67,18 +74,20 @@ public class TrivyWindow extends SimpleToolWindowPanel {
             this.root = null;
             return;
         }
+        List<FileTreeNode> fileNodes = new ArrayList<>();
         findings.setBasePath(project.getBasePath());
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Findings by type");
 
 
         findings.results.forEach(f -> {
-            if (f.misconfigurations != null &&  f.misconfigurations.size() > 0
-                    || f.vulnerabilities != null &&  f.vulnerabilities.size() > 0) {
-                FileTreeNode fileTreeNode = new FileTreeNode(f);
-                rootNode.add(fileTreeNode);
+            if (f.misconfigurations != null && f.misconfigurations.size() > 0
+                    || f.vulnerabilities != null && f.vulnerabilities.size() > 0
+                    || f.secrets != null && f.secrets.size() > 0) {
+                addOrUpdateTreeNode(f, fileNodes);
             }
         });
 
+        fileNodes.forEach(rootNode::add);
         this.root = new Tree(rootNode);
         root.putClientProperty("JTree.lineStyle", "Horizontal");
         root.setRootVisible(false);
@@ -90,6 +99,17 @@ public class TrivyWindow extends SimpleToolWindowPanel {
         });
     }
 
+    private void addOrUpdateTreeNode(Result finding, List<FileTreeNode> fileNodes) {
+        var match = fileNodes.stream().filter(r -> r.getTarget().equals(finding.target)).findFirst();
+        if (match.isPresent()) {
+            match.get().update(finding);
+            return;
+        }
+
+        FileTreeNode f = new FileTreeNode(finding);
+        fileNodes.add(f);
+    }
+
 
     void doMouseClicked(MouseEvent me) {
         Object lastSelectedNode = root.getLastSelectedPathComponent();
@@ -97,9 +117,7 @@ public class TrivyWindow extends SimpleToolWindowPanel {
             return;
         }
         if (lastSelectedNode instanceof LocationTreeNode) {
-
             LocationTreeNode node = (LocationTreeNode) lastSelectedNode;
-
             Location findingLocation = node.getLocation();
             if (findingLocation == null) {
                 return;
@@ -114,19 +132,28 @@ public class TrivyWindow extends SimpleToolWindowPanel {
             }
             this.findingsHelper.setVulnerability(node.getVulnerability(), findingLocation.Filename);
             openFileLocation(findingLocation);
+        } else if (lastSelectedNode instanceof SecretTreeNode) {
+            SecretTreeNode node = (SecretTreeNode) lastSelectedNode;
+            this.findingsHelper.setSecret(node.getSecret(), node.getLocation().Filename);
+            openFileLocation(node.getLocation());
         }
     }
 
     private void openFileLocation(Location findingLocation) {
-        VirtualFile file = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Paths.get(project.getBasePath(), findingLocation.Filename));
-        OpenFileDescriptor ofd = new OpenFileDescriptor(project, file, findingLocation.StartLine - 1, 0);
-        if (ofd == null) {
+        if (findingLocation == null) {
             return;
         }
+        VirtualFile file = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Paths.get(project.getBasePath(), findingLocation.Filename));
+        OpenFileDescriptor ofd = new OpenFileDescriptor(project, file, findingLocation.StartLine - 1, 0);
+
         Editor editor = FileEditorManager.getInstance(project).openTextEditor(ofd, true);
+        if (editor == null) {
+            return;
+        }
         editor.getSelectionModel()
                 .setBlockSelection(new LogicalPosition(findingLocation.StartLine - 1, 0),
                         new LogicalPosition(findingLocation.EndLine - 1, 1000));
+
     }
 
     public void redraw() {
@@ -143,8 +170,8 @@ public class TrivyWindow extends SimpleToolWindowPanel {
     private void updateView() {
         JSplitPane splitPane = new JSplitPane(0);
         splitPane.setDividerSize(2);
-        splitPane.add(ScrollPaneFactory.createScrollPane(this.root));
-        splitPane.add(this.findingsHelper);
+        splitPane.add(new JBScrollPane(this.root));
+        splitPane.add( new JBScrollPane(this.findingsHelper));
         this.add(splitPane);
     }
 }

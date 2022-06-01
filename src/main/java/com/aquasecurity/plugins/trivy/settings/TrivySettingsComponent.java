@@ -30,6 +30,7 @@ public class TrivySettingsComponent {
     private final JBCheckBox LowSeverity = new JBCheckBox("Low");
     private final JBCheckBox UnknownSeverity = new JBCheckBox("Unknown");
     private final JBCheckBox OfflineScan = new JBCheckBox("Offline scan");
+    private final JBCheckBox SecretScanning = new JBCheckBox("Enable secret scanning");
     private final JBCheckBox IgnoreUnfixed = new JBCheckBox("Only show issues with fixes");
 
 
@@ -51,6 +52,7 @@ public class TrivySettingsComponent {
                 .addComponent(new TitledSeparator("Other Settings"))
                 .addLabeledComponent(new JBLabel(), OfflineScan, 1, false)
                 .addLabeledComponent(new JBLabel(), IgnoreUnfixed, 1, false)
+                .addLabeledComponent(new JBLabel(), SecretScanning, 1, false)
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
     }
@@ -104,6 +106,10 @@ public class TrivySettingsComponent {
         return OfflineScan.isSelected();
     }
 
+    @NotNull
+    public boolean getSecretScanning() {
+        return SecretScanning.isSelected();
+    }
 
 
     public void setTrivyPath(@NotNull String newText) {
@@ -123,5 +129,7 @@ public class TrivySettingsComponent {
     public void setOfflineScan(@NotNull boolean required) { OfflineScan.setSelected(required);    }
 
     public void setIgnoreUnfixed(@NotNull boolean required) { IgnoreUnfixed.setSelected(required);    }
+
+    public void setSecretScanning(@NotNull boolean required) {SecretScanning.setSelected(required);}
 
 }

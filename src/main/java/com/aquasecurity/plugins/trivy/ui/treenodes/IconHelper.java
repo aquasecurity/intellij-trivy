@@ -34,6 +34,8 @@ public class IconHelper {
             case "pipenv":
             case "python-pkg":
                 return TrivyIcons.Python;
+            case "secret":
+                return TrivyIcons.Secret;
             case "terraform":
                 return TrivyIcons.Terraform;
             case "yarn":
