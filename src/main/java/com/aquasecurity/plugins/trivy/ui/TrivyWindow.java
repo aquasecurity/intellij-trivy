@@ -4,6 +4,7 @@ import com.aquasecurity.plugins.trivy.model.Finding;
 import com.aquasecurity.plugins.trivy.model.Findings;
 import com.aquasecurity.plugins.trivy.model.Location;
 import com.aquasecurity.plugins.trivy.model.Result;
+import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup;
 import com.aquasecurity.plugins.trivy.ui.treenodes.FileTreeNode;
 import com.aquasecurity.plugins.trivy.ui.treenodes.LocationTreeNode;
 import com.aquasecurity.plugins.trivy.ui.treenodes.SecretTreeNode;
@@ -144,6 +145,10 @@ public class TrivyWindow extends SimpleToolWindowPanel {
             return;
         }
         VirtualFile file = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Paths.get(project.getBasePath(), findingLocation.Filename));
+        if (file == null || !file.exists()) {
+            TrivyNotificationGroup.notifyInformation(project, String.format("File %s cannot be opened", findingLocation.Filename));
+            return;
+        }
         OpenFileDescriptor ofd = new OpenFileDescriptor(project, file, findingLocation.StartLine - 1, 0);
 
         Editor editor = FileEditorManager.getInstance(project).openTextEditor(ofd, true);
