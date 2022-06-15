@@ -24,9 +24,7 @@ public class TrivySettingState implements PersistentStateComponent<TrivySettingS
     public boolean UnknownSeverity = true;
     public boolean OfflineScan = false;
     public boolean IgnoreUnfixed = false;
-
     public boolean SecretScanning = false;
-
 
     public static TrivySettingState getInstance() {
         return ApplicationManager.getApplication().getService(TrivySettingState.class);
@@ -42,5 +40,4 @@ public class TrivySettingState implements PersistentStateComponent<TrivySettingS
     public void loadState(@NotNull TrivySettingState state) {
         XmlSerializerUtil.copyBean(state, this);
     }
-
 }

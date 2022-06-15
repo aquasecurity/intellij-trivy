@@ -96,14 +96,7 @@ public class FindingsHelper extends ScrollablePanel {
             hyperlink.setClickedColor(hyperlink.getUnclickedColor());
             hyperlink.setBorder(JBUI.Borders.emptyTop(5));
             hyperlink.setEnabled(true);
-            hyperlink.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    BrowserUtil.browse(URI.create(e.getActionCommand()));
-                }
-            });
-
-
+            hyperlink.addActionListener(e -> BrowserUtil.browse(URI.create(e.getActionCommand())));
             section.add(hyperlink);
 
         });
