@@ -8,7 +8,8 @@
 Scan your project for package vulnerabilities and infrastructure as code misconfigurations using Trivy.<br />
 Navigate your Trivy results in the Findings Explorer with additional information in the Help Pane about how to resolve.
     ]]></description>
-    <change-notes><![CDATA[v1.4.1 - Gracefully handle virtual errors, files in tarballs<br /<>
+    <change-notes><![CDATA[v1.5.0 - Add support for remote server url to connect <br />
+v1.4.1 - Gracefully handle virtual errors, files in tarballs<br />
 v1.4.0 - Add support for secrets, fix links<br />
 v1.3.1 - Fix issue where results with no line number don't open<br />
 v1.3.0 - Support changes to the Trivy output with backward compatibility<br />

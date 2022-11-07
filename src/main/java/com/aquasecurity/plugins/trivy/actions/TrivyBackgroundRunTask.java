@@ -58,6 +58,9 @@ class TrivyBackgroundRunTask extends Task.Backgroundable implements Runnable {
         if (TrivySettingState.getInstance().IgnoreUnfixed) {
             commandParts.add("--ignore-unfixed");
         }
+        if (TrivySettingState.getInstance().ServerEnabled && !TrivySettingState.getInstance().RemoteServerURL.isEmpty()) {
+            commandParts.add(String.format("--server=%s", TrivySettingState.getInstance().RemoteServerURL));
+        }
 
         commandParts.add("--format=json");
         commandParts.add(String.format("--output=%s", resultFile.getAbsolutePath()));

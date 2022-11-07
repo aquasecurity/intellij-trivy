@@ -3,19 +3,15 @@ package com.aquasecurity.plugins.trivy.settings;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.ui.HintHint;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
-import com.intellij.ui.components.JBPanel;
+import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
 
 /**
  * Supports creating and managing a {@link JPanel} for the Settings Dialog.
@@ -32,6 +28,8 @@ public class TrivySettingsComponent {
     private final JBCheckBox OfflineScan = new JBCheckBox("Offline scan");
     private final JBCheckBox SecretScanning = new JBCheckBox("Enable secret scanning");
     private final JBCheckBox IgnoreUnfixed = new JBCheckBox("Only show issues with fixes");
+    private final JBCheckBox ServerEnabled = new JBCheckBox("Server Enabled");
+    private final JBTextField RemoteServerURL = new JBTextField("");
 
 
     public TrivySettingsComponent() {
@@ -49,6 +47,9 @@ public class TrivySettingsComponent {
                 .addLabeledComponent(new JBLabel(), MediumSeverity, 1, false)
                 .addLabeledComponent(new JBLabel(), LowSeverity, 1, false)
                 .addLabeledComponent(new JBLabel(), UnknownSeverity, 1, false)
+                .addComponent(new TitledSeparator("The Remote Trivy url to connect to "))
+                .addLabeledComponent(new JBLabel(), ServerEnabled, 1, false)
+                .addLabeledComponent(new JBLabel(), RemoteServerURL, 1, false)
                 .addComponent(new TitledSeparator("Other Settings"))
                 .addLabeledComponent(new JBLabel(), OfflineScan, 1, false)
                 .addLabeledComponent(new JBLabel(), IgnoreUnfixed, 1, false)
@@ -110,6 +111,9 @@ public class TrivySettingsComponent {
     public boolean getSecretScanning() {
         return SecretScanning.isSelected();
     }
+    @NotNull
+    public boolean getServerEnabled() { return ServerEnabled.isSelected(); }
+    public String getRemoteServerURL() { return RemoteServerURL.getText(); }
 
 
     public void setTrivyPath(@NotNull String newText) {
@@ -131,5 +135,7 @@ public class TrivySettingsComponent {
     public void setIgnoreUnfixed(@NotNull boolean required) { IgnoreUnfixed.setSelected(required);    }
 
     public void setSecretScanning(@NotNull boolean required) {SecretScanning.setSelected(required);}
+    public void setServerEnabled(@NotNull boolean required) {ServerEnabled.setSelected(required);}
+    public void setRemoteServerURL(@NotNull String newText) {RemoteServerURL.setText(newText);}
 
 }
