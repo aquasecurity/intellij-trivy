@@ -25,6 +25,8 @@ public class TrivySettingState implements PersistentStateComponent<TrivySettingS
     public boolean OfflineScan = false;
     public boolean IgnoreUnfixed = false;
     public boolean SecretScanning = false;
+    public boolean ServerEnabled = false;
+    public String RemoteServerURL ="";
 
     public static TrivySettingState getInstance() {
         return ApplicationManager.getApplication().getService(TrivySettingState.class);

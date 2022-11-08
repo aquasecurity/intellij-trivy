@@ -46,7 +46,9 @@ public class TrivySettingsConfigurable implements Configurable {
                 !TrivySettingsComponent.getUnknownSeverityRequired() == settings.UnknownSeverity ||
                 !TrivySettingsComponent.getOfflineScanRequired() == settings.OfflineScan ||
                 !TrivySettingsComponent.getShowOnlyFixed() == settings.IgnoreUnfixed ||
-                !TrivySettingsComponent.getSecretScanning() == settings.SecretScanning
+                !TrivySettingsComponent.getSecretScanning() == settings.SecretScanning||
+                !TrivySettingsComponent.getServerEnabled() == settings.ServerEnabled||
+                !TrivySettingsComponent.getRemoteServerURL().equals(settings.RemoteServerURL)
                 ;
         return modified;
     }
@@ -62,7 +64,9 @@ public class TrivySettingsConfigurable implements Configurable {
         settings.UnknownSeverity = TrivySettingsComponent.getUnknownSeverityRequired();
         settings.OfflineScan = TrivySettingsComponent.getOfflineScanRequired();
         settings.IgnoreUnfixed = TrivySettingsComponent.getShowOnlyFixed();
-settings.SecretScanning = TrivySettingsComponent.getSecretScanning();
+        settings.SecretScanning = TrivySettingsComponent.getSecretScanning();
+        settings.ServerEnabled = TrivySettingsComponent.getServerEnabled();
+        settings.RemoteServerURL = TrivySettingsComponent.getRemoteServerURL();
     }
 
     @Override
@@ -77,6 +81,8 @@ settings.SecretScanning = TrivySettingsComponent.getSecretScanning();
         TrivySettingsComponent.setOfflineScan(settings.OfflineScan);
         TrivySettingsComponent.setIgnoreUnfixed(settings.IgnoreUnfixed);
         TrivySettingsComponent.setSecretScanning(settings.SecretScanning);
+        TrivySettingsComponent.setServerEnabled(settings.ServerEnabled);
+        TrivySettingsComponent.setRemoteServerURL(settings.RemoteServerURL);
 
     }
 
