@@ -2,6 +2,7 @@ package com.aquasecurity.plugins.trivy.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Findings {
@@ -15,7 +16,7 @@ public class Findings {
     @JsonProperty("Metadata")
     public Metadata metadata;
     @JsonProperty("Results")
-    public List<Result> results;
+    public List<Result> results = Collections.emptyList();
 
     public List<Finding> getBySeverity(Severity severity) {
         return null;
