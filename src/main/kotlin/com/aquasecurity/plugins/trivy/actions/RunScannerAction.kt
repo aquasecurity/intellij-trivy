@@ -5,10 +5,13 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.io.FileUtil
 import java.io.File
 import java.io.IOException
+import java.util.UUID.randomUUID
 import javax.swing.SwingUtilities
 
 
@@ -41,7 +44,9 @@ class RunScannerAction : AnAction() {
         fun runTrivy(project: Project) {
             val resultFile: File
             try {
-                resultFile = File.createTempFile("Trivy", ".json")
+                val pluginTempDir = File(PathManager.getSystemPath(), "Trivy")
+                val id = randomUUID().toString()
+                resultFile = FileUtil.createTempFile(pluginTempDir, String.format("trivy-%s", id), ".json", true)
             } catch (ex: IOException) {
                 TrivyNotificationGroup.notifyError(project, ex.localizedMessage)
                 return

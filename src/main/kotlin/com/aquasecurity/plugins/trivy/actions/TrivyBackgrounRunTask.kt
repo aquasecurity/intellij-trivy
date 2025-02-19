@@ -24,25 +24,20 @@ internal class TrivyBackgroundRunTask(
     }
 
     override fun run() {
-        val severities = requiredSeverities
+        val settings = TrivySettingState.instance
 
         val commandParts: MutableList<String?> = ArrayList()
-        commandParts.add(TrivySettingState.instance.TrivyPath)
+        commandParts.add(settings.trivyPath)
         commandParts.add("fs")
 
-        var requiredChecks = "misconfig,vuln"
-        if (TrivySettingState.instance.SecretScanning) {
-            requiredChecks = String.format("%s,secret", requiredChecks)
-        }
+        commandParts.add(String.format("--scanners=%s", requiredChecks(settings)))
+        commandParts.add(String.format("--severity=%s", requiredSeverities(settings)))
 
-        commandParts.add(String.format("--scanners=%s", requiredChecks))
-        commandParts.add(String.format("--severity=%s", severities))
-
-        if (TrivySettingState.instance.OfflineScan) {
+        if (settings.offlineScan) {
             commandParts.add("--offline-scan")
         }
 
-        if (TrivySettingState.instance.IgnoreUnfixed) {
+        if (settings.ignoreUnfixed) {
             commandParts.add("--ignore-unfixed")
         }
 
@@ -76,26 +71,40 @@ internal class TrivyBackgroundRunTask(
         }
     }
 
-    private val requiredSeverities: String
-        get() {
-            val requiredSeverities: MutableList<String> = ArrayList()
+    private fun requiredSeverities(settings: TrivySettingState): String {
+        val requiredSeverities: MutableList<String> = ArrayList()
 
-            if (TrivySettingState.instance.CriticalSeverity) {
-                requiredSeverities.add("CRITICAL")
-            }
-            if (TrivySettingState.instance.HighSeverity) {
-                requiredSeverities.add("HIGH")
-            }
-            if (TrivySettingState.instance.MediumSeverity) {
-                requiredSeverities.add("MEDIUM")
-            }
-            if (TrivySettingState.instance.LowSeverity) {
-                requiredSeverities.add("LOW")
-            }
-            if (TrivySettingState.instance.UnknownSeverity) {
-                requiredSeverities.add("UNKNOWN")
-            }
-
-            return java.lang.String.join(",", requiredSeverities)
+        if (settings.criticalSeverity) {
+            requiredSeverities.add("CRITICAL")
         }
+        if (settings.highSeverity) {
+            requiredSeverities.add("HIGH")
+        }
+        if (settings.mediumSeverity) {
+            requiredSeverities.add("MEDIUM")
+        }
+        if (settings.lowSeverity) {
+            requiredSeverities.add("LOW")
+        }
+        if (settings.unknownSeverity) {
+            requiredSeverities.add("UNKNOWN")
+        }
+
+        return requiredSeverities.joinToString(separator = ",")
+    }
+
+    private fun requiredChecks(settings: TrivySettingState): String {
+        var requiredChecks: MutableList<String> = ArrayList()
+        if (settings.scanForMisconfigurations) {
+            requiredChecks.add("misconfig")
+        }
+        if (settings.scanForVulnerabilities) {
+            requiredChecks.add("vuln")
+        }
+        if (TrivySettingState.instance.scanForSecrets) {
+            requiredChecks.add("secret")
+        }
+
+        return requiredChecks.joinToString(separator = ",")
+    }
 }

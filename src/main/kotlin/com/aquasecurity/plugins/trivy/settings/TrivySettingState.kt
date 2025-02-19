@@ -9,15 +9,17 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 
 @State(name = "com.aquasecurity.plugins.trivy.settings.TrivySettingState", storages = [Storage("trivy.xml")])
 class TrivySettingState : PersistentStateComponent<TrivySettingState?> {
-    var TrivyPath: String = "trivy"
-    var CriticalSeverity: Boolean = true
-    var HighSeverity: Boolean = true
-    var MediumSeverity: Boolean = true
-    var LowSeverity: Boolean = true
-    var UnknownSeverity: Boolean = true
-    var OfflineScan: Boolean = false
-    var IgnoreUnfixed: Boolean = false
-    var SecretScanning: Boolean = false
+    var trivyPath: String = "trivy"
+    var criticalSeverity: Boolean = true
+    var highSeverity: Boolean = true
+    var mediumSeverity: Boolean = true
+    var lowSeverity: Boolean = true
+    var unknownSeverity: Boolean = true
+    var offlineScan: Boolean = false
+    var ignoreUnfixed: Boolean = false
+    var scanForSecrets: Boolean = false
+    var scanForMisconfigurations: Boolean = true
+    var scanForVulnerabilities: Boolean = true
 
     override fun getState(): TrivySettingState {
         return this

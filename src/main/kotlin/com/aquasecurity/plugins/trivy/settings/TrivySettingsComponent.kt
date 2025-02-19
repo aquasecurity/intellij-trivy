@@ -23,7 +23,9 @@ class TrivySettingsComponent {
     private val LowSeverity = JBCheckBox("Low")
     private val UnknownSeverity = JBCheckBox("Unknown")
     private val OfflineScan = JBCheckBox("Offline scan")
-    private val SecretScanning = JBCheckBox("Enable secret scanning")
+    private val ScanForSecrets = JBCheckBox("Enable secret scanning")
+    private val ScanForMisconfigurations = JBCheckBox("Enable misconfiguration scanning")
+    private val ScanForVulnerabilities = JBCheckBox("Enable vulnerability scanning")
     private val IgnoreUnfixed = JBCheckBox("Only show issues with fixes")
 
 
@@ -37,17 +39,20 @@ class TrivySettingsComponent {
             .addComponent(TitledSeparator("Path to Trivy"))
             .addLabeledComponent(JBLabel(), TrivyPath, 1, true)
             .addComponent(JBSplitter())
+            .addComponent(TitledSeparator("Scanners"))
+            .addLabeledComponent(JBLabel(), ScanForVulnerabilities, 1, false)
+            .addLabeledComponent(JBLabel(), ScanForMisconfigurations, 1, false)
+            .addLabeledComponent(JBLabel(), ScanForSecrets, 1, false)
             .addComponent(TitledSeparator("Reported Severity Levels"))
             .addLabeledComponent(JBLabel(), CriticalSeverity, 1, false)
             .addLabeledComponent(JBLabel(), HighSeverity, 1, false)
             .addLabeledComponent(JBLabel(), MediumSeverity, 1, false)
             .addLabeledComponent(JBLabel(), LowSeverity, 1, false)
             .addLabeledComponent(JBLabel(), UnknownSeverity, 1, false)
-            .addComponent(TitledSeparator("The Remote Trivy url to connect to "))
             .addComponent(TitledSeparator("Other Settings"))
             .addLabeledComponent(JBLabel(), OfflineScan, 1, false)
             .addLabeledComponent(JBLabel(), IgnoreUnfixed, 1, false)
-            .addLabeledComponent(JBLabel(), SecretScanning, 1, false)
+
             .addComponentFillVertically(JPanel(), 0)
             .panel
     }
@@ -81,9 +86,14 @@ class TrivySettingsComponent {
     val offlineScanRequired: Boolean
         get() = OfflineScan.isSelected
 
-    fun getSecretScanning(): Boolean {
-        return SecretScanning.isSelected
-    }
+    val scanForSecrets: Boolean
+        get() = ScanForSecrets.isSelected
+
+    val scanForMisconfiguration: Boolean
+        get() = ScanForMisconfigurations.isSelected
+
+    val scanForVulnerabilities: Boolean
+        get() = ScanForVulnerabilities.isSelected
 
     fun setTrivyPath(newText: String) {
         TrivyPath.text = newText
@@ -118,7 +128,14 @@ class TrivySettingsComponent {
     }
 
     fun setSecretScanning(required: Boolean) {
-        SecretScanning.isSelected = required
+        ScanForSecrets.isSelected = required
     }
 
+    fun setMisconfigurationScanning(required: Boolean) {
+        ScanForMisconfigurations.isSelected = required
+    }
+
+    fun setVulnerabilityScanning(required: Boolean) {
+        ScanForVulnerabilities.isSelected = required
+    }
 }

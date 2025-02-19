@@ -16,6 +16,14 @@ import java.io.IOException
  */
 object ResultProcessor {
     fun updateResults(project: Project, resultFile: File?) {
+        if (!resultFile!!.exists()) {
+            TrivyNotificationGroup.notifyError(
+                project,
+                "Failed to find the results file."
+            )
+            return
+        }
+
         val findings: Findings
         try {
             val findingsMapper = ObjectMapper()
