@@ -1,6 +1,7 @@
 package com.aquasecurity.plugins.trivy.actions
 
 import com.aquasecurity.plugins.trivy.ui.TrivyWindow
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
@@ -14,6 +15,10 @@ class ClearResultsAction : AnAction() {
 
     override fun update(e: AnActionEvent) {
         super.update(e)
+    }
+
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return super.getActionUpdateThread()
     }
 
     override fun actionPerformed(e: AnActionEvent) {
