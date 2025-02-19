@@ -16,7 +16,7 @@ class Findings {
     var metadata: Metadata? = null
 
     @JsonProperty("Results")
-    var results: List<Result>? = null
+    var results: List<Result>? = emptyList()
 
     fun getBySeverity(severity: Severity?): List<Finding>? {
         return null
