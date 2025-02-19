@@ -34,44 +34,50 @@ class TrivySettingsConfigurable : Configurable {
         }
 
         val modified =
-            (trivySettingsComponent!!.getTrivyPath() != settings.TrivyPath ||
-                    !trivySettingsComponent!!.criticalSeverityRequired == settings.CriticalSeverity ||
-                    !trivySettingsComponent!!.highSeverityRequired == settings.HighSeverity ||
-                    !trivySettingsComponent!!.mediumSeverityRequired == settings.MediumSeverity ||
-                    !trivySettingsComponent!!.lowSeverityRequired == settings.LowSeverity ||
-                    !trivySettingsComponent!!.unknownSeverityRequired == settings.UnknownSeverity ||
-                    !trivySettingsComponent!!.offlineScanRequired == settings.OfflineScan ||
-                    !trivySettingsComponent!!.showOnlyFixed == settings.IgnoreUnfixed ||
-                    !trivySettingsComponent!!.getSecretScanning() == settings.SecretScanning)
+            (trivySettingsComponent!!.getTrivyPath() != settings.trivyPath ||
+                    !trivySettingsComponent!!.criticalSeverityRequired == settings.criticalSeverity ||
+                    !trivySettingsComponent!!.highSeverityRequired == settings.highSeverity ||
+                    !trivySettingsComponent!!.mediumSeverityRequired == settings.mediumSeverity ||
+                    !trivySettingsComponent!!.lowSeverityRequired == settings.lowSeverity ||
+                    !trivySettingsComponent!!.unknownSeverityRequired == settings.unknownSeverity ||
+                    !trivySettingsComponent!!.offlineScanRequired == settings.offlineScan ||
+                    !trivySettingsComponent!!.showOnlyFixed == settings.ignoreUnfixed ||
+                    !trivySettingsComponent!!.scanForSecrets == settings.scanForSecrets ||
+                    !trivySettingsComponent!!.scanForMisconfiguration == settings.scanForMisconfigurations ||
+                    !trivySettingsComponent!!.scanForVulnerabilities == settings.scanForVulnerabilities)
 
         return modified
     }
 
     override fun apply() {
         val settings = TrivySettingState.instance
-        settings.TrivyPath = trivySettingsComponent!!.getTrivyPath()
-        settings.CriticalSeverity = trivySettingsComponent!!.criticalSeverityRequired
-        settings.HighSeverity = trivySettingsComponent!!.highSeverityRequired
-        settings.MediumSeverity = trivySettingsComponent!!.mediumSeverityRequired
-        settings.LowSeverity = trivySettingsComponent!!.lowSeverityRequired
-        settings.UnknownSeverity = trivySettingsComponent!!.unknownSeverityRequired
-        settings.OfflineScan = trivySettingsComponent!!.offlineScanRequired
-        settings.IgnoreUnfixed = trivySettingsComponent!!.showOnlyFixed
-        settings.SecretScanning = trivySettingsComponent!!.getSecretScanning()
+        settings.trivyPath = trivySettingsComponent!!.getTrivyPath()
+        settings.criticalSeverity = trivySettingsComponent!!.criticalSeverityRequired
+        settings.highSeverity = trivySettingsComponent!!.highSeverityRequired
+        settings.mediumSeverity = trivySettingsComponent!!.mediumSeverityRequired
+        settings.lowSeverity = trivySettingsComponent!!.lowSeverityRequired
+        settings.unknownSeverity = trivySettingsComponent!!.unknownSeverityRequired
+        settings.offlineScan = trivySettingsComponent!!.offlineScanRequired
+        settings.ignoreUnfixed = trivySettingsComponent!!.showOnlyFixed
+        settings.scanForSecrets = trivySettingsComponent!!.scanForSecrets
+        settings.scanForMisconfigurations = trivySettingsComponent!!.scanForMisconfiguration
+        settings.scanForVulnerabilities = trivySettingsComponent!!.scanForVulnerabilities
 
     }
 
     override fun reset() {
         val settings = TrivySettingState.instance
-        trivySettingsComponent!!.setTrivyPath(settings.TrivyPath)
-        trivySettingsComponent!!.setCriticalSeverity(settings.CriticalSeverity)
-        trivySettingsComponent!!.setHighSeverity(settings.HighSeverity)
-        trivySettingsComponent!!.setMediumSeverity(settings.MediumSeverity)
-        trivySettingsComponent!!.setLowSeverity(settings.LowSeverity)
-        trivySettingsComponent!!.setUnknownSeverity(settings.UnknownSeverity)
-        trivySettingsComponent!!.setOfflineScan(settings.OfflineScan)
-        trivySettingsComponent!!.setIgnoreUnfixed(settings.IgnoreUnfixed)
-        trivySettingsComponent!!.setSecretScanning(settings.SecretScanning)
+        trivySettingsComponent!!.setTrivyPath(settings.trivyPath)
+        trivySettingsComponent!!.setCriticalSeverity(settings.criticalSeverity)
+        trivySettingsComponent!!.setHighSeverity(settings.highSeverity)
+        trivySettingsComponent!!.setMediumSeverity(settings.mediumSeverity)
+        trivySettingsComponent!!.setLowSeverity(settings.lowSeverity)
+        trivySettingsComponent!!.setUnknownSeverity(settings.unknownSeverity)
+        trivySettingsComponent!!.setOfflineScan(settings.offlineScan)
+        trivySettingsComponent!!.setIgnoreUnfixed(settings.ignoreUnfixed)
+        trivySettingsComponent!!.setSecretScanning(settings.scanForSecrets)
+        trivySettingsComponent!!.setMisconfigurationScanning(settings.scanForMisconfigurations)
+        trivySettingsComponent!!.setVulnerabilityScanning(settings.scanForVulnerabilities)
     }
 
     override fun disposeUIResources() {
