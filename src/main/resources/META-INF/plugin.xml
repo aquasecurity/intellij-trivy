@@ -2,30 +2,12 @@
     <id>com.aquasecurity.plugins.intellij-Trivy</id>
     <name>Trivy Findings Explorer</name>
     <vendor email="owen.rumney@aquasec.com" url="https://aquasecurity.github.io/trivy">Aqua Security</vendor>
-    <idea-version since-build="203.*"/>
-
-    <description><![CDATA[Trivy integration for Jetbrains tools.<br />
-Scan your project for package vulnerabilities and infrastructure as code misconfigurations using Trivy.<br />
-Navigate your Trivy results in the Findings Explorer with additional information in the Help Pane about how to resolve.
-    ]]></description>
-    <change-notes><![CDATA[v1.5.0 - Add support for remote server url to connect <br />
-v1.4.1 - Gracefully handle virtual errors, files in tarballs<br />
-v1.4.0 - Add support for secrets, fix links<br />
-v1.3.1 - Fix issue where results with no line number don't open<br />
-v1.3.0 - Support changes to the Trivy output with backward compatibility<br />
-v1.2.2 - Handling unexpected fields in the results better<br />
-v1.2.1 - Support more platform version<br />
-v1.2.0 - Add settings for offline scan and ignoring unfixed<br />
-v1.1.0 - Add settings to specify the required severities<br />
-v1.0.3 - Fix support for higher versions of IDE<br/>
-v1.0.2 - Fix background for tree node cells<br/>
-v1.0.1 - Fix bug where no results are found <br />
-v1.0.0 - Initial release <br />]]>
-    </change-notes>
+    <description></description>
+    <change-notes></change-notes>
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Trivy Findings" secondary="true" icon="com.aquasecurity.plugins.trivy.icons.TrivyIcons.Trivy"
+        <toolWindow id="Trivy Findings" secondary="true" icon="/icons/trivy_16.svg"
                     anchor="left"
                     factoryClass="com.aquasecurity.plugins.trivy.ui.TrivyWindowFactory"/>
         <notificationGroup id="Trivy Notifications" displayType="BALLOON"/>
@@ -41,7 +23,7 @@ v1.0.0 - Initial release <br />]]>
                 class="com.aquasecurity.plugins.trivy.actions.RunScannerAction" text="Run Trivy"
                 description="Run trivy now to update results"/>
         <action id="com.aquasecurity.plugins.trivy.actions.ClearResultsAction"
-                icon="AllIcons.Welcome.Project.Remove"
+                icon="CollaborationToolsIcons.DeleteHovered"
                 class="com.aquasecurity.plugins.trivy.actions.ClearResultsAction" text="Clear Results"
                 description="Clear results window"/>
         <action id="com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction" icon="AllIcons.General.Settings"
