@@ -1,6 +1,7 @@
 package com.aquasecurity.plugins.trivy.actions
 
 import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
@@ -19,6 +20,10 @@ class RunScannerAction : AnAction() {
 
     override fun update(e: AnActionEvent) {
         super.update(e)
+    }
+
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return super.getActionUpdateThread()
     }
 
     override fun actionPerformed(e: AnActionEvent) {
@@ -43,10 +48,11 @@ class RunScannerAction : AnAction() {
             }
 
             val runner = TrivyBackgroundRunTask(
-                project, resultFile
-            ) { project: Project?, resultFile: File? ->
+                project,
+                resultFile
+            ) { _, _ ->
                 ResultProcessor.updateResults(
-                    project!!, resultFile
+                    project, resultFile
                 )
             }
             if (SwingUtilities.isEventDispatchThread()) {
