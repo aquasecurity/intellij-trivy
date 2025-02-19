@@ -87,13 +87,13 @@ class TrivySettingsComponent {
         get() = OfflineScan.isSelected
 
     val scanForSecrets: Boolean
-        get() =  ScanForSecrets.isSelected
+        get() = ScanForSecrets.isSelected
 
     val scanForMisconfiguration: Boolean
         get() = ScanForMisconfigurations.isSelected
 
-val scanForVulnerabilities: Boolean
-    get() = ScanForVulnerabilities.isSelected
+    val scanForVulnerabilities: Boolean
+        get() = ScanForVulnerabilities.isSelected
 
     fun setTrivyPath(newText: String) {
         TrivyPath.text = newText

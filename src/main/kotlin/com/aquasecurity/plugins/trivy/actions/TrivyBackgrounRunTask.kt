@@ -72,26 +72,26 @@ internal class TrivyBackgroundRunTask(
     }
 
     private fun requiredSeverities(settings: TrivySettingState): String {
-            val requiredSeverities: MutableList<String> = ArrayList()
+        val requiredSeverities: MutableList<String> = ArrayList()
 
         if (settings.criticalSeverity) {
-                requiredSeverities.add("CRITICAL")
-            }
+            requiredSeverities.add("CRITICAL")
+        }
         if (settings.highSeverity) {
-                requiredSeverities.add("HIGH")
-            }
+            requiredSeverities.add("HIGH")
+        }
         if (settings.mediumSeverity) {
-                requiredSeverities.add("MEDIUM")
-            }
+            requiredSeverities.add("MEDIUM")
+        }
         if (settings.lowSeverity) {
-                requiredSeverities.add("LOW")
-            }
+            requiredSeverities.add("LOW")
+        }
         if (settings.unknownSeverity) {
-                requiredSeverities.add("UNKNOWN")
-            }
+            requiredSeverities.add("UNKNOWN")
+        }
 
         return requiredSeverities.joinToString(separator = ",")
-        }
+    }
 
     private fun requiredChecks(settings: TrivySettingState): String {
         var requiredChecks: MutableList<String> = ArrayList()

@@ -46,7 +46,7 @@ class RunScannerAction : AnAction() {
             try {
                 val pluginTempDir = File(PathManager.getSystemPath(), "Trivy")
                 val id = randomUUID().toString()
-                resultFile = FileUtil.createTempFile(pluginTempDir, String.format("trivy-%s",id ), ".json", true)
+                resultFile = FileUtil.createTempFile(pluginTempDir, String.format("trivy-%s", id), ".json", true)
             } catch (ex: IOException) {
                 TrivyNotificationGroup.notifyError(project, ex.localizedMessage)
                 return
