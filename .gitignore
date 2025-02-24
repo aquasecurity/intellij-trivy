@@ -23,3 +23,7 @@ build
 hs_err_pid*
 
 .gradle
+
+chain.crt
+private.pem
+private_encrypted.pem
