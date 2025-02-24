@@ -10,7 +10,7 @@ internal class MisconfigurationTreeNode(val misconfiguration: Misconfiguration) 
     override val icon: Icon?
         get() = TrivyIcons.Trivy
     override val title: String?
-        get() = misconfiguration.id!!
+        get() = misconfiguration.title!!
     override val tooltip: String?
         get() = misconfiguration.description!!
 }

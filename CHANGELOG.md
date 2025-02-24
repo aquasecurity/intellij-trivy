@@ -1,7 +1,3 @@
-Unreleased
-
-- Convert to Kotlin
-
 ## [1.5.1]
 
 - Convert to Kotlin
