@@ -1,4 +1,4 @@
-name: Build Plugin
+name: Verify Plugin
 
 on:
   pull_request:
@@ -17,5 +17,5 @@ jobs:
           build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
           build-scan-terms-of-use-agree: "yes"
 
-      - name: Run build plugin
-        run: ./gradlew buildPlugin
+      - name: Run verify plugin
+        run: ./gradlew verifyPlugin
