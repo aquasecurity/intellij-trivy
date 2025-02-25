@@ -2,6 +2,7 @@ package com.aquasecurity.plugins.trivy.settings
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.HyperlinkLabel
 import com.intellij.ui.JBSplitter
@@ -36,19 +37,9 @@ class TrivySettingsComponent {
 
 
     init {
-        trivyPath.addBrowseFolderListener(
-            ProjectManager.getInstance().defaultProject,
-            FileChooserDescriptorFactory.createSingleFileDescriptor()
-        )
-        trivyConfigPath.addBrowseFolderListener(
-            ProjectManager.getInstance().defaultProject,
-            FileChooserDescriptorFactory.createSingleFileDescriptor()
-        )
-        trivyIgnorePath.addBrowseFolderListener(
-            ProjectManager.getInstance().defaultProject,
-            FileChooserDescriptorFactory.createSingleFileDescriptor()
-        )
-
+        trivyPath.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileDescriptor()))
+        trivyConfigPath.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileDescriptor()))
+        trivyIgnorePath.addBrowseFolderListener(TextBrowseFolderListener(FileChooserDescriptorFactory.createSingleFileDescriptor()))
         downloadLink.setHyperlinkTarget("https://trivy.dev/latest/getting-started/installation/")
 
         panel = FormBuilder.createFormBuilder()
