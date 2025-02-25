@@ -54,7 +54,7 @@ class TrivySettingsComponent {
         panel = FormBuilder.createFormBuilder()
             .addComponent(TitledSeparator("Path to Trivy"))
             .addComponent(downloadLink)
-            .addLabeledComponent(JBLabel(), trivyPath, 1, true)
+            .addLabeledComponent(JBLabel("Trivy binary"), trivyPath, 1, true)
             .addComponent(JBSplitter())
             .addComponent(TitledSeparator("Scanners"))
             .addLabeledComponent(JBLabel(), vulnScanning, 1, false)
@@ -69,10 +69,11 @@ class TrivySettingsComponent {
             .addComponent(TitledSeparator("Other Settings"))
             .addLabeledComponent(JBLabel(), offlineScan, 1, false)
             .addLabeledComponent(JBLabel(), ignoreUnfixed, 1, false)
+            .addSeparator()
+            .addLabeledComponent(JBLabel("Config file path"), trivyConfigPath, 1, true)
             .addLabeledComponent(JBLabel(), useConfigFile, 1, false)
-            .addLabeledComponent(JBLabel(), trivyConfigPath, 1, true)
+            .addLabeledComponent(JBLabel("Ignore file path"), trivyIgnorePath, 1, true)
             .addLabeledComponent(JBLabel(), useIgnoreFile, 1, false)
-            .addLabeledComponent(JBLabel("Ignore File"), trivyIgnorePath, 1, true)
             .addComponentFillVertically(JPanel(), 0)
             .panel
     }

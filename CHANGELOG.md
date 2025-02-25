@@ -1,3 +1,6 @@
+## [1.6.1]
+- Only support IC-243.0.0 and later due to deprecated APIs
+
 ## [1.6.0]
 
 - Add download link
