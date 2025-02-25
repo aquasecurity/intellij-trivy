@@ -154,10 +154,20 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
     }
 
     private fun updateView() {
+
+
         val splitPane = JSplitPane(0)
+        splitPane.border = null
         splitPane.dividerSize = 2
-        splitPane.add(JBScrollPane(this.root))
-        splitPane.add(JBScrollPane(this.findingsHelper))
+        splitPane.isContinuousLayout = true
+
+        val tv =  JBScrollPane(this.root)
+        tv.border = null
+        val findings = JBScrollPane(this.findingsHelper)
+        findings.border = null
+        splitPane.add(tv)
+        splitPane.add(findings)
+
         this.add(splitPane)
     }
 }

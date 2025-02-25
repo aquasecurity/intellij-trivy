@@ -23,6 +23,7 @@ build
 hs_err_pid*
 
 .gradle
+.intellijPlatform
 
 chain.crt
 private.pem
