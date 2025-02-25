@@ -1,5 +1,6 @@
 package com.aquasecurity.plugins.trivy.actions
 
+import com.aquasecurity.plugins.trivy.settings.TrivyProjectSettingState
 import com.aquasecurity.plugins.trivy.settings.TrivySettingState
 import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup
 import com.intellij.execution.ExecutionException
@@ -25,6 +26,7 @@ internal class TrivyBackgroundRunTask(
 
     override fun run() {
         val settings = TrivySettingState.instance
+        val projectSettings = TrivyProjectSettingState.getInstance(project)
 
         val commandParts: MutableList<String?> = ArrayList()
         commandParts.add(settings.trivyPath)
@@ -41,11 +43,20 @@ internal class TrivyBackgroundRunTask(
             commandParts.add("--ignore-unfixed")
         }
 
+        if (projectSettings.useConfig && projectSettings.configPath != "") {
+            commandParts.add(String.format("--config=%s", projectSettings.configPath))
+        }
+
+        if (projectSettings.useIgnore && projectSettings.ignorePath != "") {
+            commandParts.add(String.format("--ignorefile=%s", projectSettings.ignorePath))
+        }
+
         commandParts.add("--format=json")
         commandParts.add(String.format("--output=%s", resultFile.absolutePath))
         commandParts.add(project.basePath)
 
         val commandLine = GeneralCommandLine(commandParts)
+        commandLine.setWorkDirectory(project.basePath)
 
         val process: Process
         try {

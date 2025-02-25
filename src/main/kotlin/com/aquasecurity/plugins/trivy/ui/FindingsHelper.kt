@@ -105,7 +105,8 @@ class FindingsHelper : ScrollablePanel() {
         section.layout = BoxLayout(section, BoxLayout.Y_AXIS)
 
         val font = UIUtil.getLabelFont()
-        val headingFont = font.deriveFont(font.style or Font.BOLD)
+        val headingFontSize = font.size * 1.5f
+        val headingFont = font.deriveFont(Font.BOLD, headingFontSize)
         if (!title.isEmpty()) {
             val heading = JLabel()
             heading.font = headingFont

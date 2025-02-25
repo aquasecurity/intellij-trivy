@@ -11,7 +11,7 @@
                     anchor="left"
                     factoryClass="com.aquasecurity.plugins.trivy.ui.TrivyWindowFactory"/>
         <notificationGroup id="Trivy Notifications" displayType="BALLOON"/>
-        <applicationConfigurable parentId="tools"
+        <projectConfigurable parentId="tools"
                                  instance="com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable"
                                  id="com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable"
                                  displayName="Trivy: Settings"/>
@@ -23,7 +23,7 @@
                 class="com.aquasecurity.plugins.trivy.actions.RunScannerAction" text="Run Trivy"
                 description="Run trivy now to update results"/>
         <action id="com.aquasecurity.plugins.trivy.actions.ClearResultsAction"
-                icon="CollaborationToolsIcons.DeleteHovered"
+                icon="AllIcons.General.Delete"
                 class="com.aquasecurity.plugins.trivy.actions.ClearResultsAction" text="Clear Results"
                 description="Clear results window"/>
         <action id="com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction" icon="AllIcons.General.Settings"

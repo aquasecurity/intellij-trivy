@@ -1,3 +1,9 @@
+## [1.6.0]
+
+- Add download link
+- Add support for trivy ignore file
+- Add support for config file
+
 ## [1.5.1]
 
 - Convert to Kotlin

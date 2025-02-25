@@ -1,12 +1,16 @@
 package com.aquasecurity.plugins.trivy.ui
 
 import com.aquasecurity.plugins.trivy.ui.treenodes.TrivyTreeNode
-import com.intellij.ui.JBColor
+import java.awt.Color
 import java.awt.Component
 import javax.swing.JTree
 import javax.swing.tree.DefaultTreeCellRenderer
 
 internal class FindingTreeRenderer : DefaultTreeCellRenderer() {
+    companion object {
+        private val TransparentColor = Color(0,0,0,0)
+    }
+
     override fun getTreeCellRendererComponent(
         tree: JTree,
         value: Any,
@@ -26,7 +30,7 @@ internal class FindingTreeRenderer : DefaultTreeCellRenderer() {
             val node = value
             icon = node.icon
             text = node.title
-            setBackgroundNonSelectionColor(JBColor.PanelBackground)
+            setBackgroundNonSelectionColor(TransparentColor)
             toolTipText = node.tooltip
         }
         return this
