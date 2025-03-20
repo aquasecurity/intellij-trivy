@@ -7,7 +7,7 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Trivy Findings" secondary="true" icon="/icons/trivy_16.svg"
+        <toolWindow id="Trivy Explorer" secondary="true" icon="/icons/trivy_16.svg"
                     anchor="left"
                     factoryClass="com.aquasecurity.plugins.trivy.ui.TrivyWindowFactory"/>
         <notificationGroup id="Trivy Notifications" displayType="BALLOON"/>
