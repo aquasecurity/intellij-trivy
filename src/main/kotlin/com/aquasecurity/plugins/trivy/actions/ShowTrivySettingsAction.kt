@@ -6,17 +6,17 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.options.ShowSettingsUtil
 
 class ShowTrivySettingsAction : AnAction() {
-    override fun update(e: AnActionEvent) {
-        super.update(e)
-    }
+  override fun update(e: AnActionEvent) {
+    super.update(e)
+  }
 
-    override fun actionPerformed(e: AnActionEvent) {
-        val project = e.project ?: return
+  override fun actionPerformed(e: AnActionEvent) {
+    val project = e.project ?: return
 
-        ShowSettingsUtil.getInstance().showSettingsDialog(project, "Trivy: Settings")
-    }
+    ShowSettingsUtil.getInstance().showSettingsDialog(project, "Trivy: Settings")
+  }
 
-    override fun getActionUpdateThread(): ActionUpdateThread {
-        return super.getActionUpdateThread()
-    }
+  override fun getActionUpdateThread(): ActionUpdateThread {
+    return super.getActionUpdateThread()
+  }
 }

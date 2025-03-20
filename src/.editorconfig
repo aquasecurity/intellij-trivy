@@ -1,0 +1,4 @@
+[*.kt]
+ij_kotlin_blank_lines_around_function = 1
+ij_kotlin_blank_lines_around_class = 1
+ij_kotlin_blank_lines_before_declaration_with_comment_or_annotation = 0

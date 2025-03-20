@@ -1,48 +1,84 @@
 package com.aquasecurity.plugins.trivy.actions
 
-import com.aquasecurity.plugins.trivy.model.Findings
+import com.aquasecurity.plugins.trivy.model.commercial.AssuranceReport
+import com.aquasecurity.plugins.trivy.model.oss.Report
+import com.aquasecurity.plugins.trivy.settings.TrivyProjectSettingState
 import com.aquasecurity.plugins.trivy.ui.TrivyWindow
 import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup
+import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.StreamReadFeature
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.ToolWindowManager
 import java.io.File
 import java.io.IOException
 
-/**
- * ResultProcessor takes the results finding and unmarshalls to object
- * Then updates the findings window
- */
 object ResultProcessor {
-    fun updateResults(project: Project, resultFile: File?) {
-        if (!resultFile!!.exists()) {
-            TrivyNotificationGroup.notifyError(
-                project,
-                "Failed to find the results file."
-            )
-            return
-        }
-
-        val findings: Findings
-        try {
-            val findingsMapper = ObjectMapper()
-            findingsMapper.disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
-            findingsMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            findings = findingsMapper.readValue(resultFile, Findings::class.java)
-        } catch (e: IOException) {
-            TrivyNotificationGroup.notifyError(
-                project,
-                String.format("Failed to deserialize the results file. %s", e.localizedMessage)
-            )
-            return
-        }
-
-        // redraw the explorer with the updated content
-        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Trivy Findings")
-        val content = toolWindow!!.contentManager.getContent(0)
-        val TrivyWindow = content!!.component as TrivyWindow
-        TrivyWindow.updateFindings(findings)
-        TrivyWindow.redraw()
+  fun updateResults(project: Project, resultFile: File?, trivyWindow: TrivyWindow) {
+    if (resultFile == null || !resultFile.exists()) {
+      TrivyNotificationGroup.notifyError(project, "Failed to find the results file.")
+      return
     }
+
+    val projectSettings = TrivyProjectSettingState.getInstance(project)
+    if (projectSettings.useAquaPlatform) {
+      val assuranceReport = getReportForCommercial(project, resultFile)
+      updatePackageLocations(assuranceReport.report)
+      trivyWindow.updateFindings(assuranceReport.report)
+      trivyWindow.updateAssuranceResults(assuranceReport)
+    } else {
+      val report = getReportForOSS(project, resultFile)
+      updatePackageLocations(report)
+      trivyWindow.updateFindings(report)
+    }
+    trivyWindow.redraw()
+  }
+
+  private fun updatePackageLocations(report: Report) {
+    report.results.forEach { result ->
+      result.vulnerabilities?.forEach { vuln ->
+        result.packages?.forEach { pkg ->
+          if (pkg.name == vuln.pkgName &&
+              pkg.version == vuln.installedVersion &&
+              !pkg.locations.isNullOrEmpty()) {
+            vuln.location = pkg.locations[0]
+          }
+        }
+      }
+    }
+  }
+
+  private fun getReportForOSS(project: Project, resultFile: File): Report {
+    return try {
+      val jsonFactory =
+          JsonFactory.builder().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION).build()
+      val findingsMapper =
+          ObjectMapper(jsonFactory).apply {
+            disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
+            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+          }
+      findingsMapper.readValue(resultFile, Report::class.java)
+    } catch (e: IOException) {
+      TrivyNotificationGroup.notifyError(
+          project, "Failed to deserialize the results file. ${e.localizedMessage}")
+      throw e
+    }
+  }
+
+  private fun getReportForCommercial(project: Project, resultFile: File): AssuranceReport {
+    return try {
+      val jsonFactory =
+          JsonFactory.builder().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION).build()
+      val findingsMapper =
+          ObjectMapper(jsonFactory).apply {
+            disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
+            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+          }
+      findingsMapper.readValue(resultFile, AssuranceReport::class.java)
+    } catch (e: IOException) {
+      TrivyNotificationGroup.notifyError(
+          project, "Failed to deserialize the results file. ${e.localizedMessage}")
+      throw e
+    }
+  }
 }
