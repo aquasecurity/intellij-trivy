@@ -1,3 +1,6 @@
+## [1.7.0]
+- Add support for the Aqua Platform and Assurance policies
+
 ## [1.6.1]
 - Only support IC-243.0.0 and later due to deprecated APIs
 
