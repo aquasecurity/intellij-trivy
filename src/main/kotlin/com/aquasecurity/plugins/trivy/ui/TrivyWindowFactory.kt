@@ -7,12 +7,10 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 
 class TrivyWindowFactory : ToolWindowFactory {
-    override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val TrivyWindow = TrivyWindow(project)
-        val contentFactory = ApplicationManager.getApplication().getService(
-            ContentFactory::class.java
-        )
-        val content = contentFactory.createContent(TrivyWindow.content, "", false)
-        toolWindow.contentManager.addContent(content)
-    }
+  override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+    val TrivyWindow = TrivyWindow(project)
+    val contentFactory = ApplicationManager.getApplication().getService(ContentFactory::class.java)
+    val content = contentFactory.createContent(TrivyWindow.content, "", false)
+    toolWindow.contentManager.addContent(content)
+  }
 }
