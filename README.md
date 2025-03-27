@@ -11,11 +11,9 @@ Plugin for the IntelliJ suite of tools (IDEA, GoLand, WebStorm etc)
 ## Description
 
 <!-- Plugin description -->
-Trivy integration for Jetbrains tools.
+Find vulnerabilities, misconfigurations and exposed secrets in your code.
 
-Scan your project for package vulnerabilities and infrastructure as code misconfigurations using Trivy.
-
-Navigate your Trivy results in the Findings Explorer with additional information in the Help Pane about how to resolve.
+Trivy Vulnerability Scanner is an IntelliJ plugin that helps you find vulnerabilities in your software projects without leaving the comfort of the IDE.
 <!-- Plugin description end -->
 
 ## Functionality

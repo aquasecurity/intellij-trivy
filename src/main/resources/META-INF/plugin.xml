@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.aquasecurity.plugins.intellij-Trivy</id>
-    <name>Trivy Findings Explorer</name>
+    <name>Aqua Trivy</name>
     <vendor email="owen.rumney@aquasec.com" url="https://aquasecurity.github.io/trivy">Aqua Security</vendor>
     <description></description>
     <change-notes></change-notes>

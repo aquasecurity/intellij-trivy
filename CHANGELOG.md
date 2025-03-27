@@ -1,3 +1,6 @@
+## [1.8.0]
+- Rename the plugin to Aqua Trivy
+
 ## [1.7.0]
 - Add support for the Aqua Platform and Assurance policies
 
