@@ -21,20 +21,19 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.ui.JBColor
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.components.JBLabel
+import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTabbedPane
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.AsyncProcessIcon
+import com.intellij.util.ui.JBEmptyBorder
 import java.awt.BorderLayout
 import java.awt.FlowLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.nio.file.Paths
 import java.util.function.Consumer
-import javax.swing.BorderFactory
-import javax.swing.JComponent
-import javax.swing.JPanel
-import javax.swing.SwingConstants
+import javax.swing.*
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.TreePath
 import com.aquasecurity.plugins.trivy.model.commercial.Result as CommercialResult
@@ -98,7 +97,7 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
   }
 
   fun updateFindings(findings: Report?) {
-    if (findings == null) {
+    if (findings == null || findings.results == null) {
       this.findings = null
       return
     }
@@ -263,6 +262,12 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
     this.removeAll()
     if (this.findings != null) {
       updateView()
+    } else {
+      val label = JLabel("No results, all looks good!", JLabel.LEFT)
+      label.verticalAlignment = JLabel.TOP
+      label.border = JBEmptyBorder(2)
+
+      this.add(label)
     }
 
     configureToolbar()

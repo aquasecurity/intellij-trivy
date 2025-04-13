@@ -35,6 +35,10 @@ object ResultProcessor {
   }
 
   private fun updatePackageLocations(report: Report) {
+    if (report.results == null) {
+      return
+    }
+
     report.results.forEach { result ->
       result.vulnerabilities?.forEach { vuln ->
         result.packages?.forEach { pkg ->
@@ -56,6 +60,7 @@ object ResultProcessor {
           ObjectMapper(jsonFactory).apply {
             disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
             disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            disable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)
           }
       findingsMapper.readValue(resultFile, Report::class.java)
     } catch (e: IOException) {

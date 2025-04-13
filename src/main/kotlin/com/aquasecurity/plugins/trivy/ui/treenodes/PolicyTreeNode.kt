@@ -23,10 +23,11 @@ class PolicyTreeNode(private val policyTitle: String, result: PolicyResult?) :
       report: Report,
       cr: Result
   ) {
-    // remove the ansi control characters from the title
+
     if (controlResult.type == null) {
       return
     }
+
     val prettyTitle = removeAnsiCodes(controlResult.type)
 
     var existing =
@@ -34,10 +35,6 @@ class PolicyTreeNode(private val policyTitle: String, result: PolicyResult?) :
     if (existing == null) {
       existing = PolicyTreeNode(prettyTitle, result)
       add(existing)
-    }
-
-    if (existing == null) {
-      return
     }
 
     var locationNodes: List<LocationTreeNode> = listOf()
