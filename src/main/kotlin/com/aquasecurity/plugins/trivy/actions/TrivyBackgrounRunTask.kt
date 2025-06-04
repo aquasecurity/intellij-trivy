@@ -14,9 +14,6 @@ import java.io.File
 import java.util.function.BiConsumer
 import javax.swing.SwingUtilities
 
-const val DEFAULT_CSPM_URL = "https://cloud.aquasec.com"
-const val DEFAULT_AQUA_API_URL = "https://api.aquasec.com"
-
 internal class TrivyBackgroundRunTask(
     private val project: Project,
     private val resultFile: File,
@@ -86,26 +83,40 @@ internal class TrivyBackgroundRunTask(
     }
   }
 
+  private fun getEnvUrls(region: String): Pair<String, String> {
+
+    return when (region) {
+      "Dev" -> Pair("https://stage.api.cloudsploit.com", "https://api.dev.supply-chain.cloud.aquasec.com")
+      "EU" -> Pair("https://eu.api.cloudsploit.com", "https://api.eu.supply-chain.cloud.aquasec.com")
+      "Singapore" -> Pair("https://ap-1.api.cloudsploit.com", "https://api.ap-1.supply-chain.cloud.aquasec.com")
+      "Sydney" -> Pair("https://ap-2.api.cloudsploit.com", "https://api.ap-2.supply-chain.cloud.aquasec.com")
+      else -> Pair("https://api.cloudsploit.com", "https://api.supply-chain.cloud.aquasec.com")
+    }
+  }
+
   private fun configureCommandLineEnv(
       commandLine: GeneralCommandLine,
       projectSettings: TrivyProjectSettingState,
       resultFile: File
   ) {
-    if (TrivySettingState.instance.aquaApiURL != "") {
-      commandLine.environment["AQUA_URL"] = TrivySettingState.instance.aquaApiURL
+
+    val urls  = getEnvUrls(TrivySettingState.instance.region)
+    val cspmServerURL = urls.first
+    val aquaApiURL = urls.second
+
+    if (aquaApiURL != "") {
+      commandLine.environment["AQUA_URL"] = aquaApiURL
     }
-    if (TrivySettingState.instance.cspmServerURL != "") {
-      commandLine.environment["CSPM_URL"] = TrivySettingState.instance.cspmServerURL
+    if (cspmServerURL != "") {
+      commandLine.environment["CSPM_URL"] = cspmServerURL
     }
     commandLine.environment["AQUA_KEY"] = TrivySettingState.instance.apiKey
     commandLine.environment["AQUA_SECRET"] = TrivySettingState.instance.apiSecret
     commandLine.environment["TRIVY_RUN_AS_PLUGIN"] = "aqua"
     commandLine.environment["AQUA_ASSURANCE_EXPORT"] = resultFile.absolutePath
-
-    if (!projectSettings.uploadResults) {
       commandLine.environment["TRIVY_SKIP_REPOSITORY_UPLOAD"] = "true"
       commandLine.environment["TRIVY_SKIP_RESULT_UPLOAD"] = "true"
-    }
+
   }
 
   private fun requiredSeverities(settings: TrivySettingState): String {

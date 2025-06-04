@@ -23,8 +23,7 @@ class TrivySettingState : PersistentStateComponent<TrivySettingState?> {
   var scanForVulnerabilities: Boolean = true
   var apiKey: String = ""
   var apiSecret: String = ""
-  var cspmServerURL: String = ""
-  var aquaApiURL: String = ""
+  var region: String = "US"
 
   override fun getState(): TrivySettingState {
     return this
@@ -50,7 +49,6 @@ class TrivyProjectSettingState : PersistentStateComponent<TrivyProjectSettingSta
   var ignorePath: String = ""
   var useIgnore: Boolean = false
   var useAquaPlatform: Boolean = false
-  var uploadResults: Boolean = false
 
   override fun getState(): TrivyProjectSettingState {
     return this

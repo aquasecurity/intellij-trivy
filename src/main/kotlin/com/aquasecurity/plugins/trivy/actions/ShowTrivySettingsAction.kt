@@ -13,7 +13,7 @@ class ShowTrivySettingsAction : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
     val project = e.project ?: return
 
-    ShowSettingsUtil.getInstance().showSettingsDialog(project, "Trivy: Settings")
+    ShowSettingsUtil.getInstance().showSettingsDialog(project, "Trivy")
   }
 
   override fun getActionUpdateThread(): ActionUpdateThread {
