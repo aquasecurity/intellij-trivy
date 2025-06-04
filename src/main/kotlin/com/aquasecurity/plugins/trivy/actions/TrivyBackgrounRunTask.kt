@@ -100,7 +100,7 @@ internal class TrivyBackgroundRunTask(
       resultFile: File
   ) {
 
-    val urls  = getEnvUrls(TrivySettingState.instance.region)
+    val urls = getEnvUrls(TrivySettingState.instance.region)
     val cspmServerURL = urls.first
     val aquaApiURL = urls.second
 
