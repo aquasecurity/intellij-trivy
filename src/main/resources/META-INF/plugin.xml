@@ -14,7 +14,7 @@
         <projectConfigurable parentId="tools"
                                  instance="com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable"
                                  id="com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable"
-                                 displayName="Trivy: Settings"/>
+                                 displayName="Trivy"/>
         <applicationService serviceImplementation="com.aquasecurity.plugins.trivy.settings.TrivySettingState"/>
     </extensions>
 

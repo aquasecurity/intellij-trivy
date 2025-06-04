@@ -52,10 +52,8 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
             !trivySettingsComponent!!.getUseIgnore == projectSettings.useIgnore ||
             trivySettingsComponent!!.getApiKey != settings.apiKey ||
             trivySettingsComponent!!.getApiSecret != settings.apiSecret ||
-            trivySettingsComponent!!.getCspmServerURL != settings.cspmServerURL ||
-            trivySettingsComponent!!.getAquaApiURL != settings.aquaApiURL ||
-            trivySettingsComponent!!.getUseAquaPlatform != projectSettings.useAquaPlatform ||
-            trivySettingsComponent!!.getUploadResultsToPlatform != projectSettings.uploadResults)
+            trivySettingsComponent!!.getRegion != settings.region ||
+            trivySettingsComponent!!.getUseAquaPlatform != projectSettings.useAquaPlatform )
 
     return modified
   }
@@ -80,15 +78,19 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
     settings.scanForVulnerabilities = trivySettingsComponent!!.getScanForVulnerabilities
     settings.apiKey = trivySettingsComponent!!.getApiKey
     settings.apiSecret = trivySettingsComponent!!.getApiSecret
-    settings.cspmServerURL = trivySettingsComponent!!.getCspmServerURL
-    settings.aquaApiURL = trivySettingsComponent!!.getAquaApiURL
+    settings.region = trivySettingsComponent!!.getRegion
 
     projectSettings.configPath = trivySettingsComponent!!.getConfigPath()
     projectSettings.useConfig = trivySettingsComponent!!.getUseConfig
     projectSettings.ignorePath = trivySettingsComponent!!.getIgnorePath()
     projectSettings.useIgnore = trivySettingsComponent!!.getUseIgnore
-    projectSettings.useAquaPlatform = trivySettingsComponent!!.getUseAquaPlatform
-    projectSettings.uploadResults = trivySettingsComponent!!.getUploadResultsToPlatform
+
+    if (trivySettingsComponent!!.getUseAquaPlatform)  {
+      // Only set useAquaPlatform to true if both apiKey and apiSecret are set
+        projectSettings.useAquaPlatform =  (trivySettingsComponent!!.getApiKey != "" && trivySettingsComponent!!.getApiSecret != "")
+    } else {
+      projectSettings.useAquaPlatform = false
+    }
   }
 
   override fun reset() {
@@ -112,12 +114,10 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
       trivySettingsComponent?.setUseIgnore(TrivyProjectSettingState.getInstance(project).useIgnore)
       trivySettingsComponent?.setApiKey(settings.apiKey)
       trivySettingsComponent?.setApiSecret(settings.apiSecret)
-      trivySettingsComponent?.setCspmServerURL(settings.cspmServerURL)
-      trivySettingsComponent?.setAquaApiURL(settings.aquaApiURL)
+        trivySettingsComponent?.setRegion(settings.region)
       trivySettingsComponent?.setUseAquaPlatform(
         TrivyProjectSettingState.getInstance(project).useAquaPlatform)
-      trivySettingsComponent?.setUploadResultsToPlatform(
-        TrivyProjectSettingState.getInstance(project).uploadResults)
+
   }
 
   override fun disposeUIResources() {

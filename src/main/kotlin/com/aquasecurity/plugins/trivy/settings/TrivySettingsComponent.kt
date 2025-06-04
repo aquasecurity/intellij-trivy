@@ -1,6 +1,7 @@
 package com.aquasecurity.plugins.trivy.settings
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.HyperlinkLabel
@@ -9,7 +10,6 @@ import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPasswordField
-import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.FormBuilder
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -36,12 +36,11 @@ class TrivySettingsComponent {
 
   // Aqua Platform support
   private val useAquaPlatform = JBCheckBox("Use Aqua Platform")
-  private val updateResults = JBCheckBox("Upload results to Aqua Platform")
   private val apiKey = JBPasswordField()
   private val apiSecret = JBPasswordField()
-  private val cspmServerURL = JBTextField()
-  private val aquaApiURL = JBTextField()
   private val uploadResults = JBCheckBox("Upload results to Aqua Platform")
+  // Add the `Dev` entry to the array when testing locally and connecting to Dev
+  private val region = ComboBox(arrayOf("US", "EU", "Singapore", "Sydney"))
 
   init {
     val fcd = FileChooserDescriptor(true, true, true, true, false, false)
@@ -50,6 +49,8 @@ class TrivySettingsComponent {
     trivyConfigPath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
     trivyIgnorePath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
     downloadLink.setHyperlinkTarget("https://trivy.dev/latest/getting-started/installation/")
+
+
 
     panel =
         FormBuilder.createFormBuilder()
@@ -79,9 +80,7 @@ class TrivySettingsComponent {
             .addLabeledComponent(JBLabel(), useAquaPlatform, 1, false)
             .addLabeledComponent(JBLabel("API Key"), apiKey, 1, false)
             .addLabeledComponent(JBLabel("API Secret"), apiSecret, 1, false)
-            .addLabeledComponent(JBLabel("Authentication Endpoint URL"), cspmServerURL, 1, false)
-            .addLabeledComponent(JBLabel("Aqua API URL"), aquaApiURL, 1, false)
-            .addLabeledComponent(JBLabel(), updateResults, 1, false)
+            .addLabeledComponent(JBLabel("Region"), region, 1, false)
             .addComponentFillVertically(JPanel(), 0)
             .panel
   }
@@ -149,11 +148,10 @@ class TrivySettingsComponent {
   val getApiSecret: String
     get() = String(apiSecret.password)
 
-  val getCspmServerURL: String
-    get() = cspmServerURL.text
 
-  val getAquaApiURL: String
-    get() = aquaApiURL.text
+
+  val getRegion: String
+    get() = region.selectedItem as String
 
   fun setTrivyPath(newText: String) {
     trivyPath.text = newText
@@ -231,11 +229,7 @@ class TrivySettingsComponent {
     apiSecret.text = newText
   }
 
-  fun setCspmServerURL(newText: String) {
-    cspmServerURL.text = newText
-  }
-
-  fun setAquaApiURL(newText: String) {
-    aquaApiURL.text = newText
+  fun setRegion(newText: String) {
+    region.selectedItem = newText
   }
 }

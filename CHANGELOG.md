@@ -1,3 +1,7 @@
+## [1.8.2]
+- Switch to a region drop down for Aqua Platform integration to avoid confusion
+- Fix an issue where aqua platform integration can be enabled without the required credentials causing a crash
+
 ## [1.8.1]
 - Handle empty results in a successful Trivy run
 
