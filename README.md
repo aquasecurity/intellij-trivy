@@ -21,3 +21,13 @@ Trivy Vulnerability Scanner is an IntelliJ plugin that helps you find vulnerabil
 The plugin provides a visual explorer view of the vulnerabilities and IaC misconfigurations found in the project.
 
 ![Example video](./github/images/trivy-jetbrains.mp4)
+
+## Documentation
+
+Detailed documentation is available in the [docs folder](docs/README.md):
+
+- [Installation Guide](docs/installation.md)
+- [Quickstart](docs/quickstart.md)
+- [Features Overview](docs/features.md)
+- [Settings](docs/settings.md)
+- [Troubleshooting](docs/troubleshooting.md)
