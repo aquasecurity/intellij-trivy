@@ -15,23 +15,26 @@ import java.io.IOException
 
 object ResultProcessor {
   fun updateResults(project: Project, resultFile: File?, trivyWindow: TrivyWindow) {
-    if (resultFile == null || !resultFile.exists()) {
-      TrivyNotificationGroup.notifyError(project, "Failed to find the results file.")
-      return
-    }
+      try {
+          if (resultFile == null || !resultFile.exists()) {
+              TrivyNotificationGroup.notifyError(project, "Failed to find the results file.")
 
-    val projectSettings = TrivyProjectSettingState.getInstance(project)
-    if (projectSettings.useAquaPlatform) {
-      val assuranceReport = getReportForCommercial(project, resultFile)
-      updatePackageLocations(assuranceReport.report)
-      trivyWindow.updateFindings(assuranceReport.report)
-      trivyWindow.updateAssuranceResults(assuranceReport)
-    } else {
-      val report = getReportForOSS(project, resultFile)
-      updatePackageLocations(report)
-      trivyWindow.updateFindings(report)
-    }
-    trivyWindow.redraw()
+              return
+          }
+          val projectSettings = TrivyProjectSettingState.getInstance(project)
+          if (projectSettings.useAquaPlatform) {
+              val assuranceReport = getReportForCommercial(project, resultFile)
+              updatePackageLocations(assuranceReport.report)
+              trivyWindow.updateFindings(assuranceReport.report)
+              trivyWindow.updateAssuranceResults(assuranceReport)
+          } else {
+              val report = getReportForOSS(project, resultFile)
+              updatePackageLocations(report)
+              trivyWindow.updateFindings(report)
+          }
+      } finally {
+          trivyWindow.redraw()
+      }
   }
 
   private fun updatePackageLocations(report: Report) {

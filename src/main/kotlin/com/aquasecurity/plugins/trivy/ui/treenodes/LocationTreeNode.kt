@@ -56,8 +56,8 @@ class LocationTreeNode(
     } else {
       this.fileLocation = Location(filepath, vuln.location!!.startLine, vuln.location!!.endLine)
     }
-    this.locationTitle = vuln.vulnerabilityId
-    this.severity = vuln.severity
+      this.locationTitle = vuln.vulnerabilityId ?: "UNKNOWN"
+      this.severity = vuln.severity ?: "UNKNOWN"
   }
 
   private fun handleCommercialResult(cr: Result) {

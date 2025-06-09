@@ -1,5 +1,10 @@
 package com.aquasecurity.plugins.trivy.settings
 
+import com.aquasecurity.plugins.trivy.actions.CheckForTrivyAction
+import com.intellij.openapi.actionSystem.ActionUiKind
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.Nls
@@ -91,6 +96,18 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
     } else {
       projectSettings.useAquaPlatform = false
     }
+
+    val dataContext = DataContext { key ->
+      if (PlatformDataKeys.PROJECT.`name` == key) project else null
+    }
+    val event = AnActionEvent.createEvent(dataContext, null, "", ActionUiKind.NONE, null)
+    CheckForTrivyAction().actionPerformed(event)
+
+    // update the toolbar based on the new settings
+//    val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Trivy Explorer")
+//    val content = toolWindow?.contentManager?.getContent(0)
+//    val trivyWindow = content?.component as? TrivyWindow ?: return
+//    trivyWindow.redraw()
   }
 
   override fun reset() {

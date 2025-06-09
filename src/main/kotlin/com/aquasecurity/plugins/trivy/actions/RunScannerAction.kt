@@ -25,6 +25,8 @@ class RunScannerAction : AnAction() {
 
   override fun update(e: AnActionEvent) {
     super.update(e)
+
+      e.presentation.isEnabled = com.aquasecurity.plugins.trivy.settings.TrivySettingState.instance.trivyInstalled
   }
 
   override fun getActionUpdateThread(): ActionUpdateThread {

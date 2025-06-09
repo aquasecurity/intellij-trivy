@@ -11,6 +11,8 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 @Service(Service.Level.APP)
 class TrivySettingState : PersistentStateComponent<TrivySettingState?> {
   var trivyPath: String = "trivy"
+  var binaryPath: String = ""
+  var trivyInstalled: Boolean = false
   var criticalSeverity: Boolean = true
   var highSeverity: Boolean = true
   var mediumSeverity: Boolean = true

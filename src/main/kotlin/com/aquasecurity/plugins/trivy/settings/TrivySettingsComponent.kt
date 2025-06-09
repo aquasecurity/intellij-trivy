@@ -1,23 +1,29 @@
 package com.aquasecurity.plugins.trivy.settings
 
+import com.aquasecurity.plugins.trivy.actions.CheckForTrivyAction
+import com.aquasecurity.plugins.trivy.actions.tasks.TrivyDownloadBinaryTask
+import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
-import com.intellij.ui.HyperlinkLabel
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPasswordField
 import com.intellij.util.ui.FormBuilder
+import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
 
 /** Supports creating and managing a [JPanel] for the Settings Dialog. */
 class TrivySettingsComponent {
-  val panel: JPanel
+  var panel: JPanel = JPanel()
+  val project = com.intellij.openapi.project.ProjectManager.getInstance().openProjects.firstOrNull()
   private val trivyPath = TextFieldWithBrowseButton()
+
   private val trivyConfigPath = TextFieldWithBrowseButton()
   private val trivyIgnorePath = TextFieldWithBrowseButton()
   private val useConfigFile = JBCheckBox("Use config file")
@@ -32,13 +38,11 @@ class TrivySettingsComponent {
   private val misconfigurationScanning = JBCheckBox("Enable misconfiguration scanning")
   private val vulnScanning = JBCheckBox("Enable vulnerability scanning")
   private val ignoreUnfixed = JBCheckBox("Only show issues with fixes")
-  private val downloadLink = HyperlinkLabel("Trivy must be installed, check here for instructions.")
 
   // Aqua Platform support
   private val useAquaPlatform = JBCheckBox("Use Aqua Platform")
   private val apiKey = JBPasswordField()
   private val apiSecret = JBPasswordField()
-  private val uploadResults = JBCheckBox("Upload results to Aqua Platform")
   // Add the `Dev` entry to the array when testing locally and connecting to Dev
   private val region = ComboBox(arrayOf("US", "EU", "Singapore", "Sydney"))
 
@@ -48,41 +52,103 @@ class TrivySettingsComponent {
     trivyPath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
     trivyConfigPath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
     trivyIgnorePath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
-    downloadLink.setHyperlinkTarget("https://trivy.dev/latest/getting-started/installation/")
+
+    trivyPath.text = TrivySettingState.instance.trivyPath
+    if (project != null) {
+      trivyConfigPath.text = TrivyProjectSettingState.getInstance(project).configPath
+      trivyIgnorePath.text = TrivyProjectSettingState.getInstance(project).ignorePath
+    }
+    updatePanel()
+  }
+
+  fun updatePanel() {
+    if (project != null) {
+      // Check if Trivy is installed and update the settings accordingly
+      CheckForTrivyAction.run(project)
+    }
+
+    var builder =
+      FormBuilder.createFormBuilder()
+        .addComponent(TitledSeparator("Path to Trivy"))
+        .addLabeledComponent(JBLabel("Trivy binary"), trivyPath, 1, false)
+
+    if (!TrivySettingState.instance.trivyInstalled) {
+      builder = builder.addLabeledComponent(JBLabel(), JButton("Download Trivy").apply {
+        addActionListener {
+          if (project != null) {
+            com.intellij.openapi.progress.ProgressManager.getInstance().run(
+              TrivyDownloadBinaryTask(
+                project, true,
+                callback = {
+                  trivyPath.text = TrivySettingState.instance.trivyPath
+                  // update the Settings UI after download
+                  CheckForTrivyAction.run(project)
+
+                }
+              ))
+          }
+        }
+      }, 1, false)
+    } else {
+      // if trivy is installed and the path is the plugin folder
+      val pluginPath =
+        PluginManagerCore.getPlugin(PluginId.getId("com.aquasecurity.plugins.intellij-Trivy"))?.pluginPath
+      if (pluginPath != null && TrivySettingState.instance.trivyPath.startsWith(pluginPath.toString())) {
+        builder = builder
+          .addLabeledComponent(
+            JBLabel(),
+            JBLabel("Trivy is managed by the Trivy plugin, check for updates and install if available"),
+            1,
+            false
+          )
+          .addLabeledComponent(JBLabel(), JButton("Update Trivy").apply {
+            addActionListener {
+              if (project != null) {
+                com.intellij.openapi.progress.ProgressManager.getInstance().run(
+                  TrivyDownloadBinaryTask(
+                    project, false,
+                    callback = {
+                      trivyPath.text = TrivySettingState.instance.trivyPath
+                      // update the Settings UI after download
+                      CheckForTrivyAction.run(project)
+
+                    }
+                  ))
+              }
+            }
+          }, 1, false)
+      }
+    }
 
 
+    builder = builder
+      .addComponent(JBSplitter())
+      .addComponent(TitledSeparator("Scanners"))
+      .addLabeledComponent(JBLabel(), vulnScanning, 1, false)
+      .addLabeledComponent(JBLabel(), misconfigurationScanning, 1, false)
+      .addLabeledComponent(JBLabel(), secretScanning, 1, false)
+      .addComponent(TitledSeparator("Reported Severity Levels"))
+      .addLabeledComponent(JBLabel(), critical, 1, false)
+      .addLabeledComponent(JBLabel(), high, 1, false)
+      .addLabeledComponent(JBLabel(), medium, 1, false)
+      .addLabeledComponent(JBLabel(), low, 1, false)
+      .addLabeledComponent(JBLabel(), unknown, 1, false)
+      .addComponent(TitledSeparator("Other Settings"))
+      .addLabeledComponent(JBLabel(), offlineScan, 1, false)
+      .addLabeledComponent(JBLabel(), ignoreUnfixed, 1, false)
+      .addSeparator()
+      .addLabeledComponent(JBLabel("Config file path"), trivyConfigPath, 1, false)
+      .addLabeledComponent(JBLabel(), useConfigFile, 1, false)
+      .addLabeledComponent(JBLabel("Ignore file path"), trivyIgnorePath, 1, false)
+      .addLabeledComponent(JBLabel(), useIgnoreFile, 1, false)
+      .addComponent(TitledSeparator("Aqua Platform"))
+      .addLabeledComponent(JBLabel(), useAquaPlatform, 1, false)
+      .addLabeledComponent(JBLabel("API Key"), apiKey, 1, false)
+      .addLabeledComponent(JBLabel("API Secret"), apiSecret, 1, false)
+      .addLabeledComponent(JBLabel("Region"), region, 1, false)
+      .addComponentFillVertically(JPanel(), 0)
 
-    panel =
-        FormBuilder.createFormBuilder()
-            .addComponent(TitledSeparator("Path to Trivy"))
-            .addComponent(downloadLink)
-            .addLabeledComponent(JBLabel("Trivy binary"), trivyPath, 1, false)
-            .addComponent(JBSplitter())
-            .addComponent(TitledSeparator("Scanners"))
-            .addLabeledComponent(JBLabel(), vulnScanning, 1, false)
-            .addLabeledComponent(JBLabel(), misconfigurationScanning, 1, false)
-            .addLabeledComponent(JBLabel(), secretScanning, 1, false)
-            .addComponent(TitledSeparator("Reported Severity Levels"))
-            .addLabeledComponent(JBLabel(), critical, 1, false)
-            .addLabeledComponent(JBLabel(), high, 1, false)
-            .addLabeledComponent(JBLabel(), medium, 1, false)
-            .addLabeledComponent(JBLabel(), low, 1, false)
-            .addLabeledComponent(JBLabel(), unknown, 1, false)
-            .addComponent(TitledSeparator("Other Settings"))
-            .addLabeledComponent(JBLabel(), offlineScan, 1, false)
-            .addLabeledComponent(JBLabel(), ignoreUnfixed, 1, false)
-            .addSeparator()
-            .addLabeledComponent(JBLabel("Config file path"), trivyConfigPath, 1, false)
-            .addLabeledComponent(JBLabel(), useConfigFile, 1, false)
-            .addLabeledComponent(JBLabel("Ignore file path"), trivyIgnorePath, 1, false)
-            .addLabeledComponent(JBLabel(), useIgnoreFile, 1, false)
-            .addComponent(TitledSeparator("Aqua Platform"))
-            .addLabeledComponent(JBLabel(), useAquaPlatform, 1, false)
-            .addLabeledComponent(JBLabel("API Key"), apiKey, 1, false)
-            .addLabeledComponent(JBLabel("API Secret"), apiSecret, 1, false)
-            .addLabeledComponent(JBLabel("Region"), region, 1, false)
-            .addComponentFillVertically(JPanel(), 0)
-            .panel
+    panel = builder.panel
   }
 
   val preferredFocusedComponent: JComponent
@@ -139,8 +205,6 @@ class TrivySettingsComponent {
   val getUseAquaPlatform: Boolean
     get() = useAquaPlatform.isSelected
 
-  val getUploadResultsToPlatform: Boolean
-    get() = uploadResults.isSelected
 
   val getApiKey: String
     get() = String(apiKey.password)
@@ -215,10 +279,6 @@ class TrivySettingsComponent {
 
   fun setUseAquaPlatform(required: Boolean) {
     useAquaPlatform.isSelected = required
-  }
-
-  fun setUploadResultsToPlatform(required: Boolean) {
-    uploadResults.isSelected = required
   }
 
   fun setApiKey(newText: String) {
