@@ -24,7 +24,7 @@ class CheckForTrivyAction : AnAction() {
             val trivyPath = settings.trivyPath.trim()
             // check if trivyPath is resolvable on the System PATH
             try {
-                val process = Runtime.getRuntime().exec("$trivyPath --version")
+                val process = Runtime.getRuntime().exec(arrayOf("$trivyPath --version"))
                 val exitCode = process.waitFor()
                 if (exitCode == 0) {
                     com.aquasecurity.plugins.trivy.settings.TrivySettingState.instance.trivyInstalled = true

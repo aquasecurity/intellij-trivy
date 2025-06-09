@@ -4,14 +4,13 @@ import com.aquasecurity.plugins.trivy.actions.CheckForTrivyAction
 import com.aquasecurity.plugins.trivy.settings.TrivySettingState
 import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup
 import com.intellij.openapi.project.Project
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
@@ -84,7 +83,8 @@ class TrivyBinary {
         }
 
         private fun fetchUrl(url: String): String {
-            val connection = URL(url).openConnection() as HttpURLConnection
+            var uri = URI.create(url).toURL()
+            val connection = uri.openConnection() as HttpURLConnection
             // Add proper user agent to avoid GitHub API limitations
             connection.setRequestProperty("User-Agent", "IntelliJ-Trivy-Plugin")
 
@@ -116,7 +116,8 @@ class TrivyBinary {
         }
 
         private fun downloadFile(url: String, outputFile: File) {
-            val connection = URL(url).openConnection() as HttpURLConnection
+            var uri = URI.create(url).toURL()
+            val connection = uri.openConnection() as HttpURLConnection
 
             // Get the Content-Disposition header
             val contentDisposition = connection.getHeaderField("Content-Disposition")
@@ -160,23 +161,23 @@ class TrivyBinary {
             } else {
                 FileInputStream(tarFile)
             }
-            val tarArchiveInputStream = TarArchiveInputStream(tarInput)
-
-            var entry: TarArchiveEntry? = tarArchiveInputStream.nextEntry
-            while (entry != null) {
-                val outputFile = File(outputDir, entry.name)
-                if (entry.isDirectory) {
-                    outputFile.mkdirs()
-                } else {
-                    outputFile.parentFile?.mkdirs()
-                    FileOutputStream(outputFile).use { output ->
-                        tarArchiveInputStream.copyTo(output)
+            TarArchiveInputStream(tarInput).use { tarInput ->
+                var entry = tarInput.getNextEntry()
+                while (entry != null) {
+                    val outputFile = File(outputDir, entry.name)
+                    if (entry.isDirectory) {
+                        outputFile.mkdirs()
+                    } else {
+                        outputFile.parentFile?.mkdirs()
+                        FileOutputStream(outputFile).use { output ->
+                            tarInput.copyTo(output)
+                        }
                     }
+                    val newFile = File(targetFile.parent, outputFile.relativeTo(outputDir).path)
+                    newFile.mkdirs()
+                    Files.move(outputFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                    entry = tarInput.getNextEntry()
                 }
-                val newFile = File(targetFile.parent, outputFile.relativeTo(outputDir).path)
-                newFile.mkdirs()
-                Files.move(outputFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-                entry = tarArchiveInputStream.nextEntry
             }
             return
         }
