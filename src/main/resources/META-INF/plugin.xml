@@ -16,6 +16,8 @@
                                  id="com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable"
                                  displayName="Trivy"/>
         <applicationService serviceImplementation="com.aquasecurity.plugins.trivy.settings.TrivySettingState"/>
+        <postStartupActivity implementation="com.aquasecurity.plugins.trivy.startup.StartupActivity"/>
+
     </extensions>
 
     <actions>
@@ -29,5 +31,9 @@
         <action id="com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction" icon="AllIcons.General.Settings"
                 class="com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction" text="Show settings"
                 description="Show Settings dialog"/>
+        <action id="com.aquasecurity.plugins.trivy.actions.InstallTrivyAction"
+                icon="AllIcons.Actions.Download"
+                class="com.aquasecurity.plugins.trivy.actions.InstallTrivyAction" text="Install Trivy"
+                description="Install Trivy CLI if not already installed"/>
     </actions>
 </idea-plugin>

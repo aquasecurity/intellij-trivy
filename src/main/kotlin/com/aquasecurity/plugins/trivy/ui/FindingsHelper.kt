@@ -8,13 +8,12 @@ import com.intellij.openapi.roots.ui.componentsList.components.ScrollablePanel
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
-import org.jdesktop.swingx.JXHyperlink
 import java.awt.Font
-import java.net.URI
-import java.util.function.Consumer
+import java.awt.Rectangle
 import javax.swing.BoxLayout
-import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.JTextArea
+import javax.swing.SwingUtilities
 
 class FindingsHelper : ScrollablePanel() {
   private var filepath: String? = null
@@ -27,6 +26,9 @@ class FindingsHelper : ScrollablePanel() {
     layout = BoxLayout(this, BoxLayout.Y_AXIS)
     border = JBUI.Borders.empty(10)
     background = JBColor.PanelBackground
+
+    // make the panel selectable
+    isFocusable = true
   }
 
   private fun updateHelp() {
@@ -44,8 +46,8 @@ class FindingsHelper : ScrollablePanel() {
     }
 
     if (this.vulnerability != null) {
-      addHelpSection("", vulnerability?.vulnerabilityId)
       addHelpSection(vulnerability?.title!!, vulnerability?.description)
+      addHelpSection("ID", vulnerability?.vulnerabilityId)
       addHelpSection("Severity", convertSeverity(vulnerability?.severity.toString()))
       addHelpSection("Package Name", vulnerability?.pkgName)
       addHelpSection("Installed Version", vulnerability?.installedVersion)
@@ -86,52 +88,75 @@ class FindingsHelper : ScrollablePanel() {
   private fun addLinkSection(links: List<String>) {
     val section = JPanel()
     section.border = JBUI.Borders.empty(10)
-
     section.layout = BoxLayout(section, BoxLayout.Y_AXIS)
 
     val font = UIUtil.getLabelFont()
-    val headingFont = font.deriveFont(font.style or Font.BOLD)
-    val heading = JLabel()
-    heading.font = headingFont
-    heading.text = "Links"
-    section.add(heading)
+    val headingFontSize = font.size * 1.2f
+    val headingFont = font.deriveFont(Font.BOLD, headingFontSize)
+    section.add(createLabel("References", headingFont))
 
-    links.forEach(
-        Consumer { link: String? ->
-          val hyperlink = JXHyperlink()
-          hyperlink.text = String.format("<html>%s</html>", link)
-          hyperlink.setURI(URI.create(link!!))
-          hyperlink.toolTipText = link
-          hyperlink.clickedColor = hyperlink.unclickedColor
-          hyperlink.border = JBUI.Borders.emptyTop(5)
-          hyperlink.isEnabled = true
-          section.add(hyperlink)
-        })
+    links.forEach({
+      section.add(createLinkLabel(it, font))
+    })
     add(section)
   }
 
   private fun addHelpSection(title: String, content: String?) {
     val section = JPanel()
     section.border = JBUI.Borders.empty(10)
-
     section.layout = BoxLayout(section, BoxLayout.Y_AXIS)
 
     val font = UIUtil.getLabelFont()
     val headingFontSize = font.size * 1.2f
     val headingFont = font.deriveFont(Font.BOLD, headingFontSize)
     if (!title.isEmpty()) {
-      val heading = JLabel()
-      heading.font = headingFont
-      heading.text = String.format("<html>%s</html>", title)
-      section.add(heading)
+      section.add(createLabel(title, headingFont))
     }
-
-    val descriptionLabel = JLabel()
-    descriptionLabel.font = if (title.isEmpty()) headingFont else font
-    descriptionLabel.text = String.format("<html>%s</html>", content)
-    descriptionLabel.border = JBUI.Borders.emptyTop(5)
-    section.add(descriptionLabel)
+    section.add(createLabel(content ?: "", font))
     add(section)
+  }
+
+  private fun createLabel(content: String, font: Font): JTextArea {
+    val label = JTextArea(content)
+    label.font = font
+    label.isEditable = false
+    label.isOpaque = false
+    label.background = JBColor.PanelBackground
+    label.border = JBUI.Borders.emptyTop(5)
+
+    // Enable text wrapping
+    label.lineWrap = true
+    label.wrapStyleWord = true
+
+    return label
+  }
+
+  private fun createLinkLabel(content: String, font: Font): JTextArea {
+    val label = JTextArea(content)
+    label.font = font
+    label.isEditable = false
+    label.isOpaque = false
+    label.background = JBColor.PanelBackground
+    label.border = JBUI.Borders.emptyTop(5)
+    label.foreground = JBColor.BLUE
+    label.cursor = java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR)
+    label.addMouseListener(object : java.awt.event.MouseAdapter() {
+      override fun mouseClicked(e: java.awt.event.MouseEvent?) {
+        if (e != null && e.button == java.awt.event.MouseEvent.BUTTON1) {
+          try {
+            java.awt.Desktop.getDesktop().browse(java.net.URI(content))
+          } catch (ex: Exception) {
+            ex.printStackTrace()
+          }
+        }
+      }
+    })
+
+    // Enable text wrapping
+    label.lineWrap = true
+    label.wrapStyleWord = true
+
+    return label
   }
 
   fun setHelp(finding: Any?, filename: String?) {
@@ -150,6 +175,10 @@ class FindingsHelper : ScrollablePanel() {
     updateHelp()
     this.validate()
     this.repaint()
+    SwingUtilities.invokeLater {
+      scrollRectToVisible(Rectangle(0, 0, width, height))
+    }
+
   }
 
   private fun convertSeverity(severity: String): String {
