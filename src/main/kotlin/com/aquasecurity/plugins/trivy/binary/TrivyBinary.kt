@@ -42,7 +42,12 @@ class TrivyBinary {
 
             val latestTag = getLatestGithubTag()
 
-            val tmpFile = kotlin.io.path.createTempFile("trivy-${os}-${arch}", suffix).toFile()
+            var targetSuffix = suffix
+            if (os == "windows") {
+                targetSuffix = ".zip"
+            }
+
+            val tmpFile = kotlin.io.path.createTempFile("trivy-${os}-${arch}", targetSuffix ).toFile()
             downloadFile("${releaseUrl}?os=${os}&arch=${arch}&type=${suffix}", tmpFile)
             val checksums = fetchUrl("${checksumUrl}/v${latestTag}/trivy_${latestTag}_checksums.txt").split("\n")
                 .filter { it.isNotBlank() }
@@ -67,7 +72,7 @@ class TrivyBinary {
                 }
             }
 
-            if (os === "windows") {
+            if (os == "windows") {
                 unZip(tmpFile, target)
             } else {
                 unTar(tmpFile, target)

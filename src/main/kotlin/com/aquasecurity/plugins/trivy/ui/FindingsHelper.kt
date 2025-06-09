@@ -112,7 +112,7 @@ class FindingsHelper : ScrollablePanel() {
     if (!title.isEmpty()) {
       section.add(createLabel(title, headingFont))
     }
-    section.add(createLabel(content!!, font))
+    section.add(createLabel(content ?: "", font))
     add(section)
   }
 
