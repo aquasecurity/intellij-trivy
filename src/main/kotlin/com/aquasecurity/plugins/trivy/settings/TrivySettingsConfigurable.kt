@@ -54,7 +54,12 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
             trivySettingsComponent!!.getApiKey != settings.apiKey ||
             trivySettingsComponent!!.getApiSecret != settings.apiSecret ||
             trivySettingsComponent!!.getRegion != settings.region ||
-            trivySettingsComponent!!.getUseAquaPlatform != projectSettings.useAquaPlatform )
+                trivySettingsComponent!!.getUseAquaPlatform != projectSettings.useAquaPlatform ||
+                trivySettingsComponent!!.getEnableDotNetProject !=
+                projectSettings.enableDotNetProject ||
+                trivySettingsComponent!!.getEnableGradle != projectSettings.enableGradle ||
+                trivySettingsComponent!!.getEnablePackageJson != projectSettings.enablePackageJson ||
+                trivySettingsComponent!!.getEnableSASTScanning != projectSettings.enableSASTScanning)
 
     return modified
   }
@@ -85,10 +90,15 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
     projectSettings.useConfig = trivySettingsComponent!!.getUseConfig
     projectSettings.ignorePath = trivySettingsComponent!!.getIgnorePath()
     projectSettings.useIgnore = trivySettingsComponent!!.getUseIgnore
+      projectSettings.enableDotNetProject = trivySettingsComponent!!.getEnableDotNetProject
+      projectSettings.enableGradle = trivySettingsComponent!!.getEnableGradle
+      projectSettings.enablePackageJson = trivySettingsComponent!!.getEnablePackageJson
+      projectSettings.enableSASTScanning = trivySettingsComponent!!.getEnableSASTScanning
 
-    if (trivySettingsComponent!!.getUseAquaPlatform)  {
+      if (trivySettingsComponent!!.getUseAquaPlatform) {
       // Only set useAquaPlatform to true if both apiKey and apiSecret are set
-        projectSettings.useAquaPlatform =  (trivySettingsComponent!!.getApiKey != "" && trivySettingsComponent!!.getApiSecret != "")
+          projectSettings.useAquaPlatform =
+              (trivySettingsComponent!!.getApiKey != "" && trivySettingsComponent!!.getApiSecret != "")
     } else {
       projectSettings.useAquaPlatform = false
     }
@@ -116,10 +126,21 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
       trivySettingsComponent?.setUseIgnore(TrivyProjectSettingState.getInstance(project).useIgnore)
       trivySettingsComponent?.setApiKey(settings.apiKey)
       trivySettingsComponent?.setApiSecret(settings.apiSecret)
-        trivySettingsComponent?.setRegion(settings.region)
+      trivySettingsComponent?.setRegion(settings.region)
       trivySettingsComponent?.setUseAquaPlatform(
         TrivyProjectSettingState.getInstance(project).useAquaPlatform)
-
+      trivySettingsComponent?.setEnableDotNetProject(
+          TrivyProjectSettingState.getInstance(project).enableDotNetProject
+      )
+      trivySettingsComponent?.setEnableGradle(
+          TrivyProjectSettingState.getInstance(project).enableGradle
+      )
+      trivySettingsComponent?.setEnablePackageJson(
+          TrivyProjectSettingState.getInstance(project).enablePackageJson
+      )
+      trivySettingsComponent?.setEnableSASTScanning(
+          TrivyProjectSettingState.getInstance(project).enableSASTScanning
+      )
   }
 
   override fun disposeUIResources() {

@@ -84,13 +84,14 @@ internal class TrivyDownloadBinaryTask(
         } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
             osName = "linux"
         }
-        PluginManagerCore.getPlugin(PluginId.getId("com.aquasecurity.plugins.intellij-Trivy"))?.pluginPath?.let {
-            val targetFile = Paths.get(it.toAbsolutePath().toString(), binaryTarget).toFile()
-            if (downloadBinary(project, osName, arch, suffix, targetFile, initial)) {
-                TrivySettingState.instance.trivyPath = targetFile.absolutePath
-                TrivyBinary.binaryFile = targetFile.absolutePath
-            }
+        PluginManagerCore.getPlugin(PluginId.getId("com.aquasecurity.plugins.intellij-Trivy"))
+            ?.pluginPath
+            ?.let {
+                val targetFile = Paths.get(it.toAbsolutePath().toString(), binaryTarget).toFile()
+                if (downloadBinary(project, osName, arch, suffix, targetFile, initial)) {
+                    TrivySettingState.instance.trivyPath = targetFile.absolutePath
+                    TrivyBinary.binaryFile = targetFile.absolutePath
+                }
         }
-
     }
 }

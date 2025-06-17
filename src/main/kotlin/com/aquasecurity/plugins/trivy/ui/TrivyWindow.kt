@@ -1,9 +1,9 @@
 package com.aquasecurity.plugins.trivy.ui
 
 import com.aquasecurity.plugins.trivy.model.commercial.AssuranceReport
-import com.aquasecurity.plugins.trivy.model.oss.Location
-import com.aquasecurity.plugins.trivy.model.oss.Report
-import com.aquasecurity.plugins.trivy.model.oss.Result
+import com.aquasecurity.plugins.trivy.model.report.Location
+import com.aquasecurity.plugins.trivy.model.report.Report
+import com.aquasecurity.plugins.trivy.model.report.Result
 import com.aquasecurity.plugins.trivy.settings.TrivyProjectSettingState
 import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup
 import com.aquasecurity.plugins.trivy.ui.treenodes.FileTreeNode
@@ -109,7 +109,9 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
         Consumer { f: Result ->
           if ((f.misconfigurations != null && f.misconfigurations!!.isNotEmpty()) ||
               (f.vulnerabilities != null && f.vulnerabilities!!.isNotEmpty()) ||
-              (f.secrets != null && f.secrets!!.isNotEmpty())) {
+            (f.secrets != null && f.secrets!!.isNotEmpty()) ||
+            (f.sasts != null && f.sasts!!.isNotEmpty())
+          ) {
             addOrUpdateTreeNode(f, fileNodes)
           }
         })

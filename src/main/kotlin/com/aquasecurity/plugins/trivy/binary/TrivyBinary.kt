@@ -46,14 +46,16 @@ class TrivyBinary {
                 targetSuffix = ".zip"
             }
 
-            val tmpFile = kotlin.io.path.createTempFile("trivy-${os}-${arch}", targetSuffix ).toFile()
+            val tmpFile = kotlin.io.path.createTempFile("trivy-${os}-${arch}", targetSuffix).toFile()
             downloadFile("${releaseUrl}?os=${os}&arch=${arch}&type=${suffix}", tmpFile)
-            val checksums = fetchUrl("${checksumUrl}/v${latestTag}/trivy_${latestTag}_checksums.txt").split("\n")
-                .filter { it.isNotBlank() }
-                .map { it.trim() }
-                .map { it.split("\\s+".toRegex()) }
-                .filter { it.size == 2 }
-                .map { Pair(it[0], it[1]) }
+            val checksums =
+                fetchUrl("${checksumUrl}/v${latestTag}/trivy_${latestTag}_checksums.txt")
+                    .split("\n")
+                    .filter { it.isNotBlank() }
+                    .map { it.trim() }
+                    .map { it.split("\\s+".toRegex()) }
+                    .filter { it.size == 2 }
+                    .map { Pair(it[0], it[1]) }
 
             val calculatedChecksum = calculateChecksum(tmpFile)
             for (checksum in checksums) {
@@ -63,8 +65,7 @@ class TrivyBinary {
                         break
                     } else {
                         TrivyNotificationGroup.notifyError(
-                            project,
-                            "Checksum for downloaded file is empty, not using download"
+                            project, "Checksum for downloaded file is empty, not using download"
                         )
                         return false
                     }
@@ -124,16 +125,15 @@ class TrivyBinary {
             val filename = extractFilenameFromContentDisposition(contentDisposition)
 
             // Create a new output file with the name from Content-Disposition if different
-            val finalOutputFile = if (filename != outputFile.name) {
-                File(outputFile.parentFile, filename)
-            } else {
-                outputFile
-            }
+            val finalOutputFile =
+                if (filename != outputFile.name) {
+                    File(outputFile.parentFile, filename)
+                } else {
+                    outputFile
+                }
 
             connection.inputStream.use { input ->
-                FileOutputStream(finalOutputFile).use { output ->
-                    input.copyTo(output)
-                }
+                FileOutputStream(finalOutputFile).use { output -> input.copyTo(output) }
             }
 
             // Rename the output file to match the requested name if different
@@ -156,11 +156,12 @@ class TrivyBinary {
 
         private fun unTar(tarFile: File, targetFile: File) {
             val outputDir = createTempDirectory().toFile()
-            val tarInput: InputStream = if (tarFile.extension == "gz") {
-                GZIPInputStream(FileInputStream(tarFile))
-            } else {
-                FileInputStream(tarFile)
-            }
+            val tarInput: InputStream =
+                if (tarFile.extension == "gz") {
+                    GZIPInputStream(FileInputStream(tarFile))
+                } else {
+                    FileInputStream(tarFile)
+                }
             TarArchiveInputStream(tarInput).use { tarInput ->
                 var entry = tarInput.getNextEntry()
                 while (entry != null) {
@@ -169,9 +170,7 @@ class TrivyBinary {
                         outputFile.mkdirs()
                     } else {
                         outputFile.parentFile?.mkdirs()
-                        FileOutputStream(outputFile).use { output ->
-                            tarInput.copyTo(output)
-                        }
+                        FileOutputStream(outputFile).use { output -> tarInput.copyTo(output) }
                     }
                     val newFile = File(targetFile.parent, outputFile.relativeTo(outputDir).path)
                     newFile.mkdirs()
@@ -192,9 +191,7 @@ class TrivyBinary {
                         outputFile.mkdirs()
                     } else {
                         outputFile.parentFile?.mkdirs()
-                        FileOutputStream(outputFile).use { output ->
-                            zipInput.copyTo(output)
-                        }
+                        FileOutputStream(outputFile).use { output -> zipInput.copyTo(output) }
                     }
                     val newFile = File(targetFile.parent, outputFile.relativeTo(outputDir).path)
                     newFile.mkdirs()

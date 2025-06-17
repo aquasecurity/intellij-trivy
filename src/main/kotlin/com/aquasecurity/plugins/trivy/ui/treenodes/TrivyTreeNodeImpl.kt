@@ -1,9 +1,10 @@
 package com.aquasecurity.plugins.trivy.ui.treenodes
 
 import com.aquasecurity.plugins.trivy.icons.TrivyIcons
-import com.aquasecurity.plugins.trivy.model.oss.Misconfiguration
-import com.aquasecurity.plugins.trivy.model.oss.Secret
-import com.aquasecurity.plugins.trivy.model.oss.Vulnerability
+import com.aquasecurity.plugins.trivy.model.report.Misconfiguration
+import com.aquasecurity.plugins.trivy.model.report.Sast
+import com.aquasecurity.plugins.trivy.model.report.Secret
+import com.aquasecurity.plugins.trivy.model.report.Vulnerability
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
 
@@ -14,7 +15,9 @@ class TrivyTreeNodeImpl(fileType: String, value: Any) : TrivyTreeNode, DefaultMu
   override val tooltip: String?
 
   init {
-    require(value is Vulnerability || value is Misconfiguration || value is Secret)
+    require(value is Vulnerability || value is Misconfiguration || value is Secret || value is Sast) {
+      "Value must be of type Vulnerability, Misconfiguration, Secret, or Sast"
+    }
 
     when (value) {
       is Vulnerability -> {
@@ -31,6 +34,12 @@ class TrivyTreeNodeImpl(fileType: String, value: Any) : TrivyTreeNode, DefaultMu
 
       is Secret -> {
         icon = TrivyIcons.Companion.Secret
+        title = value.title
+        tooltip = ""
+      }
+
+      is Sast -> {
+        icon = IconHelper.getFileIcon(fileType)
         title = value.title
         tooltip = ""
       }

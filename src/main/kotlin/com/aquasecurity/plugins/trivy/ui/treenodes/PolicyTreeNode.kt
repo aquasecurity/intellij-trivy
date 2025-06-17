@@ -3,7 +3,7 @@ package com.aquasecurity.plugins.trivy.ui.treenodes
 import com.aquasecurity.plugins.trivy.model.commercial.ControlResult
 import com.aquasecurity.plugins.trivy.model.commercial.PolicyResult
 import com.aquasecurity.plugins.trivy.model.commercial.Result
-import com.aquasecurity.plugins.trivy.model.oss.Report
+import com.aquasecurity.plugins.trivy.model.report.Report
 import com.intellij.icons.AllIcons
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode

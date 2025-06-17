@@ -1,4 +1,4 @@
-package com.aquasecurity.plugins.trivy.model.oss
+package com.aquasecurity.plugins.trivy.model.report
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
@@ -18,6 +18,8 @@ class Result {
   @JsonProperty("Misconfigurations") var misconfigurations: List<Misconfiguration>? = null
 
   @JsonProperty("Secrets") var secrets: List<Secret>? = null
+
+  @JsonProperty("Sast") var sasts: List<Sast>? = null
 
   private var consolidatedResults: List<Any?> = listOf()
 
