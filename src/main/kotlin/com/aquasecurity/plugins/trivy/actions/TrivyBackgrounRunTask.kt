@@ -88,22 +88,19 @@ internal class TrivyBackgroundRunTask(
 
     return when (region) {
       "Dev" ->
-        Pair(
-          "https://stage.api.cloudsploit.com", "https://api.dev.supply-chain.cloud.aquasec.com"
-        )
+          Pair(
+              "https://stage.api.cloudsploit.com", "https://api.dev.supply-chain.cloud.aquasec.com")
 
       "EU" ->
-        Pair("https://eu.api.cloudsploit.com", "https://api.eu.supply-chain.cloud.aquasec.com")
+          Pair("https://eu.api.cloudsploit.com", "https://api.eu.supply-chain.cloud.aquasec.com")
 
       "Singapore" ->
-        Pair(
-          "https://ap-1.api.cloudsploit.com", "https://api.ap-1.supply-chain.cloud.aquasec.com"
-        )
+          Pair(
+              "https://ap-1.api.cloudsploit.com", "https://api.ap-1.supply-chain.cloud.aquasec.com")
 
       "Sydney" ->
-        Pair(
-          "https://ap-2.api.cloudsploit.com", "https://api.ap-2.supply-chain.cloud.aquasec.com"
-        )
+          Pair(
+              "https://ap-2.api.cloudsploit.com", "https://api.ap-2.supply-chain.cloud.aquasec.com")
       else -> Pair("https://api.cloudsploit.com", "https://api.supply-chain.cloud.aquasec.com")
     }
   }
@@ -128,7 +125,7 @@ internal class TrivyBackgroundRunTask(
     commandLine.environment["AQUA_SECRET"] = TrivySettingState.instance.apiSecret
     commandLine.environment["TRIVY_RUN_AS_PLUGIN"] = "aqua"
     commandLine.environment["AQUA_ASSURANCE_EXPORT"] =
-      resultFile.absolutePath.replace(".json", "_assurance.json")
+        resultFile.absolutePath.replace(".json", "_assurance.json")
     commandLine.environment["TRIVY_SKIP_REPOSITORY_UPLOAD"] = "true"
     commandLine.environment["TRIVY_SKIP_RESULT_UPLOAD"] = "true"
 

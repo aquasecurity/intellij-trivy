@@ -15,9 +15,10 @@ class TrivyTreeNodeImpl(fileType: String, value: Any) : TrivyTreeNode, DefaultMu
   override val tooltip: String?
 
   init {
-    require(value is Vulnerability || value is Misconfiguration || value is Secret || value is Sast) {
-      "Value must be of type Vulnerability, Misconfiguration, Secret, or Sast"
-    }
+    require(
+        value is Vulnerability || value is Misconfiguration || value is Secret || value is Sast) {
+          "Value must be of type Vulnerability, Misconfiguration, Secret, or Sast"
+        }
 
     when (value) {
       is Vulnerability -> {

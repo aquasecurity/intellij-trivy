@@ -1,6 +1,7 @@
 package com.aquasecurity.plugins.trivy.ui
 
 import com.aquasecurity.plugins.trivy.model.commercial.AssuranceReport
+import com.aquasecurity.plugins.trivy.model.commercial.Result as CommercialResult
 import com.aquasecurity.plugins.trivy.model.report.Location
 import com.aquasecurity.plugins.trivy.model.report.Report
 import com.aquasecurity.plugins.trivy.model.report.Result
@@ -37,7 +38,6 @@ import javax.swing.JPanel
 import javax.swing.SwingConstants
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.TreePath
-import com.aquasecurity.plugins.trivy.model.commercial.Result as CommercialResult
 
 class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
   private val project: Project
@@ -109,9 +109,8 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
         Consumer { f: Result ->
           if ((f.misconfigurations != null && f.misconfigurations!!.isNotEmpty()) ||
               (f.vulnerabilities != null && f.vulnerabilities!!.isNotEmpty()) ||
-            (f.secrets != null && f.secrets!!.isNotEmpty()) ||
-            (f.sasts != null && f.sasts!!.isNotEmpty())
-          ) {
+              (f.secrets != null && f.secrets!!.isNotEmpty()) ||
+              (f.sasts != null && f.sasts!!.isNotEmpty())) {
             addOrUpdateTreeNode(f, fileNodes)
           }
         })

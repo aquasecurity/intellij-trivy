@@ -10,10 +10,8 @@ data class Report(
     @JsonProperty("ArtifactType") val artifactType: String,
     @JsonProperty("Metadata") val metadata: Metadata,
     @JsonProperty("Results") val results: List<Result>?,
-
 ) {
-    val project = com.intellij.openapi.project.ProjectManager.getInstance().openProjects.firstOrNull()
-
+  val project = com.intellij.openapi.project.ProjectManager.getInstance().openProjects.firstOrNull()
 
   fun findMatchingResult(filepath: String, matchId: String): List<Any?> {
 
@@ -23,19 +21,19 @@ data class Report(
       return returnResults
     }
 
-      fun isMatchingFile(result: Result, filepath: String): Boolean {
-          val projectRoot = project!!.basePath // or project.getBasePath()
-          val targetPath = result.target
-          val relativePath = if (projectRoot != null) {
-              Paths.get(projectRoot).relativize(Paths.get(targetPath)).toString()
+    fun isMatchingFile(result: Result, filepath: String): Boolean {
+      val projectRoot = project!!.basePath // or project.getBasePath()
+      val targetPath = result.target
+      val relativePath =
+          if (projectRoot != null) {
+            Paths.get(projectRoot).relativize(Paths.get(targetPath)).toString()
           } else {
-              targetPath // fallback if project root is not available
+            targetPath // fallback if project root is not available
           }
-          return relativePath == filepath
-      }
+      return relativePath == filepath
+    }
 
-
-    val fileResults = results.filter { r -> isMatchingFile(r, filepath)}
+    val fileResults = results.filter { r -> isMatchingFile(r, filepath) }
 
     if (fileResults.isEmpty()) {
       return returnResults

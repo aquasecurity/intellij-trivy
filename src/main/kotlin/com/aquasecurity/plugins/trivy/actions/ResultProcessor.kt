@@ -36,13 +36,11 @@ object ResultProcessor {
       }
     } catch (e: IOException) {
       TrivyNotificationGroup.notifyError(
-        project, "Failed to process the results file. ${e.localizedMessage}"
-      )
+          project, "Failed to process the results file. ${e.localizedMessage}")
     } catch (e: Exception) {
       TrivyNotificationGroup.notifyError(
-        project,
-        "An unexpected error occurred while processing the results. ${e.localizedMessage}"
-      )
+          project,
+          "An unexpected error occurred while processing the results. ${e.localizedMessage}")
     } finally {
       trivyWindow.redraw()
     }

@@ -23,7 +23,7 @@ class LocationTreeNode(
         finding is Misconfiguration ||
             finding is Vulnerability ||
             finding is Secret ||
-                finding is Sast ||
+            finding is Sast ||
             finding is Result)
 
     this.fileLocation = Location(filepath, 1, 1)
@@ -57,15 +57,14 @@ class LocationTreeNode(
     } else {
       this.locationTitle = "${sast.title}:[${sast.startLine}]"
     }
-//    this.locationTitle = sast.title ?: "UNKNOWN"
+    //    this.locationTitle = sast.title ?: "UNKNOWN"
     this.severity = sast.severity ?: "UNKNOWN"
 
     if (this.child) {
       if (this.fileLocation.startLine != null &&
-        this.fileLocation.startLine != this.fileLocation.endLine
-      ) {
+          this.fileLocation.startLine != this.fileLocation.endLine) {
         this.locationTitle =
-          "${this.filepath}:[${this.fileLocation.startLine}-${this.fileLocation.endLine}]"
+            "${this.filepath}:[${this.fileLocation.startLine}-${this.fileLocation.endLine}]"
       } else {
         this.locationTitle = this.filepath
       }

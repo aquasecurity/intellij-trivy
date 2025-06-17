@@ -14,7 +14,8 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
   private val type: String? = result!!.type
   private val className: String? = result!!.ClassName
 
-  private val project = com.intellij.openapi.project.ProjectManager.getInstance().openProjects.firstOrNull()
+  private val project =
+      com.intellij.openapi.project.ProjectManager.getInstance().openProjects.firstOrNull()
 
   init {
     update(result!!)
@@ -46,8 +47,7 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
               }
             }
           })
-      visited
-        .forEach(Consumer { newChild: LocationTreeNode? -> this.add(newChild) })
+      visited.forEach(Consumer { newChild: LocationTreeNode? -> this.add(newChild) })
     }
 
     if (result.vulnerabilities != null && result.vulnerabilities!!.isNotEmpty()) {
@@ -94,20 +94,21 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
       // sort the SAST findings
       result.sasts = result.sasts!!.sortedBy { it.title }
       result.sasts!!.forEach(
-        Consumer { sast ->
-          val title = "${sast.title}:${sast.startLine}"
-          if (visited.stream().noneMatch { v: LocationTreeNode -> v.title == title }) {
-            val projectRoot = project!!.basePath // or project.getBasePath()
-            val targetPath = result.target.toString()
-            val relativePath = if (projectRoot != null) {
-              Paths.get(projectRoot).relativize(Paths.get(targetPath)).toString()
-            } else {
-              targetPath // fallback if project root is not available
+          Consumer { sast ->
+            val title = "${sast.title}:${sast.startLine}"
+            if (visited.stream().noneMatch { v: LocationTreeNode -> v.title == title }) {
+              val projectRoot = project!!.basePath // or project.getBasePath()
+              val targetPath = result.target.toString()
+              val relativePath =
+                  if (projectRoot != null) {
+                    Paths.get(projectRoot).relativize(Paths.get(targetPath)).toString()
+                  } else {
+                    targetPath // fallback if project root is not available
+                  }
+              this.target = relativePath
+              visited.add(LocationTreeNode(relativePath, result.type.toString(), sast))
             }
-            this.target = relativePath
-            visited.add(LocationTreeNode(relativePath, result.type.toString(), sast))
-          }
-        })
+          })
       visited.forEach(Consumer { newChild: LocationTreeNode? -> this.add(newChild) })
     }
   }

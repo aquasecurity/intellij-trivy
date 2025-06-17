@@ -6,9 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity
 
 class StartupActivity : ProjectActivity {
-    override suspend fun execute(project: Project) {
-        ApplicationManager.getApplication().invokeLater {
-            CheckForTrivyAction.run(project)
-        }
-    }
+  override suspend fun execute(project: Project) {
+    ApplicationManager.getApplication().invokeLater { CheckForTrivyAction.run(project) }
+  }
 }

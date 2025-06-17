@@ -16,6 +16,6 @@ object TrivyNotificationGroup {
   }
 
   private fun notify(project: Project?, content: String, notificationType: NotificationType) {
-      NOTIFICATION_GROUP?.createNotification(content, notificationType)!!.notify(project)
+    NOTIFICATION_GROUP?.createNotification(content, notificationType)!!.notify(project)
   }
 }
