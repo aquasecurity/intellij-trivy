@@ -15,6 +15,7 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPasswordField
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.FormBuilder
+import java.awt.event.ItemEvent
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -63,16 +64,17 @@ class TrivySettingsComponent {
     trivyConfigPath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
     trivyIgnorePath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
 
-    region.addItemListener { e ->
-      val showCustom = region.selectedItem == "Custom"
-      customAquaUrlLabel.isVisible = showCustom
-      customAquaUrl.isVisible = showCustom
-      customAuthUrlLabel.isVisible = showCustom
-      customAuthUrl.isVisible = showCustom
+    region.addItemListener(
+        fun(_: ItemEvent) {
+          val showCustom = region.selectedItem == "Custom"
+          customAquaUrlLabel.isVisible = showCustom
+          customAquaUrl.isVisible = showCustom
+          customAuthUrlLabel.isVisible = showCustom
+          customAuthUrl.isVisible = showCustom
 
-      panel.revalidate()
-      panel.repaint()
-    }
+          panel.revalidate()
+          panel.repaint()
+        })
 
     trivyPath.text = TrivySettingState.instance.trivyPath
     if (project != null) {

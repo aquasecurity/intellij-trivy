@@ -64,7 +64,7 @@ class TrivyBinary {
             break
           } else {
             TrivyNotificationGroup.notifyError(
-                project, "Checksum for downloaded file is empty, not using download")
+                project, "No matching checksum found for downloaded file; download aborted.")
             return false
           }
         }
@@ -160,8 +160,8 @@ class TrivyBinary {
           } else {
             FileInputStream(tarFile)
           }
-      TarArchiveInputStream(tarInput).use { tarInput ->
-        var entry = tarInput.getNextEntry()
+      TarArchiveInputStream(tarInput).use { input ->
+        var entry = input.getNextEntry()
         while (entry != null) {
           val outputFile = File(outputDir, entry.name)
           if (entry.isDirectory) {
@@ -173,7 +173,7 @@ class TrivyBinary {
           val newFile = File(targetFile.parent, outputFile.relativeTo(outputDir).path)
           newFile.mkdirs()
           Files.move(outputFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-          entry = tarInput.getNextEntry()
+          entry = input.getNextEntry()
         }
       }
       return

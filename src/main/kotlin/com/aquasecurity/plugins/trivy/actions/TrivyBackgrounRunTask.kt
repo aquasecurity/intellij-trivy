@@ -65,6 +65,7 @@ internal class TrivyBackgroundRunTask(
 
       // verify the credentials firts
       if (!CredentialCheck.isValidCredentials(
+          project,
           commandLine.environment.get("AQUA_KEY") ?: "",
           commandLine.environment.get("AQUA_SECRET") ?: "",
           commandLine.environment.get("AQUA_URL") ?: "",

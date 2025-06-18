@@ -29,8 +29,7 @@ object ResultProcessor {
         // For Aqua Platform, we need to process the report differently
         val assuranceResultFile = resultFile.absolutePath.replace(".json", "_assurance.json")
         if (File(assuranceResultFile).exists()) {
-          val assuranceReport = getAssuranceReport(project, File(assuranceResultFile))
-          assuranceReport.report = report
+          val assuranceReport = getAssuranceReport(project, File(assuranceResultFile), report)
           trivyWindow.updateAssuranceResults(assuranceReport)
         }
       }
@@ -82,7 +81,11 @@ object ResultProcessor {
     }
   }
 
-  private fun getAssuranceReport(project: Project, resultFile: File): AssuranceReport {
+  private fun getAssuranceReport(
+      project: Project,
+      resultFile: File,
+      report: Report
+  ): AssuranceReport {
     return try {
       val jsonFactory =
           JsonFactory.builder().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION).build()
@@ -91,7 +94,8 @@ object ResultProcessor {
             disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
             disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
           }
-      findingsMapper.readValue(resultFile, AssuranceReport::class.java)
+      val rep = findingsMapper.readValue(resultFile, AssuranceReport::class.java)
+      AssuranceReport(report, rep.results)
     } catch (e: IOException) {
       TrivyNotificationGroup.notifyError(
           project, "Failed to deserialize the results file. ${e.localizedMessage}")

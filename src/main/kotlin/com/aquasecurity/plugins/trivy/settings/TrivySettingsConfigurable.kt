@@ -108,7 +108,11 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
     if (trivySettingsComponent!!.getUseAquaPlatform) {
       projectSettings.useAquaPlatform =
           CredentialCheck.isValidCredentials(
-              settings.apiKey, settings.apiSecret, settings.customAquaUrl, settings.customAuthUrl)
+              project,
+              settings.apiKey,
+              settings.apiSecret,
+              settings.customAquaUrl,
+              settings.customAuthUrl)
     }
     CheckForTrivyAction.run(project)
   }

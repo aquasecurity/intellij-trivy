@@ -1,12 +1,17 @@
 package com.aquasecurity.plugins.trivy.settings
 
+import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup
+import com.intellij.openapi.project.Project
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 
 class CredentialCheck {
+
   companion object {
+
     fun isValidCredentials(
+        project: Project,
         apiKey: String,
         apiSecret: String,
         aquaUrl: String,
@@ -46,16 +51,13 @@ class CredentialCheck {
 
         val response = client.send(req, java.net.http.HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() == 200) {
-          println("Credentials are valid.")
           return true
-        } else {
-          println("Invalid credentials: ${response.statusCode()} - ${response.body()}")
-          return false
         }
       } catch (e: Exception) {
-        println("Exception occurred: ${e.message}")
+        TrivyNotificationGroup.notifyError(project, "Failed to validate credentials")
+        return false
       }
-
+      TrivyNotificationGroup.notifyError(project, "Failed to validate credentials")
       return false
     }
   }
