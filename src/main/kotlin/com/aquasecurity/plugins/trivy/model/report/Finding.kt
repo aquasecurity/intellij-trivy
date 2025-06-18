@@ -1,4 +1,4 @@
-package com.aquasecurity.plugins.trivy.model.oss
+package com.aquasecurity.plugins.trivy.model.report
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.nio.file.FileSystems
@@ -41,5 +41,5 @@ class Finding {
   }
 
   val relativePath: String
-      get() = Location?.filename?.replace(basePath ?: "", "").toString()
+    get() = Location?.filename?.replace(basePath ?: "", "").toString()
 }

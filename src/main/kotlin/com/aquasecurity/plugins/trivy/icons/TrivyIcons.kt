@@ -17,6 +17,7 @@ interface TrivyIcons {
     val Docker: Icon = IconLoader.getIcon("/icons/dockerfile.svg", TrivyIcons::class.java)
     val Gem: Icon = IconLoader.getIcon("/icons/ruby.svg", TrivyIcons::class.java)
     val Go: Icon = IconLoader.getIcon("/icons/go.svg", TrivyIcons::class.java)
+    val Html: Icon = IconLoader.getIcon("/icons/html.svg", TrivyIcons::class.java)
     val Java: Icon = IconLoader.getIcon("/icons/java.svg", TrivyIcons::class.java)
     val Javascript: Icon = IconLoader.getIcon("/icons/javascript.svg", TrivyIcons::class.java)
     val Node: Icon = IconLoader.getIcon("/icons/node.svg", TrivyIcons::class.java)

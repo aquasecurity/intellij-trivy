@@ -1,9 +1,10 @@
 package com.aquasecurity.plugins.trivy.ui
 
 import com.aquasecurity.plugins.trivy.model.commercial.Result
-import com.aquasecurity.plugins.trivy.model.oss.Misconfiguration
-import com.aquasecurity.plugins.trivy.model.oss.Secret
-import com.aquasecurity.plugins.trivy.model.oss.Vulnerability
+import com.aquasecurity.plugins.trivy.model.report.Misconfiguration
+import com.aquasecurity.plugins.trivy.model.report.Sast
+import com.aquasecurity.plugins.trivy.model.report.Secret
+import com.aquasecurity.plugins.trivy.model.report.Vulnerability
 import com.intellij.openapi.roots.ui.componentsList.components.ScrollablePanel
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
@@ -16,15 +17,17 @@ import javax.swing.JTextArea
 import javax.swing.SwingUtilities
 
 class FindingsHelper : ScrollablePanel() {
+  private var finding: Any? = null
   private var filepath: String? = null
   private var vulnerability: Vulnerability? = null
   private var misconfig: Misconfiguration? = null
   private var secret: Secret? = null
+  private var sast: Sast? = null
   private var commercialResult: Result? = null
 
   init {
     layout = BoxLayout(this, BoxLayout.Y_AXIS)
-    border = JBUI.Borders.empty(10)
+    border = JBUI.Borders.empty(2, 10)
     background = JBColor.PanelBackground
 
     // make the panel selectable
@@ -66,6 +69,31 @@ class FindingsHelper : ScrollablePanel() {
       addHelpSection("Filename", filepath)
     }
 
+    if (this.sast != null) {
+      val title = sast?.title.toString().lowercase().replaceFirstChar { it.uppercase() }
+      val confidence =
+          sast?.confidence?.toString()?.lowercase()?.replaceFirstChar { it.uppercase() }
+      sast?.impact?.toString()?.lowercase()?.replaceFirstChar { it.uppercase() }
+      val likelihood =
+          sast?.likelihood?.toString()?.lowercase()?.replaceFirstChar { it.uppercase() }
+
+      var owasp = ""
+      sast?.owasp?.let { owasp = sast!!.owasp!!.joinToString("\n") }
+
+      addHelpSection(title, "")
+      addHelpSection(sast?.cwe ?: "N/A", sast?.message)
+      addHelpSection("Severity", convertSeverity(sast?.severity.toString()))
+      addHelpSection("Confidence", confidence)
+      addHelpSection("Likelihood", likelihood)
+      addHelpSection("OWASP", owasp)
+      addHelpSection("Remediation", sast?.remediation?.toString() ?: "N/A")
+      addHelpSection("Filename", filepath)
+
+      if (sast?.references!!.isNotEmpty()) {
+        addLinkSection(sast?.references!!)
+      }
+    }
+
     if (this.commercialResult != null) {
       var fix = commercialResult?.fixedVersion
       if (commercialResult?.extraData?.fix != null) {
@@ -79,6 +107,9 @@ class FindingsHelper : ScrollablePanel() {
       addHelpSection("", commercialResult?.avdid)
       addHelpSection("", commercialResult?.message)
       addHelpSection("Severity", convertSeverity(commercialResult?.severity.toString()))
+      if (fix == null || fix == "null" || fix.isEmpty()) {
+        fix = "N/A"
+      }
       addHelpSection("Fix", fix)
       addHelpSection("Filename", filepath)
       addLinkSection(commercialResult?.extraData?.references?.toList()!!)
@@ -95,9 +126,7 @@ class FindingsHelper : ScrollablePanel() {
     val headingFont = font.deriveFont(Font.BOLD, headingFontSize)
     section.add(createLabel("References", headingFont))
 
-    links.forEach({
-      section.add(createLinkLabel(it, font))
-    })
+    links.forEach({ section.add(createLinkLabel(it, font)) })
     add(section)
   }
 
@@ -112,7 +141,9 @@ class FindingsHelper : ScrollablePanel() {
     if (!title.isEmpty()) {
       section.add(createLabel(title, headingFont))
     }
-    section.add(createLabel(content ?: "", font))
+    if (content != null && !content.isEmpty()) {
+      section.add(createLabel(content, font))
+    }
     add(section)
   }
 
@@ -140,17 +171,18 @@ class FindingsHelper : ScrollablePanel() {
     label.border = JBUI.Borders.emptyTop(5)
     label.foreground = JBColor.BLUE
     label.cursor = java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR)
-    label.addMouseListener(object : java.awt.event.MouseAdapter() {
-      override fun mouseClicked(e: java.awt.event.MouseEvent?) {
-        if (e != null && e.button == java.awt.event.MouseEvent.BUTTON1) {
-          try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI(content))
-          } catch (ex: Exception) {
-            ex.printStackTrace()
+    label.addMouseListener(
+        object : java.awt.event.MouseAdapter() {
+          override fun mouseClicked(e: java.awt.event.MouseEvent?) {
+            if (e != null && e.button == java.awt.event.MouseEvent.BUTTON1) {
+              try {
+                java.awt.Desktop.getDesktop().browse(java.net.URI(content))
+              } catch (ex: Exception) {
+                ex.printStackTrace()
+              }
+            }
           }
-        }
-      }
-    })
+        })
 
     // Enable text wrapping
     label.lineWrap = true
@@ -160,33 +192,57 @@ class FindingsHelper : ScrollablePanel() {
   }
 
   fun setHelp(finding: Any?, filename: String?) {
+    // if it's already the existing finding, do nothing
+    if (this.finding == finding) {
+      return
+    }
     this.vulnerability = null
     this.misconfig = null
     this.secret = null
+    this.sast = null
     this.filepath = filename
 
     when (finding) {
       is Misconfiguration -> this.misconfig = finding
       is Vulnerability -> this.vulnerability = finding
       is Secret -> this.secret = finding
+      is Sast -> this.sast = finding
       is Result -> this.commercialResult = finding
     }
 
-    updateHelp()
-    this.validate()
-    this.repaint()
-    SwingUtilities.invokeLater {
-      scrollRectToVisible(Rectangle(0, 0, width, height))
-    }
+    this.finding = finding
 
+    updateHelp()
+
+    // synchronisation hack to ensure that the text gets wrapped appropriately
+    SwingUtilities.invokeLater {
+      // Force layout recalculation
+      invalidate()
+      revalidate()
+      repaint()
+      scrollRectToVisible(Rectangle(0, 0, width, height))
+
+      // Add another invokeLater to ensure proper wrapping after first layout pass
+      SwingUtilities.invokeLater {
+        revalidate()
+        repaint()
+      }
+    }
   }
 
   private fun convertSeverity(severity: String): String {
     return when (severity) {
-      "4", "CRITICAL" -> "Critical"
-      "3", "HIGH" -> "High"
-      "2", "MEDIUM" -> "Medium"
-      "1", "LOW" -> "Low"
+      "4",
+      "CRITICAL" -> "Critical"
+
+      "3",
+      "HIGH" -> "High"
+
+      "2",
+      "MEDIUM" -> "Medium"
+
+      "1",
+      "LOW" -> "Low"
       else -> "Unknown"
     }
   }

@@ -2,10 +2,7 @@ package com.aquasecurity.plugins.trivy.ui.treenodes
 
 import com.aquasecurity.plugins.trivy.icons.TrivyIcons
 import com.aquasecurity.plugins.trivy.model.commercial.Result
-import com.aquasecurity.plugins.trivy.model.oss.Location
-import com.aquasecurity.plugins.trivy.model.oss.Misconfiguration
-import com.aquasecurity.plugins.trivy.model.oss.Secret
-import com.aquasecurity.plugins.trivy.model.oss.Vulnerability
+import com.aquasecurity.plugins.trivy.model.report.*
 import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
 
@@ -17,15 +14,16 @@ class LocationTreeNode(
 ) : DefaultMutableTreeNode(), TrivyTreeNode {
   private var fileLocation: Location
   private var locationTitle: String
-  private var severity: String
+  var severity: String
 
-  private var helperObject: Result? = null
+  private var helperObject: Any? = null
 
   init {
     require(
         finding is Misconfiguration ||
             finding is Vulnerability ||
             finding is Secret ||
+            finding is Sast ||
             finding is Result)
 
     this.fileLocation = Location(filepath, 1, 1)
@@ -37,6 +35,7 @@ class LocationTreeNode(
       finding is Misconfiguration -> handleMisconfiguration(finding)
       finding is Vulnerability -> handleVulnerability(finding)
       finding is Secret -> handleSecret(finding)
+      finding is Sast -> handleSast(finding)
     }
   }
 
@@ -50,14 +49,26 @@ class LocationTreeNode(
     this.severity = secret.severity.toString()
   }
 
+  private fun handleSast(sast: Sast) {
+    this.fileLocation = Location(filepath, sast.startLine, sast.endLine)
+
+    if (sast.startLine != sast.endLine) {
+      this.locationTitle = "${sast.title}:[${sast.startLine}-${sast.endLine}]"
+    } else {
+      this.locationTitle = "${sast.title}:[${sast.startLine}]"
+    }
+    //    this.locationTitle = sast.title ?: "UNKNOWN"
+    this.severity = sast.severity ?: "UNKNOWN"
+  }
+
   private fun handleVulnerability(vuln: Vulnerability) {
     if (vuln.location == null) {
       this.fileLocation = Location(filepath, 1, 1)
     } else {
       this.fileLocation = Location(filepath, vuln.location!!.startLine, vuln.location!!.endLine)
     }
-      this.locationTitle = vuln.vulnerabilityId ?: "UNKNOWN"
-      this.severity = vuln.severity ?: "UNKNOWN"
+    this.locationTitle = vuln.vulnerabilityId ?: "UNKNOWN"
+    this.severity = vuln.severity ?: "UNKNOWN"
   }
 
   private fun handleCommercialResult(cr: Result) {
@@ -92,7 +103,7 @@ class LocationTreeNode(
     }
   }
 
-  fun setHelperObject(helperObject: Result) {
+  fun setHelperObject(helperObject: Any) {
     this.helperObject = helperObject
   }
 

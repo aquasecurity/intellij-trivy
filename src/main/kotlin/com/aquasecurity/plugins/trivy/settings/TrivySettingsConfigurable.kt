@@ -3,8 +3,8 @@ package com.aquasecurity.plugins.trivy.settings
 import com.aquasecurity.plugins.trivy.actions.CheckForTrivyAction
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
-import org.jetbrains.annotations.Nls
 import javax.swing.JComponent
+import org.jetbrains.annotations.Nls
 
 /** Provides controller functionality for application settings. */
 class TrivySettingsConfigurable(private val project: Project) : Configurable {
@@ -17,12 +17,12 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
   }
 
   override fun getPreferredFocusedComponent(): JComponent? {
-      return trivySettingsComponent?.preferredFocusedComponent
+    return trivySettingsComponent?.preferredFocusedComponent
   }
 
   override fun createComponent(): JComponent? {
     trivySettingsComponent = TrivySettingsComponent()
-      return trivySettingsComponent?.panel
+    return trivySettingsComponent?.panel
   }
 
   override fun isModified(): Boolean {
@@ -54,7 +54,14 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
             trivySettingsComponent!!.getApiKey != settings.apiKey ||
             trivySettingsComponent!!.getApiSecret != settings.apiSecret ||
             trivySettingsComponent!!.getRegion != settings.region ||
-            trivySettingsComponent!!.getUseAquaPlatform != projectSettings.useAquaPlatform )
+            trivySettingsComponent!!.getUseAquaPlatform != projectSettings.useAquaPlatform ||
+            trivySettingsComponent!!.getEnableDotNetProject !=
+                projectSettings.enableDotNetProject ||
+            trivySettingsComponent!!.getEnableGradle != projectSettings.enableGradle ||
+            trivySettingsComponent!!.getEnablePackageJson != projectSettings.enablePackageJson ||
+            trivySettingsComponent!!.getEnableSASTScanning != projectSettings.enableSASTScanning ||
+            trivySettingsComponent!!.getCustomAquaUrl != settings.customAquaUrl ||
+            trivySettingsComponent!!.getCustomAuthUrl != settings.customAuthUrl)
 
     return modified
   }
@@ -62,9 +69,9 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
   override fun apply() {
     val settings = TrivySettingState.instance
     val projectSettings = TrivyProjectSettingState.getInstance(project)
-      if (trivySettingsComponent == null) {
-          return
-      }
+    if (trivySettingsComponent == null) {
+      return
+    }
 
     settings.trivyPath = trivySettingsComponent!!.getTrivyPath()
     settings.criticalSeverity = trivySettingsComponent!!.getCriticalSeverityRequired
@@ -81,45 +88,75 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
     settings.apiSecret = trivySettingsComponent!!.getApiSecret
     settings.region = trivySettingsComponent!!.getRegion
 
+    if (settings.region == "Custom") {
+      settings.customAquaUrl = trivySettingsComponent!!.getCustomAquaUrl
+      settings.customAuthUrl = trivySettingsComponent!!.getCustomAuthUrl
+    } else {
+      settings.customAquaUrl = ""
+      settings.customAuthUrl = ""
+    }
+
     projectSettings.configPath = trivySettingsComponent!!.getConfigPath()
     projectSettings.useConfig = trivySettingsComponent!!.getUseConfig
     projectSettings.ignorePath = trivySettingsComponent!!.getIgnorePath()
     projectSettings.useIgnore = trivySettingsComponent!!.getUseIgnore
+    projectSettings.enableDotNetProject = trivySettingsComponent!!.getEnableDotNetProject
+    projectSettings.enableGradle = trivySettingsComponent!!.getEnableGradle
+    projectSettings.enablePackageJson = trivySettingsComponent!!.getEnablePackageJson
+    projectSettings.enableSASTScanning = trivySettingsComponent!!.getEnableSASTScanning
 
-    if (trivySettingsComponent!!.getUseAquaPlatform)  {
-      // Only set useAquaPlatform to true if both apiKey and apiSecret are set
-        projectSettings.useAquaPlatform =  (trivySettingsComponent!!.getApiKey != "" && trivySettingsComponent!!.getApiSecret != "")
-    } else {
-      projectSettings.useAquaPlatform = false
+    if (trivySettingsComponent!!.getUseAquaPlatform) {
+      projectSettings.useAquaPlatform =
+          CredentialCheck.isValidCredentials(
+              project,
+              settings.apiKey,
+              settings.apiSecret,
+              settings.customAquaUrl,
+              settings.customAuthUrl)
     }
     CheckForTrivyAction.run(project)
   }
 
   override fun reset() {
     val settings = TrivySettingState.instance
-      trivySettingsComponent?.setTrivyPath(settings.trivyPath)
-      trivySettingsComponent?.setCriticalSeverity(settings.criticalSeverity)
-      trivySettingsComponent?.setHighSeverity(settings.highSeverity)
-      trivySettingsComponent?.setMediumSeverity(settings.mediumSeverity)
-      trivySettingsComponent?.setLowSeverity(settings.lowSeverity)
-      trivySettingsComponent?.setUnknownSeverity(settings.unknownSeverity)
-      trivySettingsComponent?.setOfflineScan(settings.offlineScan)
-      trivySettingsComponent?.setIgnoreUnfixed(settings.ignoreUnfixed)
-      trivySettingsComponent?.setSecretScanning(settings.scanForSecrets)
-      trivySettingsComponent?.setMisconfigurationScanning(settings.scanForMisconfigurations)
-      trivySettingsComponent?.setVulnerabilityScanning(settings.scanForVulnerabilities)
-      trivySettingsComponent?.setConfigFilePath(
+    trivySettingsComponent?.setTrivyPath(settings.trivyPath)
+    trivySettingsComponent?.setCriticalSeverity(settings.criticalSeverity)
+    trivySettingsComponent?.setHighSeverity(settings.highSeverity)
+    trivySettingsComponent?.setMediumSeverity(settings.mediumSeverity)
+    trivySettingsComponent?.setLowSeverity(settings.lowSeverity)
+    trivySettingsComponent?.setUnknownSeverity(settings.unknownSeverity)
+    trivySettingsComponent?.setOfflineScan(settings.offlineScan)
+    trivySettingsComponent?.setIgnoreUnfixed(settings.ignoreUnfixed)
+    trivySettingsComponent?.setSecretScanning(settings.scanForSecrets)
+    trivySettingsComponent?.setMisconfigurationScanning(settings.scanForMisconfigurations)
+    trivySettingsComponent?.setVulnerabilityScanning(settings.scanForVulnerabilities)
+    trivySettingsComponent?.setConfigFilePath(
         TrivyProjectSettingState.getInstance(project).configPath)
-      trivySettingsComponent?.setUseConfig(TrivyProjectSettingState.getInstance(project).useConfig)
-      trivySettingsComponent?.setIgnoreFilePath(
+    trivySettingsComponent?.setUseConfig(TrivyProjectSettingState.getInstance(project).useConfig)
+    trivySettingsComponent?.setIgnoreFilePath(
         TrivyProjectSettingState.getInstance(project).ignorePath)
-      trivySettingsComponent?.setUseIgnore(TrivyProjectSettingState.getInstance(project).useIgnore)
-      trivySettingsComponent?.setApiKey(settings.apiKey)
-      trivySettingsComponent?.setApiSecret(settings.apiSecret)
-        trivySettingsComponent?.setRegion(settings.region)
-      trivySettingsComponent?.setUseAquaPlatform(
-        TrivyProjectSettingState.getInstance(project).useAquaPlatform)
+    trivySettingsComponent?.setUseIgnore(TrivyProjectSettingState.getInstance(project).useIgnore)
+    trivySettingsComponent?.setApiKey(settings.apiKey)
+    trivySettingsComponent?.setApiSecret(settings.apiSecret)
+    trivySettingsComponent?.setRegion(settings.region)
 
+    if (settings.customAquaUrl.isNotEmpty()) {
+      trivySettingsComponent?.setCustomAquaUrl(settings.customAquaUrl)
+    }
+    if (settings.customAuthUrl.isNotEmpty()) {
+      trivySettingsComponent?.setCustomAuthUrl(settings.customAuthUrl)
+    }
+
+    trivySettingsComponent?.setUseAquaPlatform(
+        TrivyProjectSettingState.getInstance(project).useAquaPlatform)
+    trivySettingsComponent?.setEnableDotNetProject(
+        TrivyProjectSettingState.getInstance(project).enableDotNetProject)
+    trivySettingsComponent?.setEnableGradle(
+        TrivyProjectSettingState.getInstance(project).enableGradle)
+    trivySettingsComponent?.setEnablePackageJson(
+        TrivyProjectSettingState.getInstance(project).enablePackageJson)
+    trivySettingsComponent?.setEnableSASTScanning(
+        TrivyProjectSettingState.getInstance(project).enableSASTScanning)
   }
 
   override fun disposeUIResources() {

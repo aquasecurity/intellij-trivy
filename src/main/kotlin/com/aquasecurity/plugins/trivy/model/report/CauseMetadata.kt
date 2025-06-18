@@ -1,8 +1,8 @@
-package com.aquasecurity.plugins.trivy.model.oss
+package com.aquasecurity.plugins.trivy.model.report
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-class IacMetadata {
+class CauseMetadata {
   @JsonProperty("Resource") var resource: String? = null
 
   @JsonProperty("Provider") var provider: String? = null

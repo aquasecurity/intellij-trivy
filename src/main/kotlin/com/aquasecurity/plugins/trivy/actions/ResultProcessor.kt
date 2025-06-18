@@ -1,7 +1,7 @@
 package com.aquasecurity.plugins.trivy.actions
 
 import com.aquasecurity.plugins.trivy.model.commercial.AssuranceReport
-import com.aquasecurity.plugins.trivy.model.oss.Report
+import com.aquasecurity.plugins.trivy.model.report.Report
 import com.aquasecurity.plugins.trivy.settings.TrivyProjectSettingState
 import com.aquasecurity.plugins.trivy.ui.TrivyWindow
 import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup
@@ -15,26 +15,34 @@ import java.io.IOException
 
 object ResultProcessor {
   fun updateResults(project: Project, resultFile: File?, trivyWindow: TrivyWindow) {
-      try {
-          if (resultFile == null || !resultFile.exists()) {
-              TrivyNotificationGroup.notifyError(project, "Failed to find the results file.")
+    try {
+      if (resultFile == null || !resultFile.exists()) {
+        TrivyNotificationGroup.notifyError(project, "Failed to find the results file.")
 
-              return
-          }
-          val projectSettings = TrivyProjectSettingState.getInstance(project)
-          if (projectSettings.useAquaPlatform) {
-              val assuranceReport = getReportForCommercial(project, resultFile)
-              updatePackageLocations(assuranceReport.report)
-              trivyWindow.updateFindings(assuranceReport.report)
-              trivyWindow.updateAssuranceResults(assuranceReport)
-          } else {
-              val report = getReportForOSS(project, resultFile)
-              updatePackageLocations(report)
-              trivyWindow.updateFindings(report)
-          }
-      } finally {
-          trivyWindow.redraw()
+        return
       }
+      val projectSettings = TrivyProjectSettingState.getInstance(project)
+      val report = processReport(project, resultFile)
+      updatePackageLocations(report)
+      trivyWindow.updateFindings(report)
+      if (projectSettings.useAquaPlatform) {
+        // For Aqua Platform, we need to process the report differently
+        val assuranceResultFile = resultFile.absolutePath.replace(".json", "_assurance.json")
+        if (File(assuranceResultFile).exists()) {
+          val assuranceReport = getAssuranceReport(project, File(assuranceResultFile), report)
+          trivyWindow.updateAssuranceResults(assuranceReport)
+        }
+      }
+    } catch (e: IOException) {
+      TrivyNotificationGroup.notifyError(
+          project, "Failed to process the results file. ${e.localizedMessage}")
+    } catch (e: Exception) {
+      TrivyNotificationGroup.notifyError(
+          project,
+          "An unexpected error occurred while processing the results. ${e.localizedMessage}")
+    } finally {
+      trivyWindow.redraw()
+    }
   }
 
   private fun updatePackageLocations(report: Report) {
@@ -55,7 +63,7 @@ object ResultProcessor {
     }
   }
 
-  private fun getReportForOSS(project: Project, resultFile: File): Report {
+  private fun processReport(project: Project, resultFile: File): Report {
     return try {
       val jsonFactory =
           JsonFactory.builder().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION).build()
@@ -73,7 +81,11 @@ object ResultProcessor {
     }
   }
 
-  private fun getReportForCommercial(project: Project, resultFile: File): AssuranceReport {
+  private fun getAssuranceReport(
+      project: Project,
+      resultFile: File,
+      report: Report
+  ): AssuranceReport {
     return try {
       val jsonFactory =
           JsonFactory.builder().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION).build()
@@ -82,7 +94,8 @@ object ResultProcessor {
             disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
             disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
           }
-      findingsMapper.readValue(resultFile, AssuranceReport::class.java)
+      val rep = findingsMapper.readValue(resultFile, AssuranceReport::class.java)
+      AssuranceReport(report, rep.results)
     } catch (e: IOException) {
       TrivyNotificationGroup.notifyError(
           project, "Failed to deserialize the results file. ${e.localizedMessage}")

@@ -1,6 +1,6 @@
 package com.aquasecurity.plugins.trivy.model.commercial
 
-import com.aquasecurity.plugins.trivy.model.oss.Report
+import com.aquasecurity.plugins.trivy.model.report.Report
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class AssuranceReport(

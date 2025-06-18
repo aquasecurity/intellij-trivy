@@ -1,5 +1,6 @@
 package com.aquasecurity.plugins.trivy.actions
 
+import com.aquasecurity.plugins.trivy.settings.CredentialCheck
 import com.aquasecurity.plugins.trivy.settings.TrivyProjectSettingState
 import com.aquasecurity.plugins.trivy.settings.TrivySettingState
 import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup
@@ -52,16 +53,27 @@ internal class TrivyBackgroundRunTask(
     }
 
     commandParts.add("--format=json")
-    if (!projectSettings.useAquaPlatform) {
-      commandParts.add(String.format("--output=%s", resultFile.absolutePath))
-    }
+    commandParts.add(String.format("--output=%s", resultFile.absolutePath))
     commandParts.add(project.basePath)
 
     val commandLine = GeneralCommandLine(commandParts)
     commandLine.setWorkDirectory(project.basePath)
 
     if (projectSettings.useAquaPlatform) {
+      super.setTitle("Running Aqua Platform Scan")
       configureCommandLineEnv(commandLine, projectSettings, resultFile)
+
+      // verify the credentials firts
+      if (!CredentialCheck.isValidCredentials(
+          project,
+          commandLine.environment.get("AQUA_KEY") ?: "",
+          commandLine.environment.get("AQUA_SECRET") ?: "",
+          commandLine.environment.get("AQUA_URL") ?: "",
+          commandLine.environment.get("CSPM_URL") ?: "")) {
+        TrivyNotificationGroup.notifyError(
+            project, "Invalid Aqua Platform credentials. Please check your settings.")
+        return
+      }
     }
 
     val process: Process
@@ -86,10 +98,20 @@ internal class TrivyBackgroundRunTask(
   private fun getEnvUrls(region: String): Pair<String, String> {
 
     return when (region) {
-      "Dev" -> Pair("https://stage.api.cloudsploit.com", "https://api.dev.supply-chain.cloud.aquasec.com")
-      "EU" -> Pair("https://eu.api.cloudsploit.com", "https://api.eu.supply-chain.cloud.aquasec.com")
-      "Singapore" -> Pair("https://ap-1.api.cloudsploit.com", "https://api.ap-1.supply-chain.cloud.aquasec.com")
-      "Sydney" -> Pair("https://ap-2.api.cloudsploit.com", "https://api.ap-2.supply-chain.cloud.aquasec.com")
+      "Dev" ->
+          Pair(
+              "https://stage.api.cloudsploit.com", "https://api.dev.supply-chain.cloud.aquasec.com")
+
+      "EU" ->
+          Pair("https://eu.api.cloudsploit.com", "https://api.eu.supply-chain.cloud.aquasec.com")
+
+      "Singapore" ->
+          Pair(
+              "https://ap-1.api.cloudsploit.com", "https://api.ap-1.supply-chain.cloud.aquasec.com")
+
+      "Sydney" ->
+          Pair(
+              "https://ap-2.api.cloudsploit.com", "https://api.ap-2.supply-chain.cloud.aquasec.com")
       else -> Pair("https://api.cloudsploit.com", "https://api.supply-chain.cloud.aquasec.com")
     }
   }
@@ -100,23 +122,46 @@ internal class TrivyBackgroundRunTask(
       resultFile: File
   ) {
 
-    val urls = getEnvUrls(TrivySettingState.instance.region)
-    val cspmServerURL = urls.first
-    val aquaApiURL = urls.second
+    if (TrivySettingState.instance.region == "Custom") {
+      if (TrivySettingState.instance.customAquaUrl.isNotEmpty()) {
+        commandLine.environment["AQUA_URL"] = TrivySettingState.instance.customAquaUrl
+      }
+      if (TrivySettingState.instance.customAuthUrl.isNotEmpty()) {
+        commandLine.environment["CSPM_URL"] = TrivySettingState.instance.customAuthUrl
+      }
+    } else {
+      val urls = getEnvUrls(TrivySettingState.instance.region)
+      val cspmServerURL = urls.first
+      val aquaApiURL = urls.second
 
-    if (aquaApiURL != "") {
-      commandLine.environment["AQUA_URL"] = aquaApiURL
+      if (aquaApiURL != "") {
+        commandLine.environment["AQUA_URL"] = aquaApiURL
+      }
+      if (cspmServerURL != "") {
+        commandLine.environment["CSPM_URL"] = cspmServerURL
+      }
     }
-    if (cspmServerURL != "") {
-      commandLine.environment["CSPM_URL"] = cspmServerURL
-    }
+
     commandLine.environment["AQUA_KEY"] = TrivySettingState.instance.apiKey
     commandLine.environment["AQUA_SECRET"] = TrivySettingState.instance.apiSecret
     commandLine.environment["TRIVY_RUN_AS_PLUGIN"] = "aqua"
-    commandLine.environment["AQUA_ASSURANCE_EXPORT"] = resultFile.absolutePath
-      commandLine.environment["TRIVY_SKIP_REPOSITORY_UPLOAD"] = "true"
-      commandLine.environment["TRIVY_SKIP_RESULT_UPLOAD"] = "true"
+    commandLine.environment["AQUA_ASSURANCE_EXPORT"] =
+        resultFile.absolutePath.replace(".json", "_assurance.json")
+    commandLine.environment["TRIVY_SKIP_REPOSITORY_UPLOAD"] = "true"
+    commandLine.environment["TRIVY_SKIP_RESULT_UPLOAD"] = "true"
 
+    if (projectSettings.enableDotNetProject) {
+      commandLine.environment["DOTNET_PROJ"] = "1"
+    }
+    if (projectSettings.enableGradle) {
+      commandLine.environment["GRADLE"] = "1"
+    }
+    if (projectSettings.enablePackageJson) {
+      commandLine.environment["PACKAGE_JSON"] = "1"
+    }
+    if (projectSettings.enableSASTScanning) {
+      commandLine.environment["SAST"] = "1"
+    }
   }
 
   private fun requiredSeverities(settings: TrivySettingState): String {

@@ -25,9 +25,9 @@ class ClearResultsAction : AnAction() {
     if (project == null) {
       return
     }
-      val toolWindow = ToolWindowManager.getInstance(this.project!!).getToolWindow("Trivy Findings")
-      val content = toolWindow?.contentManager?.getContent(0)
-      val TrivyWindow = content?.component as TrivyWindow
+    val toolWindow = ToolWindowManager.getInstance(this.project!!).getToolWindow("Trivy Explorer")
+    val content = toolWindow?.contentManager?.getContent(0)
+    val TrivyWindow = content?.component as TrivyWindow
     TrivyWindow.updateFindings(null)
     TrivyWindow.redraw()
   }

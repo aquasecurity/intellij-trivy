@@ -12,9 +12,11 @@ object IconHelper {
       "gemspec" -> TrivyIcons.Gem
       "gobinary",
       "gomod" -> TrivyIcons.Go
+      "html" -> TrivyIcons.Html
       "jar",
       "pom" -> TrivyIcons.Java
       "javascript" -> TrivyIcons.Javascript
+      "js" -> TrivyIcons.Javascript
       "node" -> TrivyIcons.Node
       "npm" -> TrivyIcons.Npm
       "nuget" -> TrivyIcons.Nuget

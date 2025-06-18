@@ -1,8 +1,8 @@
-package com.aquasecurity.plugins.trivy.model.oss
+package com.aquasecurity.plugins.trivy.model.report
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-class Nvd {
+class Redhat {
   @JsonProperty("V2Vector") var v2Vector: String? = null
 
   @JsonProperty("V3Vector") var v3Vector: String? = null
