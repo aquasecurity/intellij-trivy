@@ -52,7 +52,7 @@ class LocationTreeNode(
   private fun handleSast(sast: Sast) {
     this.fileLocation = Location(filepath, sast.startLine, sast.endLine)
 
-    if (sast.startLine != null && sast.endLine != null && sast.startLine != sast.endLine) {
+    if (sast.startLine != sast.endLine) {
       this.locationTitle = "${sast.title}:[${sast.startLine}-${sast.endLine}]"
     } else {
       this.locationTitle = "${sast.title}:[${sast.startLine}]"
