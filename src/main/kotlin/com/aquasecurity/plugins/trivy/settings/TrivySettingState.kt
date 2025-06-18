@@ -28,6 +28,8 @@ class TrivySettingState : PersistentStateComponent<TrivySettingState?> {
   var apiKey: String = ""
   var apiSecret: String = ""
   var region: String = "US"
+  var customAquaUrl: String = ""
+  var customAuthUrl: String = ""
 
   override fun getState(): TrivySettingState {
     return this

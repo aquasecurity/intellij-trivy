@@ -24,13 +24,24 @@ data class Report(
     fun isMatchingFile(result: Result, filepath: String): Boolean {
       val projectRoot = project!!.basePath // or project.getBasePath()
       val targetPath = result.target
-      val relativePath =
-          if (projectRoot != null) {
-            Paths.get(projectRoot).relativize(Paths.get(targetPath)).toString()
-          } else {
-            targetPath // fallback if project root is not available
-          }
-      return relativePath == filepath
+      // if the target is a relative path, it should be relative to the project root
+      if (!Paths.get(targetPath).isAbsolute()) {
+        return targetPath == filepath
+      }
+
+      try {
+        val relativePath =
+            if (projectRoot != null) {
+              Paths.get(projectRoot).relativize(Paths.get(targetPath)).toString()
+            } else {
+              targetPath // fallback if project root is not available
+            }
+
+        return relativePath == filepath
+      } catch (e: Exception) {
+        // Handle any exceptions that may occur during path manipulation
+        return false
+      }
     }
 
     val fileResults = results.filter { r -> isMatchingFile(r, filepath) }

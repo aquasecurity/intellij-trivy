@@ -46,7 +46,7 @@ class PolicyTreeNode(private val policyTitle: String, result: PolicyResult?) :
           if (!result.isEmpty()) {
             result.forEach {
               val locNode = LocationTreeNode(cr.filename, "", it!!, true)
-              locNode.setHelperObject(cr)
+              locNode.setHelperObject(it)
               locationNodes += locNode
             }
           }

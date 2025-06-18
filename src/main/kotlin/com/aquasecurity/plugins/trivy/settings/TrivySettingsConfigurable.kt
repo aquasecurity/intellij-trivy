@@ -59,7 +59,9 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
                 projectSettings.enableDotNetProject ||
             trivySettingsComponent!!.getEnableGradle != projectSettings.enableGradle ||
             trivySettingsComponent!!.getEnablePackageJson != projectSettings.enablePackageJson ||
-            trivySettingsComponent!!.getEnableSASTScanning != projectSettings.enableSASTScanning)
+            trivySettingsComponent!!.getEnableSASTScanning != projectSettings.enableSASTScanning ||
+            trivySettingsComponent!!.getCustomAquaUrl != settings.customAquaUrl ||
+            trivySettingsComponent!!.getCustomAuthUrl != settings.customAuthUrl)
 
     return modified
   }
@@ -86,6 +88,14 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
     settings.apiSecret = trivySettingsComponent!!.getApiSecret
     settings.region = trivySettingsComponent!!.getRegion
 
+    if (settings.region == "Custom") {
+      settings.customAquaUrl = trivySettingsComponent!!.getCustomAquaUrl
+      settings.customAuthUrl = trivySettingsComponent!!.getCustomAuthUrl
+    } else {
+      settings.customAquaUrl = ""
+      settings.customAuthUrl = ""
+    }
+
     projectSettings.configPath = trivySettingsComponent!!.getConfigPath()
     projectSettings.useConfig = trivySettingsComponent!!.getUseConfig
     projectSettings.ignorePath = trivySettingsComponent!!.getIgnorePath()
@@ -96,11 +106,9 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
     projectSettings.enableSASTScanning = trivySettingsComponent!!.getEnableSASTScanning
 
     if (trivySettingsComponent!!.getUseAquaPlatform) {
-      // Only set useAquaPlatform to true if both apiKey and apiSecret are set
       projectSettings.useAquaPlatform =
-          (trivySettingsComponent!!.getApiKey != "" && trivySettingsComponent!!.getApiSecret != "")
-    } else {
-      projectSettings.useAquaPlatform = false
+          CredentialCheck.isValidCredentials(
+              settings.apiKey, settings.apiSecret, settings.customAquaUrl, settings.customAuthUrl)
     }
     CheckForTrivyAction.run(project)
   }
@@ -127,6 +135,14 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
     trivySettingsComponent?.setApiKey(settings.apiKey)
     trivySettingsComponent?.setApiSecret(settings.apiSecret)
     trivySettingsComponent?.setRegion(settings.region)
+
+    if (settings.customAquaUrl.isNotEmpty()) {
+      trivySettingsComponent?.setCustomAquaUrl(settings.customAquaUrl)
+    }
+    if (settings.customAuthUrl.isNotEmpty()) {
+      trivySettingsComponent?.setCustomAuthUrl(settings.customAuthUrl)
+    }
+
     trivySettingsComponent?.setUseAquaPlatform(
         TrivyProjectSettingState.getInstance(project).useAquaPlatform)
     trivySettingsComponent?.setEnableDotNetProject(

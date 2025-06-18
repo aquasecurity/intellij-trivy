@@ -13,6 +13,7 @@ import com.intellij.ui.TitledSeparator
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPasswordField
+import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.FormBuilder
 import javax.swing.JButton
 import javax.swing.JComponent
@@ -44,7 +45,11 @@ class TrivySettingsComponent {
   private val apiKey = JBPasswordField()
   private val apiSecret = JBPasswordField()
   // Add the `Dev` entry to the array when testing locally and connecting to Dev
-  private val region = ComboBox(arrayOf("US", "EU", "Singapore", "Sydney", "Dev"))
+  private val region = ComboBox(arrayOf("US", "EU", "Singapore", "Sydney", "Custom"))
+  private val customAquaUrlLabel = JBLabel("Custom Aqua URL")
+  private val customAuthUrlLabel = JBLabel("Custom Auth URL")
+  private val customAquaUrl = JBTextField()
+  private val customAuthUrl = JBTextField()
 
   private val enableDotNetProject = JBCheckBox("Enable .NET Project Support")
   private val enableGradle = JBCheckBox("Enable Gradle Support")
@@ -57,6 +62,17 @@ class TrivySettingsComponent {
     trivyPath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
     trivyConfigPath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
     trivyIgnorePath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
+
+    region.addItemListener { e ->
+      val showCustom = region.selectedItem == "Custom"
+      customAquaUrlLabel.isVisible = showCustom
+      customAquaUrl.isVisible = showCustom
+      customAuthUrlLabel.isVisible = showCustom
+      customAuthUrl.isVisible = showCustom
+
+      panel.revalidate()
+      panel.repaint()
+    }
 
     trivyPath.text = TrivySettingState.instance.trivyPath
     if (project != null) {
@@ -163,6 +179,8 @@ class TrivySettingsComponent {
             .addLabeledComponent(JBLabel("API Key"), apiKey, 1, false)
             .addLabeledComponent(JBLabel("API Secret"), apiSecret, 1, false)
             .addLabeledComponent(JBLabel("Region"), region, 1, false)
+            .addLabeledComponent(customAquaUrlLabel, customAquaUrl, 1, false)
+            .addLabeledComponent(customAuthUrlLabel, customAuthUrl, 1, false)
             .addLabeledComponent(JBLabel(), enableDotNetProject, 1, false)
             .addLabeledComponent(JBLabel(), enableGradle, 1, false)
             .addLabeledComponent(JBLabel(), enablePackageJson, 1, false)
@@ -234,6 +252,12 @@ class TrivySettingsComponent {
 
   val getRegion: String
     get() = region.selectedItem as String
+
+  val getCustomAquaUrl: String
+    get() = customAquaUrl.text
+
+  val getCustomAuthUrl: String
+    get() = customAuthUrl.text
 
   val getEnableDotNetProject: Boolean
     get() = enableDotNetProject.isSelected
@@ -321,6 +345,19 @@ class TrivySettingsComponent {
 
   fun setRegion(newText: String) {
     region.selectedItem = newText
+    val showCustom = region.selectedItem == "Custom"
+    customAquaUrlLabel.isVisible = showCustom
+    customAquaUrl.isVisible = showCustom
+    customAuthUrlLabel.isVisible = showCustom
+    customAuthUrl.isVisible = showCustom
+  }
+
+  fun setCustomAquaUrl(newText: String) {
+    customAquaUrl.text = newText
+  }
+
+  fun setCustomAuthUrl(newText: String) {
+    customAuthUrl.text = newText
   }
 
   fun setEnableDotNetProject(required: Boolean) {

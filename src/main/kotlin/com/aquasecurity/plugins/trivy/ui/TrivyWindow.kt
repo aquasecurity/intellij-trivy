@@ -216,8 +216,7 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
     if (tree == null) {
       return
     }
-    // clear the help panel
-    findingsHelper.setHelp(null, null)
+
     val lastSelectedNode = tree.lastSelectedPathComponent ?: return
     if (lastSelectedNode is LocationTreeNode) {
       val node = lastSelectedNode

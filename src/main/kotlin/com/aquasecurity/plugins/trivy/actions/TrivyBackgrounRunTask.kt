@@ -1,5 +1,6 @@
 package com.aquasecurity.plugins.trivy.actions
 
+import com.aquasecurity.plugins.trivy.settings.CredentialCheck
 import com.aquasecurity.plugins.trivy.settings.TrivyProjectSettingState
 import com.aquasecurity.plugins.trivy.settings.TrivySettingState
 import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup
@@ -52,9 +53,7 @@ internal class TrivyBackgroundRunTask(
     }
 
     commandParts.add("--format=json")
-    //    if (!projectSettings.useAquaPlatform) {
     commandParts.add(String.format("--output=%s", resultFile.absolutePath))
-    //    }
     commandParts.add(project.basePath)
 
     val commandLine = GeneralCommandLine(commandParts)
@@ -63,6 +62,17 @@ internal class TrivyBackgroundRunTask(
     if (projectSettings.useAquaPlatform) {
       super.setTitle("Running Aqua Platform Scan")
       configureCommandLineEnv(commandLine, projectSettings, resultFile)
+
+      // verify the credentials firts
+      if (!CredentialCheck.isValidCredentials(
+          commandLine.environment.get("AQUA_KEY") ?: "",
+          commandLine.environment.get("AQUA_SECRET") ?: "",
+          commandLine.environment.get("AQUA_URL") ?: "",
+          commandLine.environment.get("CSPM_URL") ?: "")) {
+        TrivyNotificationGroup.notifyError(
+            project, "Invalid Aqua Platform credentials. Please check your settings.")
+        return
+      }
     }
 
     val process: Process
@@ -111,16 +121,26 @@ internal class TrivyBackgroundRunTask(
       resultFile: File
   ) {
 
-    val urls = getEnvUrls(TrivySettingState.instance.region)
-    val cspmServerURL = urls.first
-    val aquaApiURL = urls.second
+    if (TrivySettingState.instance.region == "Custom") {
+      if (TrivySettingState.instance.customAquaUrl.isNotEmpty()) {
+        commandLine.environment["AQUA_URL"] = TrivySettingState.instance.customAquaUrl
+      }
+      if (TrivySettingState.instance.customAuthUrl.isNotEmpty()) {
+        commandLine.environment["CSPM_URL"] = TrivySettingState.instance.customAuthUrl
+      }
+    } else {
+      val urls = getEnvUrls(TrivySettingState.instance.region)
+      val cspmServerURL = urls.first
+      val aquaApiURL = urls.second
 
-    if (aquaApiURL != "") {
-      commandLine.environment["AQUA_URL"] = aquaApiURL
+      if (aquaApiURL != "") {
+        commandLine.environment["AQUA_URL"] = aquaApiURL
+      }
+      if (cspmServerURL != "") {
+        commandLine.environment["CSPM_URL"] = cspmServerURL
+      }
     }
-    if (cspmServerURL != "") {
-      commandLine.environment["CSPM_URL"] = cspmServerURL
-    }
+
     commandLine.environment["AQUA_KEY"] = TrivySettingState.instance.apiKey
     commandLine.environment["AQUA_SECRET"] = TrivySettingState.instance.apiSecret
     commandLine.environment["TRIVY_RUN_AS_PLUGIN"] = "aqua"

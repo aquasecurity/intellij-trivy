@@ -31,6 +31,7 @@ class Result {
     vulnerabilities?.forEach { consolidatedResults += it }
     misconfigurations?.forEach { consolidatedResults += it }
     secrets?.forEach { consolidatedResults += it }
+    sasts?.forEach { consolidatedResults += it }
 
     consolidatedResults =
         this.consolidatedResults.sortedBy { it ->
@@ -44,6 +45,10 @@ class Result {
             }
 
             is Secret -> {
+              it.severity
+            }
+
+            is Sast -> {
               it.severity
             }
 
@@ -76,6 +81,15 @@ class Result {
           if (issue.title == issueId) {
             returnResults += issue
           }
+        }
+        is Sast -> {
+          if (issue.checkID == issueId) {
+            returnResults += issue
+          }
+        }
+
+        else -> {
+          // Handle other types if necessary
         }
       }
     }

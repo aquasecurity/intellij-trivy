@@ -16,7 +16,7 @@ class LocationTreeNode(
   private var locationTitle: String
   var severity: String
 
-  private var helperObject: Result? = null
+  private var helperObject: Any? = null
 
   init {
     require(
@@ -59,16 +59,6 @@ class LocationTreeNode(
     }
     //    this.locationTitle = sast.title ?: "UNKNOWN"
     this.severity = sast.severity ?: "UNKNOWN"
-
-    if (this.child) {
-      if (this.fileLocation.startLine != null &&
-          this.fileLocation.startLine != this.fileLocation.endLine) {
-        this.locationTitle =
-            "${this.filepath}:[${this.fileLocation.startLine}-${this.fileLocation.endLine}]"
-      } else {
-        this.locationTitle = this.filepath
-      }
-    }
   }
 
   private fun handleVulnerability(vuln: Vulnerability) {
@@ -113,7 +103,7 @@ class LocationTreeNode(
     }
   }
 
-  fun setHelperObject(helperObject: Result) {
+  fun setHelperObject(helperObject: Any) {
     this.helperObject = helperObject
   }
 

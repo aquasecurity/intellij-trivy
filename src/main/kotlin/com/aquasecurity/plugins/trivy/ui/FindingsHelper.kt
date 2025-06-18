@@ -17,6 +17,7 @@ import javax.swing.JTextArea
 import javax.swing.SwingUtilities
 
 class FindingsHelper : ScrollablePanel() {
+  private var finding: Any? = null
   private var filepath: String? = null
   private var vulnerability: Vulnerability? = null
   private var misconfig: Misconfiguration? = null
@@ -69,8 +70,7 @@ class FindingsHelper : ScrollablePanel() {
     }
 
     if (this.sast != null) {
-      val title =
-          sast?.title.toString().lowercase()?.replaceFirstChar { it.uppercase() } ?: "SAST Finding"
+      val title = sast?.title.toString().lowercase().replaceFirstChar { it.uppercase() }
       val confidence =
           sast?.confidence?.toString()?.lowercase()?.replaceFirstChar { it.uppercase() }
       sast?.impact?.toString()?.lowercase()?.replaceFirstChar { it.uppercase() }
@@ -107,6 +107,9 @@ class FindingsHelper : ScrollablePanel() {
       addHelpSection("", commercialResult?.avdid)
       addHelpSection("", commercialResult?.message)
       addHelpSection("Severity", convertSeverity(commercialResult?.severity.toString()))
+      if (fix == null || fix == "null" || fix.isEmpty()) {
+        fix = "N/A"
+      }
       addHelpSection("Fix", fix)
       addHelpSection("Filename", filepath)
       addLinkSection(commercialResult?.extraData?.references?.toList()!!)
@@ -189,9 +192,14 @@ class FindingsHelper : ScrollablePanel() {
   }
 
   fun setHelp(finding: Any?, filename: String?) {
+    // if it's already the existing finding, do nothing
+    if (this.finding == finding) {
+      return
+    }
     this.vulnerability = null
     this.misconfig = null
     this.secret = null
+    this.sast = null
     this.filepath = filename
 
     when (finding) {
@@ -202,10 +210,24 @@ class FindingsHelper : ScrollablePanel() {
       is Result -> this.commercialResult = finding
     }
 
+    this.finding = finding
+
     updateHelp()
-    this.validate()
-    this.repaint()
-    SwingUtilities.invokeLater { scrollRectToVisible(Rectangle(0, 0, width, height)) }
+
+    // synchronisation hack to ensure that the text gets wrapped appropriately
+    SwingUtilities.invokeLater {
+      // Force layout recalculation
+      invalidate()
+      revalidate()
+      repaint()
+      scrollRectToVisible(Rectangle(0, 0, width, height))
+
+      // Add another invokeLater to ensure proper wrapping after first layout pass
+      SwingUtilities.invokeLater {
+        revalidate()
+        repaint()
+      }
+    }
   }
 
   private fun convertSeverity(severity: String): String {
