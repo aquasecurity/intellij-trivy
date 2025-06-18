@@ -1,3 +1,7 @@
+## [1.10.0]
+- Add support for custom URLs connecting to Aqua Platform
+- Add support for SAST scan results from Aqua Platform
+
 ## [1.9.0] 
 - Add support for installing Trivy from the plugin settings
 - Make the findings helper content selectable for copying
