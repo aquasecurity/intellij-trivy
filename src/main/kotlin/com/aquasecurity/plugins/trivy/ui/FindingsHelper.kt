@@ -81,7 +81,7 @@ class FindingsHelper : ScrollablePanel() {
       sast?.owasp?.let { owasp = sast!!.owasp!!.joinToString("\n") }
 
       addHelpSection(title, "")
-      addHelpSection(sast?.cwe!!, sast?.message)
+      addHelpSection(sast?.cwe ?: "N/A", sast?.message)
       addHelpSection("Severity", convertSeverity(sast?.severity.toString()))
       addHelpSection("Confidence", confidence)
       addHelpSection("Likelihood", likelihood)
