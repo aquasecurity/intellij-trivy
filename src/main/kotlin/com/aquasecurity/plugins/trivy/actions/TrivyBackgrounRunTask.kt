@@ -149,6 +149,7 @@ internal class TrivyBackgroundRunTask(
         resultFile.absolutePath.replace(".json", "_assurance.json")
     commandLine.environment["TRIVY_SKIP_REPOSITORY_UPLOAD"] = "true"
     commandLine.environment["TRIVY_SKIP_RESULT_UPLOAD"] = "true"
+    commandLine.environment["TRIVY_IDE_IDENTIFIER"] = "intellij"
 
     if (projectSettings.enableDotNetProject) {
       commandLine.environment["DOTNET_PROJ"] = "1"

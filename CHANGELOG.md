@@ -1,3 +1,6 @@
+## [1.10.1]
+- Add Aqua Platform env var to report which type of plugin is sending the results
+
 ## [1.10.0]
 - Add support for custom URLs connecting to Aqua Platform
 - Add support for SAST scan results from Aqua Platform
