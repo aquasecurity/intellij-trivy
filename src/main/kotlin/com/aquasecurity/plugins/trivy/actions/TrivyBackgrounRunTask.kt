@@ -1,6 +1,7 @@
 package com.aquasecurity.plugins.trivy.actions
 
 import com.aquasecurity.plugins.trivy.settings.CredentialCheck
+import com.aquasecurity.plugins.trivy.settings.Regions
 import com.aquasecurity.plugins.trivy.settings.TrivyProjectSettingState
 import com.aquasecurity.plugins.trivy.settings.TrivySettingState
 import com.aquasecurity.plugins.trivy.ui.notify.TrivyNotificationGroup
@@ -95,27 +96,6 @@ internal class TrivyBackgroundRunTask(
     }
   }
 
-  private fun getEnvUrls(region: String): Pair<String, String> {
-
-    return when (region) {
-      "Dev" ->
-          Pair(
-              "https://stage.api.cloudsploit.com", "https://api.dev.supply-chain.cloud.aquasec.com")
-
-      "EU" ->
-          Pair("https://eu.api.cloudsploit.com", "https://api.eu.supply-chain.cloud.aquasec.com")
-
-      "Singapore" ->
-          Pair(
-              "https://ap-1.api.cloudsploit.com", "https://api.ap-1.supply-chain.cloud.aquasec.com")
-
-      "Sydney" ->
-          Pair(
-              "https://ap-2.api.cloudsploit.com", "https://api.ap-2.supply-chain.cloud.aquasec.com")
-      else -> Pair("https://api.cloudsploit.com", "https://api.supply-chain.cloud.aquasec.com")
-    }
-  }
-
   private fun configureCommandLineEnv(
       commandLine: GeneralCommandLine,
       projectSettings: TrivyProjectSettingState,
@@ -130,7 +110,7 @@ internal class TrivyBackgroundRunTask(
         commandLine.environment["CSPM_URL"] = TrivySettingState.instance.customAuthUrl
       }
     } else {
-      val urls = getEnvUrls(TrivySettingState.instance.region)
+      val urls = Regions.getEnvUrls(TrivySettingState.instance.region)
       val cspmServerURL = urls.first
       val aquaApiURL = urls.second
 

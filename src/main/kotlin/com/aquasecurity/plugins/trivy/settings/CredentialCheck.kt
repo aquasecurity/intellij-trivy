@@ -18,7 +18,8 @@ class CredentialCheck {
         aquaAuthUrl: String
     ): Boolean {
       if (apiKey.isBlank() || apiSecret.isBlank() || aquaUrl.isBlank() || aquaAuthUrl.isBlank()) {
-        TrivyNotificationGroup.notifyError(project, "API Key, API Secret, Aqua URL, or Aqua Auth URL is blank.")
+        TrivyNotificationGroup.notifyError(
+            project, "API Key, API Secret, Aqua URL, or Aqua Auth URL is blank.")
         return false
       }
 

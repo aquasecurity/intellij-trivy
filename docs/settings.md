@@ -55,6 +55,7 @@ For users with Aqua Platform access:
 - **API Key**: Your Aqua Platform API key
 - **API Secret**: Your Aqua Platform API secret
 - **Region**: Select your Aqua Platform region (US, EU, Singapore, Sydney)
+  - The Custom region is for self-hosted Aqua Platform instances - if you're using this, you will be provided with the required URLs
 
 ## Project-Level vs. Application-Level Settings
 
