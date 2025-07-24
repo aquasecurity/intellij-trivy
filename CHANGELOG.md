@@ -1,3 +1,6 @@
+## [1.10.2]
+- Fix an issue where regional Aqua Platform isn't checked properly
+
 ## [1.10.1]
 - Add Aqua Platform env var to report which type of plugin is sending the results
 

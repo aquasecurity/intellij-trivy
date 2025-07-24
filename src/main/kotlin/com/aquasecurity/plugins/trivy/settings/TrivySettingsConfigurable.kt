@@ -106,13 +106,26 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
     projectSettings.enableSASTScanning = trivySettingsComponent!!.getEnableSASTScanning
 
     if (trivySettingsComponent!!.getUseAquaPlatform) {
+
+      var aquaUrl = settings.customAquaUrl
+      var aquaAuthUrl = settings.customAuthUrl
+
+      if (TrivySettingState.instance.region == "Custom") {
+        if (TrivySettingState.instance.customAquaUrl.isNotEmpty()) {
+          aquaUrl = TrivySettingState.instance.customAquaUrl
+        }
+        if (TrivySettingState.instance.customAuthUrl.isNotEmpty()) {
+          aquaAuthUrl = TrivySettingState.instance.customAuthUrl
+        }
+      } else {
+        val urls = Regions.getEnvUrls(TrivySettingState.instance.region)
+        aquaAuthUrl = urls.first
+        aquaUrl = urls.second
+      }
+
       projectSettings.useAquaPlatform =
           CredentialCheck.isValidCredentials(
-              project,
-              settings.apiKey,
-              settings.apiSecret,
-              settings.customAquaUrl,
-              settings.customAuthUrl)
+              project, settings.apiKey, settings.apiSecret, aquaUrl, aquaAuthUrl)
     }
     CheckForTrivyAction.run(project)
   }
