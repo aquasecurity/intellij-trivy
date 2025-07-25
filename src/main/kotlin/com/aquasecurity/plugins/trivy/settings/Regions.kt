@@ -8,7 +8,7 @@ object Regions {
               "https://stage.api.cloudsploit.com", "https://api.dev.supply-chain.cloud.aquasec.com")
 
       "EU" ->
-          Pair("https://eu.api.cloudsploit.com", "https://api.eu.supply-chain.cloud.aquasec.com")
+          Pair("https://eu-1.api.cloudsploit.com", "https://api.eu-1.supply-chain.cloud.aquasec.com")
 
       "Singapore" ->
           Pair(

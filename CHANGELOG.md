@@ -1,3 +1,6 @@
+## [1.10.3]
+- Fix the URL for the EU regional Aqua Platform
+
 ## [1.10.2]
 - Fix an issue where regional Aqua Platform isn't checked properly
 
