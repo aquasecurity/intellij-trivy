@@ -11,7 +11,7 @@ constructor(
     @JsonProperty("Identifier") val identifier: Identifier,
     @JsonProperty("Version") val version: String?,
     @JsonProperty("DependsOn") val dependsOn: List<String>?,
-    @JsonProperty("Layer") val layer: Map<String, Any>,
+    @JsonProperty("Layer") val layer: Map<String, Any>?,
     @JsonProperty("Locations") val locations: List<Location>?,
     @JsonProperty("Licenses") val licenses: List<String>?,
 )

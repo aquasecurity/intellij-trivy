@@ -1,3 +1,6 @@
+## [1.10.4]
+- Fix issue where the Package has a null Layer field and this crashes the deserializer
+
 ## [1.10.3]
 - Fix the URL for the EU regional Aqua Platform
 
