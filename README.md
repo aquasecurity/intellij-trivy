@@ -2,7 +2,7 @@
 
 [![JetBrains IntelliJ plugins](https://img.shields.io/jetbrains/plugin/v/18690-trivy-findings-explorer)](https://plugins.jetbrains.com/plugin/18690-trivy-findings-explorer)
 [![JetBrains IntelliJ plugins](https://img.shields.io/jetbrains/plugin/d/18690-trivy-findings-explorer)](https://plugins.jetbrains.com/plugin/18690-trivy-findings-explorer)
-[![JetBrains IntelliJ plugins](https://img.shields.io/jetbrains/plugin/r/rating/18690-trivy-findings-explorer)](https://plugins.jetbrains.com/18690-trivy-findings-explorer)
+[![JetBrains IntelliJ plugins](https://img.shields.io/jetbrains/plugin/r/rating/18690-trivy-findings-explorer)](https://plugins.jetbrains.com/plugin/18690-trivy-findings-explorer)
 
 Plugin for the IntelliJ suite of tools (IDEA, GoLand, WebStorm etc)
 
