@@ -1,40 +1,56 @@
+## 1.10.6
+
+- Remove the StrictNullChecks setting which has been deprecated
+
 ## [1.10.5]
+
 - Fix issues with null layer in Vulnerability results causing deserialization crashes.
 
 ## [1.10.4]
+
 - Fix issue where the Package has a null Layer field and this crashes the deserializer
 
 ## [1.10.3]
+
 - Fix the URL for the EU regional Aqua Platform
 
 ## [1.10.2]
+
 - Fix an issue where regional Aqua Platform isn't checked properly
 
 ## [1.10.1]
+
 - Add Aqua Platform env var to report which type of plugin is sending the results
 
 ## [1.10.0]
+
 - Add support for custom URLs connecting to Aqua Platform
 - Add support for SAST scan results from Aqua Platform
 
-## [1.9.0] 
+## [1.9.0]
+
 - Add support for installing Trivy from the plugin settings
 - Make the findings helper content selectable for copying
 
 ## [1.8.2]
+
 - Switch to a region drop down for Aqua Platform integration to avoid confusion
 - Fix an issue where aqua platform integration can be enabled without the required credentials causing a crash
 
 ## [1.8.1]
+
 - Handle empty results in a successful Trivy run
 
 ## [1.8.0]
+
 - Rename the plugin to Aqua Trivy
 
 ## [1.7.0]
+
 - Add support for the Aqua Platform and Assurance policies
 
 ## [1.6.1]
+
 - Only support IC-243.0.0 and later due to deprecated APIs
 
 ## [1.6.0]
@@ -98,3 +114,4 @@
 ## [1.0.0]
 
 - Initial release
+
