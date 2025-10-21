@@ -76,7 +76,7 @@ class TrivyBinary {
         unTar(tmpFile, target)
       }
       target.setExecutable(true)
-      CheckForTrivyAction.run(project)
+      CheckForTrivyAction.run()
       TrivyNotificationGroup.notifyInformation(project, "Downloaded Trivy")
       return true
     }

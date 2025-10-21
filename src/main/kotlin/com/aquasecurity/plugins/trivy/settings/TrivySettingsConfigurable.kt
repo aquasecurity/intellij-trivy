@@ -127,7 +127,7 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
           CredentialCheck.isValidCredentials(
               project, settings.apiKey, settings.apiSecret, aquaUrl, aquaAuthUrl)
     }
-    CheckForTrivyAction.run(project)
+    CheckForTrivyAction.run()
   }
 
   override fun reset() {

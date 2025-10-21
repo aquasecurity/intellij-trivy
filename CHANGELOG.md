@@ -1,3 +1,6 @@
+## [1.10.5]
+- Fix issues with null layer in Vulnerability results causing deserialization crashes.
+
 ## [1.10.4]
 - Fix issue where the Package has a null Layer field and this crashes the deserializer
 

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.StreamReadFeature
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+ import com.fasterxml.jackson.module.kotlin.KotlinFeature
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.intellij.openapi.project.Project
 import java.io.File
 import java.io.IOException
@@ -18,9 +20,15 @@ object ResultProcessor {
     try {
       if (resultFile == null || !resultFile.exists()) {
         TrivyNotificationGroup.notifyError(project, "Failed to find the results file.")
-
         return
       }
+
+      // check if the results file is empty
+        if (resultFile.length() == 0L) {
+        TrivyNotificationGroup.notifyError(project, "The results file is empty.")
+        return
+        }
+
       val projectSettings = TrivyProjectSettingState.getInstance(project)
       val report = processReport(project, resultFile)
       updatePackageLocations(report)
@@ -73,6 +81,19 @@ object ResultProcessor {
             disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             disable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)
           }
+
+      // Register Kotlin module and configure Kotlin-specific features so Jackson will
+      // be lenient with nulls for Kotlin types (treat null collections/maps as empty,
+      // treat null as default, and disable strict null checks which otherwise fail
+      // when JSON contains null for non-null Kotlin constructor parameters).
+      val kotlinModule = KotlinModule.Builder()
+          .configure(KotlinFeature.NullToEmptyCollection, true)
+          .configure(KotlinFeature.NullToEmptyMap, true)
+          .configure(KotlinFeature.NullIsSameAsDefault, true)
+          .configure(KotlinFeature.StrictNullChecks, false)
+          .build()
+      findingsMapper.registerModule(kotlinModule)
+
       findingsMapper.readValue(resultFile, Report::class.java)
     } catch (e: IOException) {
       TrivyNotificationGroup.notifyError(
@@ -94,6 +115,16 @@ object ResultProcessor {
             disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
             disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
           }
+
+      // Same Kotlin module configuration for assurance reports
+      val kotlinModule = KotlinModule.Builder()
+          .configure(KotlinFeature.NullToEmptyCollection, true)
+          .configure(KotlinFeature.NullToEmptyMap, true)
+          .configure(KotlinFeature.NullIsSameAsDefault, true)
+          .configure(KotlinFeature.StrictNullChecks, false)
+          .build()
+      findingsMapper.registerModule(kotlinModule)
+
       val rep = findingsMapper.readValue(resultFile, AssuranceReport::class.java)
       AssuranceReport(report, rep.results)
     } catch (e: IOException) {

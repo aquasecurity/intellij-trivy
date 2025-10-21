@@ -24,10 +24,6 @@ class PolicyTreeNode(private val policyTitle: String, result: PolicyResult?) :
       cr: Result
   ) {
 
-    if (controlResult.type == null) {
-      return
-    }
-
     val prettyTitle = removeAnsiCodes(controlResult.type)
 
     var existing =
@@ -42,9 +38,9 @@ class PolicyTreeNode(private val policyTitle: String, result: PolicyResult?) :
     cr.policyResults?.forEach { pr ->
       if (pr.failed != null && pr.failed == true) {
         pr.controlResult?.forEach { ctl ->
-          val result = report.findMatchingResult(cr.filename, ctl.matchedData)
-          if (!result.isEmpty()) {
-            result.forEach {
+          val r = report.findMatchingResult(cr.filename, ctl.matchedData)
+          if (!r.isEmpty()) {
+            r.forEach {
               val locNode = LocationTreeNode(cr.filename, "", it!!, true)
               locNode.setHelperObject(it)
               locationNodes += locNode
