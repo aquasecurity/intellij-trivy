@@ -87,7 +87,7 @@ class TrivySettingsComponent {
   fun updatePanel() {
     if (project != null) {
       // Check if Trivy is installed and update the settings accordingly
-      CheckForTrivyAction.run(project)
+      CheckForTrivyAction.run()
     }
 
     var builder =
@@ -110,7 +110,7 @@ class TrivySettingsComponent {
                                 callback = {
                                   trivyPath.text = TrivySettingState.instance.trivyPath
                                   // update the Settings UI after download
-                                  CheckForTrivyAction.run(project)
+                                  CheckForTrivyAction.run()
                                 }))
                   }
                 }
@@ -145,7 +145,7 @@ class TrivySettingsComponent {
                                       callback = {
                                         trivyPath.text = TrivySettingState.instance.trivyPath
                                         // update the Settings UI after download
-                                        CheckForTrivyAction.run(project)
+                                        CheckForTrivyAction.run()
                                       }))
                         }
                       }
