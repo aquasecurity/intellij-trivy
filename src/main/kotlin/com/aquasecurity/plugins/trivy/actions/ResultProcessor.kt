@@ -90,7 +90,6 @@ object ResultProcessor {
           .configure(KotlinFeature.NullToEmptyCollection, true)
           .configure(KotlinFeature.NullToEmptyMap, true)
           .configure(KotlinFeature.NullIsSameAsDefault, true)
-          .configure(KotlinFeature.StrictNullChecks, false)
           .build()
       findingsMapper.registerModule(kotlinModule)
 
@@ -121,7 +120,6 @@ object ResultProcessor {
           .configure(KotlinFeature.NullToEmptyCollection, true)
           .configure(KotlinFeature.NullToEmptyMap, true)
           .configure(KotlinFeature.NullIsSameAsDefault, true)
-          .configure(KotlinFeature.StrictNullChecks, false)
           .build()
       findingsMapper.registerModule(kotlinModule)
 
