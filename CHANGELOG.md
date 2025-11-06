@@ -1,4 +1,10 @@
-## 1.10.6
+## [1.10.7]
+
+- Add support for skip-dirs in the settings with defaults
+  - Skip common directories like .git, node_modules, etc.
+  - skip dirs configurable at a project level
+
+## [1.10.6]
 
 - Remove the StrictNullChecks setting which has been deprecated
 

@@ -3,8 +3,8 @@ package com.aquasecurity.plugins.trivy.settings
 import com.aquasecurity.plugins.trivy.actions.CheckForTrivyAction
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
-import javax.swing.JComponent
 import org.jetbrains.annotations.Nls
+import javax.swing.JComponent
 
 /** Provides controller functionality for application settings. */
 class TrivySettingsConfigurable(private val project: Project) : Configurable {
@@ -51,6 +51,7 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
             !trivySettingsComponent!!.getUseConfig == projectSettings.useConfig ||
             trivySettingsComponent!!.getIgnorePath() != projectSettings.ignorePath ||
             !trivySettingsComponent!!.getUseIgnore == projectSettings.useIgnore ||
+            trivySettingsComponent!!.getSkipDirs() != projectSettings.skipDirList ||
             trivySettingsComponent!!.getApiKey != settings.apiKey ||
             trivySettingsComponent!!.getApiSecret != settings.apiSecret ||
             trivySettingsComponent!!.getRegion != settings.region ||
@@ -104,6 +105,7 @@ class TrivySettingsConfigurable(private val project: Project) : Configurable {
     projectSettings.enableGradle = trivySettingsComponent!!.getEnableGradle
     projectSettings.enablePackageJson = trivySettingsComponent!!.getEnablePackageJson
     projectSettings.enableSASTScanning = trivySettingsComponent!!.getEnableSASTScanning
+    projectSettings.skipDirList = trivySettingsComponent!!.getSkipDirs()
 
     if (trivySettingsComponent!!.getUseAquaPlatform) {
 

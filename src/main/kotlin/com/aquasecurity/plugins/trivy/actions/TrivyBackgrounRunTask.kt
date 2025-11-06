@@ -60,6 +60,12 @@ internal class TrivyBackgroundRunTask(
     val commandLine = GeneralCommandLine(commandParts)
     commandLine.setWorkDirectory(project.basePath)
 
+    if (!projectSettings.skipDirList.isEmpty()){
+      // combine the skip directories into a single comma separated string
+      val skipDirs = projectSettings.skipDirList.joinToString(separator = ",")
+      commandLine.addParameter("--skip-dirs=$skipDirs")
+    }
+
     if (projectSettings.useAquaPlatform) {
       super.setTitle("Running Aqua Platform Scan")
       configureCommandLineEnv(commandLine, projectSettings, resultFile)
