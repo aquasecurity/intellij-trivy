@@ -4,18 +4,18 @@ import com.aquasecurity.plugins.trivy.actions.CheckForTrivyAction
 import com.aquasecurity.plugins.trivy.actions.tasks.TrivyDownloadBinaryTask
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.TitledSeparator
-import com.intellij.ui.components.JBCheckBox
-import com.intellij.ui.components.JBLabel
-import com.intellij.ui.components.JBPasswordField
-import com.intellij.ui.components.JBTextField
+import com.intellij.ui.ToolbarDecorator
+import com.intellij.ui.components.*
 import com.intellij.util.ui.FormBuilder
 import java.awt.event.ItemEvent
+import javax.swing.DefaultListModel
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -40,6 +40,8 @@ class TrivySettingsComponent {
   private val misconfigurationScanning = JBCheckBox("Enable misconfiguration scanning")
   private val vulnScanning = JBCheckBox("Enable vulnerability scanning")
   private val ignoreUnfixed = JBCheckBox("Only show issues with fixes")
+  private val skipDirsModel = DefaultListModel<String>()
+  private val skipDirList = JBList(skipDirsModel)
 
   // Aqua Platform support
   private val useAquaPlatform = JBCheckBox("Use Aqua Platform")
@@ -63,6 +65,10 @@ class TrivySettingsComponent {
     trivyPath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
     trivyConfigPath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
     trivyIgnorePath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
+
+    for (dir in TrivyProjectSettingState.getInstance(project!!).skipDirList) {
+      skipDirsModel.addElement(dir)
+    }
 
     region.addItemListener(
         fun(_: ItemEvent) {
@@ -171,6 +177,16 @@ class TrivySettingsComponent {
             .addComponent(TitledSeparator("Other Settings"))
             .addLabeledComponent(JBLabel(), offlineScan, 1, false)
             .addLabeledComponent(JBLabel(), ignoreUnfixed, 1, false)
+            .addComponent(TitledSeparator("Skip Directories"))
+            .addLabeledComponent(
+                JBLabel(), ToolbarDecorator.createDecorator(skipDirList).setAddAction {
+                val dir = showAddDirectoryDialog()
+                if (dir != null) skipDirsModel.addElement(dir)
+            }.setRemoveAction { 
+                if (skipDirList.selectedIndex >= 0) {
+                    skipDirsModel.remove(skipDirList.selectedIndex)
+                }
+            }.createPanel(), 1, false)
             .addSeparator()
             .addLabeledComponent(JBLabel("Config file path"), trivyConfigPath, 1, false)
             .addLabeledComponent(JBLabel(), useConfigFile, 1, false)
@@ -192,6 +208,24 @@ class TrivySettingsComponent {
     panel = builder.panel
   }
 
+  private fun showAddDirectoryDialog(): String? {
+    val chooser = FileChooserDescriptor(false, true, false, false, false, false)
+      .withTitle("Select Directory to Skip")
+      .withDescription("Choose a directory within the project to skip during scanning")
+
+    // Get the project base directory as VirtualFile
+    val projectBaseDir = project?.let {
+      com.intellij.openapi.vfs.LocalFileSystem.getInstance().findFileByPath(it.basePath ?: "")
+    }
+
+    // Set the root to limit selection to project directories
+    if (projectBaseDir != null) {
+      chooser.withRoots(projectBaseDir)
+    }
+
+    val file = FileChooser.chooseFile(chooser, project, projectBaseDir)
+    return file?.path
+  }
   val preferredFocusedComponent: JComponent
     get() = trivyPath
 
@@ -272,6 +306,10 @@ class TrivySettingsComponent {
 
   val getEnableSASTScanning: Boolean
     get() = enableSASTScanning.isSelected
+
+  fun getSkipDirs(): List<String> {
+    return skipDirsModel.elements().toList()
+  }
 
   fun setTrivyPath(newText: String) {
     trivyPath.text = newText
@@ -376,5 +414,9 @@ class TrivySettingsComponent {
 
   fun setEnableSASTScanning(required: Boolean) {
     enableSASTScanning.isSelected = required
+  }
+  fun setSkipDirs(dirs: List<String>) {
+    skipDirsModel.clear()
+    dirs.forEach { skipDirsModel.addElement(it) }
   }
 }
