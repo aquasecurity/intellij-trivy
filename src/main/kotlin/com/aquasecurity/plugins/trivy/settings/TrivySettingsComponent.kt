@@ -65,9 +65,14 @@ class TrivySettingsComponent {
     trivyPath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
     trivyConfigPath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
     trivyIgnorePath.addBrowseFolderListener(TextBrowseFolderListener(fcd))
+      trivyPath.text = TrivySettingState.instance.trivyPath
 
-    for (dir in TrivyProjectSettingState.getInstance(project!!).skipDirList) {
-      skipDirsModel.addElement(dir)
+      if (project != null) {
+          for (dir in TrivyProjectSettingState.getInstance(project).skipDirList) {
+              skipDirsModel.addElement(dir)
+          }
+          trivyConfigPath.text = TrivyProjectSettingState.getInstance(project).configPath
+          trivyIgnorePath.text = TrivyProjectSettingState.getInstance(project).ignorePath
     }
 
     region.addItemListener(
@@ -82,12 +87,9 @@ class TrivySettingsComponent {
           panel.repaint()
         })
 
-    trivyPath.text = TrivySettingState.instance.trivyPath
-    if (project != null) {
-      trivyConfigPath.text = TrivyProjectSettingState.getInstance(project).configPath
-      trivyIgnorePath.text = TrivyProjectSettingState.getInstance(project).ignorePath
-    }
-    updatePanel()
+
+
+      updatePanel()
   }
 
   fun updatePanel() {
