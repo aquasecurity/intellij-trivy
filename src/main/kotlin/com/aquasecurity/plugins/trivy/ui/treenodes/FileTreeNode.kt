@@ -15,7 +15,7 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
   private val className: String? = result!!.ClassName
 
   private val project =
-      com.intellij.openapi.project.ProjectManager.getInstance().openProjects.firstOrNull()
+    com.intellij.openapi.project.ProjectManager.getInstance().openProjects.firstOrNull()
 
   init {
     update(result!!)
@@ -27,27 +27,25 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
       // sort the misconfigurations
       result.misconfigurations = result.misconfigurations!!.sortedBy { it.severity }
       result.misconfigurations!!.forEach(
-          Consumer { ms: Misconfiguration ->
-            // get count of misconfigurations with the same title
-            val count =
-                result.misconfigurations!!
-                    .stream()
-                    .filter { v: Misconfiguration -> v.title == ms.title }
-                    .count()
-            if (visited.stream().noneMatch { v: LocationTreeNode -> v.title == ms.title }) {
-              visited.add(LocationTreeNode(result.target.toString(), result.type.toString(), ms))
-            }
-            if (count > 1) {
-              val findingNode =
-                  visited.stream().filter { vf: TrivyTreeNode -> vf.title == ms.title }.findFirst()
-              if (findingNode.isPresent) {
-                val node = findingNode.get()
-                node.add(
-                    LocationTreeNode(result.target.toString(), result.type.toString(), ms, true)
-                )
-              }
+        Consumer { ms: Misconfiguration ->
+          // get count of misconfigurations with the same title
+          val count =
+            result.misconfigurations!!
+              .stream()
+              .filter { v: Misconfiguration -> v.title == ms.title }
+              .count()
+          if (visited.stream().noneMatch { v: LocationTreeNode -> v.title == ms.title }) {
+            visited.add(LocationTreeNode(result.target.toString(), result.type.toString(), ms))
+          }
+          if (count > 1) {
+            val findingNode =
+              visited.stream().filter { vf: TrivyTreeNode -> vf.title == ms.title }.findFirst()
+            if (findingNode.isPresent) {
+              val node = findingNode.get()
+              node.add(LocationTreeNode(result.target.toString(), result.type.toString(), ms, true))
             }
           }
+        }
       )
       visited.forEach(Consumer { newChild: LocationTreeNode? -> this.add(newChild) })
     }
@@ -57,26 +55,24 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
       // sort the vulnerabilities
       result.vulnerabilities = result.vulnerabilities!!.sortedBy { it.severity }
       result.vulnerabilities!!.forEach(
-          Consumer { vulnerability: Vulnerability ->
-            if (
-                visited.stream().noneMatch { v: TrivyTreeNodeImpl ->
-                  v.title == vulnerability.pkgName
-                }
-            ) {
-              visited.add(TrivyTreeNodeImpl(result.type.toString(), vulnerability))
-            }
-            val findingNode =
-                visited
-                    .stream()
-                    .filter { vf: TrivyTreeNodeImpl -> vf.title == vulnerability.pkgName }
-                    .findFirst()
-            if (findingNode.isPresent) {
-              val node = findingNode.get()
-              node.add(
-                  LocationTreeNode(result.target.toString(), result.type.toString(), vulnerability)
-              )
-            }
+        Consumer { vulnerability: Vulnerability ->
+          if (
+            visited.stream().noneMatch { v: TrivyTreeNodeImpl -> v.title == vulnerability.pkgName }
+          ) {
+            visited.add(TrivyTreeNodeImpl(result.type.toString(), vulnerability))
           }
+          val findingNode =
+            visited
+              .stream()
+              .filter { vf: TrivyTreeNodeImpl -> vf.title == vulnerability.pkgName }
+              .findFirst()
+          if (findingNode.isPresent) {
+            val node = findingNode.get()
+            node.add(
+              LocationTreeNode(result.target.toString(), result.type.toString(), vulnerability)
+            )
+          }
+        }
       )
       visited.forEach(Consumer { newChild: TrivyTreeNodeImpl? -> this.add(newChild) })
     }
@@ -86,13 +82,11 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
       // sort the secrets
       result.secrets = result.secrets?.sortedBy { it.title }
       result.secrets?.forEach(
-          Consumer { secret: Secret ->
-            if (visited.stream().noneMatch { v: LocationTreeNode -> v.title == secret.title }) {
-              visited.add(
-                  LocationTreeNode(result.target.toString(), result.type.toString(), secret)
-              )
-            }
+        Consumer { secret: Secret ->
+          if (visited.stream().noneMatch { v: LocationTreeNode -> v.title == secret.title }) {
+            visited.add(LocationTreeNode(result.target.toString(), result.type.toString(), secret))
           }
+        }
       )
       visited.forEach(Consumer { newChild: LocationTreeNode? -> this.add(newChild) })
     }
@@ -102,21 +96,21 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
       // sort the SAST findings
       result.sasts = result.sasts!!.sortedBy { it.title }
       result.sasts!!.forEach(
-          Consumer { sast ->
-            val title = "${sast.title}:${sast.startLine}"
-            if (visited.stream().noneMatch { v: LocationTreeNode -> v.title == title }) {
-              val projectRoot = project!!.basePath // or project.getBasePath()
-              val targetPath = result.target.toString()
-              val relativePath =
-                  if (projectRoot != null) {
-                    Paths.get(projectRoot).relativize(Paths.get(targetPath)).toString()
-                  } else {
-                    targetPath // fallback if project root is not available
-                  }
-              this.target = relativePath
-              visited.add(LocationTreeNode(relativePath, result.type.toString(), sast))
-            }
+        Consumer { sast ->
+          val title = "${sast.title}:${sast.startLine}"
+          if (visited.stream().noneMatch { v: LocationTreeNode -> v.title == title }) {
+            val projectRoot = project!!.basePath // or project.getBasePath()
+            val targetPath = result.target.toString()
+            val relativePath =
+              if (projectRoot != null) {
+                Paths.get(projectRoot).relativize(Paths.get(targetPath)).toString()
+              } else {
+                targetPath // fallback if project root is not available
+              }
+            this.target = relativePath
+            visited.add(LocationTreeNode(relativePath, result.type.toString(), sast))
           }
+        }
       )
       visited.forEach(Consumer { newChild: LocationTreeNode? -> this.add(newChild) })
     }

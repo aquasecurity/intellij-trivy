@@ -16,8 +16,7 @@ import java.util.UUID.randomUUID
 import javax.swing.SwingUtilities
 
 object TrivyRunState {
-  @Volatile
-  var isRunning = false
+  @Volatile var isRunning = false
 }
 
 /** RunScannerAction executes Trivy then calls update results */
@@ -28,7 +27,7 @@ class RunScannerAction : AnAction() {
     super.update(e)
 
     e.presentation.isEnabled =
-        com.aquasecurity.plugins.trivy.settings.TrivySettingState.instance.trivyInstalled
+      com.aquasecurity.plugins.trivy.settings.TrivySettingState.instance.trivyInstalled
   }
 
   override fun getActionUpdateThread(): ActionUpdateThread {
@@ -66,22 +65,22 @@ class RunScannerAction : AnAction() {
       val pluginTempDir = File(PathManager.getSystemPath(), "Trivy")
       val id = randomUUID().toString()
       resultFile =
-          FileUtil.createTempFile(pluginTempDir, String.format("trivy-%s", id), ".json", true)
+        FileUtil.createTempFile(pluginTempDir, String.format("trivy-%s", id), ".json", true)
       val runner =
-          TrivyBackgroundRunTask(
-              project,
-              resultFile,
-              { p: Project, f: File ->
-                // success callback
-                ResultProcessor.updateResults(p, f, trivyWindow)
-                TrivyRunState.isRunning = false
-              },
-              {
-                // failure callback
-                ResultProcessor.handleFailure( trivyWindow)
-                TrivyRunState.isRunning = false
-              }
-          )
+        TrivyBackgroundRunTask(
+          project,
+          resultFile,
+          { p: Project, f: File ->
+            // success callback
+            ResultProcessor.updateResults(p, f, trivyWindow)
+            TrivyRunState.isRunning = false
+          },
+          {
+            // failure callback
+            ResultProcessor.handleFailure(trivyWindow)
+            TrivyRunState.isRunning = false
+          },
+        )
       if (SwingUtilities.isEventDispatchThread()) {
         ProgressManager.getInstance().run(runner)
       } else {

@@ -11,16 +11,16 @@ class CredentialCheck {
   companion object {
 
     fun isValidCredentials(
-        project: Project,
-        apiKey: String,
-        apiSecret: String,
-        aquaUrl: String,
-        aquaAuthUrl: String,
+      project: Project,
+      apiKey: String,
+      apiSecret: String,
+      aquaUrl: String,
+      aquaAuthUrl: String,
     ): Boolean {
       if (apiKey.isBlank() || apiSecret.isBlank() || aquaUrl.isBlank() || aquaAuthUrl.isBlank()) {
         TrivyNotificationGroup.notifyError(
-            project,
-            "API Key, API Secret, Aqua URL, or Aqua Auth URL is blank.",
+          project,
+          "API Key, API Secret, Aqua URL, or Aqua Auth URL is blank.",
         )
         return false
       }
@@ -43,18 +43,18 @@ class CredentialCheck {
         val client = HttpClient.newHttpClient()
 
         val req =
-            HttpRequest.newBuilder()
-                .uri(URI.create(requestUrl))
-                .header("x-signature", hexString)
-                .header("x-timestamp", timestamp)
-                .header("x-api-key", apiKey)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(body))
-                .build()
+          HttpRequest.newBuilder()
+            .uri(URI.create(requestUrl))
+            .header("x-signature", hexString)
+            .header("x-timestamp", timestamp)
+            .header("x-api-key", apiKey)
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(body))
+            .build()
 
         val response = client.send(req, java.net.http.HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() == 200) {
-            TrivyNotificationGroup.notifyInformation(project, "Credentials are valid.")
+          TrivyNotificationGroup.notifyInformation(project, "Credentials are valid.")
           return true
         }
       } catch (e: Exception) {

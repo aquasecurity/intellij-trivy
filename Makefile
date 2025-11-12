@@ -1,4 +1,3 @@
-
 .PHONY: format
 format:
-	@ktfmt -f .
+	./gradlew ktfmtFormat -x ktfmtFormatScripts

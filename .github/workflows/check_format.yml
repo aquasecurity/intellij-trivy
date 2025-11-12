@@ -17,7 +17,7 @@ jobs:
           build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
           build-scan-terms-of-use-agree: "yes"
 
-      - name: Run format
+      - name: Run formatting plugin
         run: make format
 
       - name: Check for formatting changes

@@ -80,16 +80,16 @@ class TrivySettingsComponent {
     }
 
     region.addItemListener(
-        fun(_: ItemEvent) {
-          val showCustom = region.selectedItem == "Custom"
-          customAquaUrlLabel.isVisible = showCustom
-          customAquaUrl.isVisible = showCustom
-          customAuthUrlLabel.isVisible = showCustom
-          customAuthUrl.isVisible = showCustom
+      fun(_: ItemEvent) {
+        val showCustom = region.selectedItem == "Custom"
+        customAquaUrlLabel.isVisible = showCustom
+        customAquaUrl.isVisible = showCustom
+        customAuthUrlLabel.isVisible = showCustom
+        customAuthUrl.isVisible = showCustom
 
-          panel.revalidate()
-          panel.repaint()
-        }
+        panel.revalidate()
+        panel.repaint()
+      }
     )
 
     updatePanel()
@@ -102,148 +102,147 @@ class TrivySettingsComponent {
     }
 
     var builder =
-        FormBuilder.createFormBuilder()
-            .addComponent(TitledSeparator("Path to Trivy"))
-            .addLabeledComponent(JBLabel("Trivy binary"), trivyPath, 1, false)
+      FormBuilder.createFormBuilder()
+        .addComponent(TitledSeparator("Path to Trivy"))
+        .addLabeledComponent(JBLabel("Trivy binary"), trivyPath, 1, false)
 
     if (!TrivySettingState.instance.trivyInstalled) {
       builder =
-          builder.addLabeledComponent(
+        builder.addLabeledComponent(
+          JBLabel(),
+          JButton("Download Trivy").apply {
+            addActionListener {
+              if (project != null) {
+                com.intellij.openapi.progress.ProgressManager.getInstance()
+                  .run(
+                    TrivyDownloadBinaryTask(
+                      project,
+                      true,
+                      callback = {
+                        trivyPath.text = TrivySettingState.instance.trivyPath
+                        // update the Settings UI after download
+                        CheckForTrivyAction.run()
+                      },
+                    )
+                  )
+              }
+            }
+          },
+          1,
+          false,
+        )
+    } else {
+      // if trivy is installed and the path is the plugin folder
+      val pluginPath =
+        PluginManagerCore.getPlugin(PluginId.getId("com.aquasecurity.plugins.intellij-Trivy"))
+          ?.pluginPath
+      if (
+        pluginPath != null && TrivySettingState.instance.trivyPath.startsWith(pluginPath.toString())
+      ) {
+        builder =
+          builder
+            .addLabeledComponent(
               JBLabel(),
-              JButton("Download Trivy").apply {
+              JBLabel(
+                "Trivy is managed by the Trivy plugin, check for updates and install if available"
+              ),
+              1,
+              false,
+            )
+            .addLabeledComponent(
+              JBLabel(),
+              JButton("Update Trivy").apply {
                 addActionListener {
                   if (project != null) {
                     com.intellij.openapi.progress.ProgressManager.getInstance()
-                        .run(
-                            TrivyDownloadBinaryTask(
-                                project,
-                                true,
-                                callback = {
-                                  trivyPath.text = TrivySettingState.instance.trivyPath
-                                  // update the Settings UI after download
-                                  CheckForTrivyAction.run()
-                                },
-                            )
+                      .run(
+                        TrivyDownloadBinaryTask(
+                          project,
+                          false,
+                          callback = {
+                            trivyPath.text = TrivySettingState.instance.trivyPath
+                            // update the Settings UI after download
+                            CheckForTrivyAction.run()
+                          },
                         )
+                      )
                   }
                 }
               },
               1,
               false,
-          )
-    } else {
-      // if trivy is installed and the path is the plugin folder
-      val pluginPath =
-          PluginManagerCore.getPlugin(PluginId.getId("com.aquasecurity.plugins.intellij-Trivy"))
-              ?.pluginPath
-      if (
-          pluginPath != null &&
-              TrivySettingState.instance.trivyPath.startsWith(pluginPath.toString())
-      ) {
-        builder =
-            builder
-                .addLabeledComponent(
-                    JBLabel(),
-                    JBLabel(
-                        "Trivy is managed by the Trivy plugin, check for updates and install if available"
-                    ),
-                    1,
-                    false,
-                )
-                .addLabeledComponent(
-                    JBLabel(),
-                    JButton("Update Trivy").apply {
-                      addActionListener {
-                        if (project != null) {
-                          com.intellij.openapi.progress.ProgressManager.getInstance()
-                              .run(
-                                  TrivyDownloadBinaryTask(
-                                      project,
-                                      false,
-                                      callback = {
-                                        trivyPath.text = TrivySettingState.instance.trivyPath
-                                        // update the Settings UI after download
-                                        CheckForTrivyAction.run()
-                                      },
-                                  )
-                              )
-                        }
-                      }
-                    },
-                    1,
-                    false,
-                )
+            )
       }
     }
 
     builder =
-        builder
-            .addComponent(JBSplitter())
-            .addComponent(TitledSeparator("Scanners"))
-            .addLabeledComponent(JBLabel(), vulnScanning, 1, false)
-            .addLabeledComponent(JBLabel(), misconfigurationScanning, 1, false)
-            .addLabeledComponent(JBLabel(), secretScanning, 1, false)
-            .addComponent(TitledSeparator("Reported Severity Levels"))
-            .addLabeledComponent(JBLabel(), critical, 1, false)
-            .addLabeledComponent(JBLabel(), high, 1, false)
-            .addLabeledComponent(JBLabel(), medium, 1, false)
-            .addLabeledComponent(JBLabel(), low, 1, false)
-            .addLabeledComponent(JBLabel(), unknown, 1, false)
-            .addComponent(TitledSeparator("Other Settings"))
-            .addLabeledComponent(JBLabel(), offlineScan, 1, false)
-            .addLabeledComponent(JBLabel(), ignoreUnfixed, 1, false)
-            .addComponent(TitledSeparator("Skip Directories"))
-            .addLabeledComponent(
-                JBLabel(),
-                ToolbarDecorator.createDecorator(skipDirList)
-                    .setAddAction {
-                      val dir = showAddDirectoryDialog()
-                      if (dir != null) skipDirsModel.addElement(dir)
-                    }
-                    .setRemoveAction {
-                      if (skipDirList.selectedIndex >= 0) {
-                        skipDirsModel.remove(skipDirList.selectedIndex)
-                      }
-                    }
-                    .createPanel(),
-                1,
-                false,
-            )
-            .addSeparator()
-            .addLabeledComponent(JBLabel("Config file path"), trivyConfigPath, 1, false)
-            .addLabeledComponent(JBLabel(), useConfigFile, 1, false)
-            .addLabeledComponent(JBLabel("Ignore file path"), trivyIgnorePath, 1, false)
-            .addLabeledComponent(JBLabel(), useIgnoreFile, 1, false)
-            .addComponent(TitledSeparator("Aqua Platform"))
-            .addLabeledComponent(JBLabel(), useAquaPlatform, 1, false)
-            .addLabeledComponent(JBLabel("API Key"), apiKey, 1, false)
-            .addLabeledComponent(JBLabel("API Secret"), apiSecret, 1, false)
-            .addLabeledComponent(JBLabel("Region"), region, 1, false)
-            .addLabeledComponent(customAquaUrlLabel, customAquaUrl, 1, false)
-            .addLabeledComponent(customAuthUrlLabel, customAuthUrl, 1, false)
-            .addLabeledComponent(JBLabel(), enableDotNetProject, 1, false)
-            .addLabeledComponent(JBLabel(), enableGradle, 1, false)
-            .addLabeledComponent(JBLabel(), enablePackageJson, 1, false)
-            .addLabeledComponent(JBLabel(), enableSASTScanning, 1, false)
-            .addComponent(TitledSeparator("Proxy and Certificates"))
-            .addLabeledComponent(JBLabel("Proxy Address URL"), proxyAddressUrl, 1, false)
-            .addLabeledComponent(JBLabel("CA Certificate Path"), caCertPath, 1, false)
-            .addComponentFillVertically(JPanel(), 0)
+      builder
+        .addComponent(JBSplitter())
+        .addComponent(TitledSeparator("Scanners"))
+        .addLabeledComponent(JBLabel(), vulnScanning, 1, false)
+        .addLabeledComponent(JBLabel(), misconfigurationScanning, 1, false)
+        .addLabeledComponent(JBLabel(), secretScanning, 1, false)
+        .addComponent(TitledSeparator("Reported Severity Levels"))
+        .addLabeledComponent(JBLabel(), critical, 1, false)
+        .addLabeledComponent(JBLabel(), high, 1, false)
+        .addLabeledComponent(JBLabel(), medium, 1, false)
+        .addLabeledComponent(JBLabel(), low, 1, false)
+        .addLabeledComponent(JBLabel(), unknown, 1, false)
+        .addComponent(TitledSeparator("Other Settings"))
+        .addLabeledComponent(JBLabel(), offlineScan, 1, false)
+        .addLabeledComponent(JBLabel(), ignoreUnfixed, 1, false)
+        .addComponent(TitledSeparator("Skip Directories"))
+        .addLabeledComponent(
+          JBLabel(),
+          ToolbarDecorator.createDecorator(skipDirList)
+            .setAddAction {
+              val dir = showAddDirectoryDialog()
+              if (dir != null) skipDirsModel.addElement(dir)
+            }
+            .setRemoveAction {
+              if (skipDirList.selectedIndex >= 0) {
+                skipDirsModel.remove(skipDirList.selectedIndex)
+              }
+            }
+            .createPanel(),
+          1,
+          false,
+        )
+        .addSeparator()
+        .addLabeledComponent(JBLabel("Config file path"), trivyConfigPath, 1, false)
+        .addLabeledComponent(JBLabel(), useConfigFile, 1, false)
+        .addLabeledComponent(JBLabel("Ignore file path"), trivyIgnorePath, 1, false)
+        .addLabeledComponent(JBLabel(), useIgnoreFile, 1, false)
+        .addComponent(TitledSeparator("Aqua Platform"))
+        .addLabeledComponent(JBLabel(), useAquaPlatform, 1, false)
+        .addLabeledComponent(JBLabel("API Key"), apiKey, 1, false)
+        .addLabeledComponent(JBLabel("API Secret"), apiSecret, 1, false)
+        .addLabeledComponent(JBLabel("Region"), region, 1, false)
+        .addLabeledComponent(customAquaUrlLabel, customAquaUrl, 1, false)
+        .addLabeledComponent(customAuthUrlLabel, customAuthUrl, 1, false)
+        .addLabeledComponent(JBLabel(), enableDotNetProject, 1, false)
+        .addLabeledComponent(JBLabel(), enableGradle, 1, false)
+        .addLabeledComponent(JBLabel(), enablePackageJson, 1, false)
+        .addLabeledComponent(JBLabel(), enableSASTScanning, 1, false)
+        .addComponent(TitledSeparator("Proxy and Certificates"))
+        .addLabeledComponent(JBLabel("Proxy Address URL"), proxyAddressUrl, 1, false)
+        .addLabeledComponent(JBLabel("CA Certificate Path"), caCertPath, 1, false)
+        .addComponentFillVertically(JPanel(), 0)
 
     panel = builder.panel
   }
 
   private fun showAddDirectoryDialog(): String? {
     val chooser =
-        FileChooserDescriptor(false, true, false, false, false, false)
-            .withTitle("Select Directory to Skip")
-            .withDescription("Choose a directory within the project to skip during scanning")
+      FileChooserDescriptor(false, true, false, false, false, false)
+        .withTitle("Select Directory to Skip")
+        .withDescription("Choose a directory within the project to skip during scanning")
 
     // Get the project base directory as VirtualFile
     val projectBaseDir =
-        project?.let {
-          com.intellij.openapi.vfs.LocalFileSystem.getInstance().findFileByPath(it.basePath ?: "")
-        }
+      project?.let {
+        com.intellij.openapi.vfs.LocalFileSystem.getInstance().findFileByPath(it.basePath ?: "")
+      }
 
     // Set the root to limit selection to project directories
     if (projectBaseDir != null) {
@@ -434,13 +433,13 @@ class TrivySettingsComponent {
     customAuthUrl.text = newText
   }
 
-    fun setProxyAddressUrl(newText: String) {
-        proxyAddressUrl.text = newText
-    }
+  fun setProxyAddressUrl(newText: String) {
+    proxyAddressUrl.text = newText
+  }
 
-    fun setCaCertPath(newText: String) {
-        caCertPath.text = newText
-    }
+  fun setCaCertPath(newText: String) {
+    caCertPath.text = newText
+  }
 
   fun setEnableDotNetProject(required: Boolean) {
     enableDotNetProject.isSelected = required
