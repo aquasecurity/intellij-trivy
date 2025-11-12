@@ -72,10 +72,10 @@ class FindingsHelper : ScrollablePanel() {
     if (this.sast != null) {
       val title = sast?.title.toString().lowercase().replaceFirstChar { it.uppercase() }
       val confidence =
-          sast?.confidence?.toString()?.lowercase()?.replaceFirstChar { it.uppercase() }
+        sast?.confidence?.toString()?.lowercase()?.replaceFirstChar { it.uppercase() }
       sast?.impact?.toString()?.lowercase()?.replaceFirstChar { it.uppercase() }
       val likelihood =
-          sast?.likelihood?.toString()?.lowercase()?.replaceFirstChar { it.uppercase() }
+        sast?.likelihood?.toString()?.lowercase()?.replaceFirstChar { it.uppercase() }
 
       var owasp = ""
       sast?.owasp?.let { owasp = sast!!.owasp!!.joinToString("\n") }
@@ -172,17 +172,18 @@ class FindingsHelper : ScrollablePanel() {
     label.foreground = JBColor.BLUE
     label.cursor = java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR)
     label.addMouseListener(
-        object : java.awt.event.MouseAdapter() {
-          override fun mouseClicked(e: java.awt.event.MouseEvent?) {
-            if (e != null && e.button == java.awt.event.MouseEvent.BUTTON1) {
-              try {
-                java.awt.Desktop.getDesktop().browse(java.net.URI(content))
-              } catch (ex: Exception) {
-                ex.printStackTrace()
-              }
+      object : java.awt.event.MouseAdapter() {
+        override fun mouseClicked(e: java.awt.event.MouseEvent?) {
+          if (e != null && e.button == java.awt.event.MouseEvent.BUTTON1) {
+            try {
+              java.awt.Desktop.getDesktop().browse(java.net.URI(content))
+            } catch (ex: Exception) {
+              ex.printStackTrace()
             }
           }
-        })
+        }
+      }
+    )
 
     // Enable text wrapping
     label.lineWrap = true

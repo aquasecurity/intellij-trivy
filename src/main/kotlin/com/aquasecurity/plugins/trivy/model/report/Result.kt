@@ -34,29 +34,29 @@ class Result {
     sasts?.forEach { consolidatedResults += it }
 
     consolidatedResults =
-        this.consolidatedResults.sortedBy { it ->
-          when (it) {
-            is Vulnerability -> {
-              it.severity
-            }
+      this.consolidatedResults.sortedBy { it ->
+        when (it) {
+          is Vulnerability -> {
+            it.severity
+          }
 
-            is Misconfiguration -> {
-              it.severity
-            }
+          is Misconfiguration -> {
+            it.severity
+          }
 
-            is Secret -> {
-              it.severity
-            }
+          is Secret -> {
+            it.severity
+          }
 
-            is Sast -> {
-              it.severity
-            }
+          is Sast -> {
+            it.severity
+          }
 
-            else -> {
-              ""
-            }
+          else -> {
+            ""
           }
         }
+      }
 
     return consolidatedResults
   }

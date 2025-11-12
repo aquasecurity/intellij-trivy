@@ -7,10 +7,10 @@ import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
 
 class LocationTreeNode(
-    private val filepath: String,
-    private val filetype: String,
-    val finding: Any,
-    val child: Boolean = false
+  private val filepath: String,
+  private val filetype: String,
+  val finding: Any,
+  val child: Boolean = false,
 ) : DefaultMutableTreeNode(), TrivyTreeNode {
   private var fileLocation: Location
   private var locationTitle: String
@@ -20,11 +20,12 @@ class LocationTreeNode(
 
   init {
     require(
-        finding is Misconfiguration ||
-            finding is Vulnerability ||
-            finding is Secret ||
-            finding is Sast ||
-            finding is Result)
+      finding is Misconfiguration ||
+        finding is Vulnerability ||
+        finding is Secret ||
+        finding is Sast ||
+        finding is Result
+    )
 
     this.fileLocation = Location(filepath, 1, 1)
     this.locationTitle = filepath
@@ -85,18 +86,20 @@ class LocationTreeNode(
   private fun handleMisconfiguration(finding: Misconfiguration) {
     if (finding.causeMetadata != null) {
       this.fileLocation =
-          Location(filepath, finding.causeMetadata!!.startLine, finding.causeMetadata!!.endLine)
+        Location(filepath, finding.causeMetadata!!.startLine, finding.causeMetadata!!.endLine)
     } else if (finding.iacMetadata != null) {
       this.fileLocation =
-          Location(filepath, finding.iacMetadata!!.startLine, finding.iacMetadata!!.endLine)
+        Location(filepath, finding.iacMetadata!!.startLine, finding.iacMetadata!!.endLine)
     }
     this.severity = finding.severity!!
     this.locationTitle = finding.title!!
     if (this.child) {
-      if (this.fileLocation.startLine != null &&
-          this.fileLocation.startLine != this.fileLocation.endLine) {
+      if (
+        this.fileLocation.startLine != null &&
+          this.fileLocation.startLine != this.fileLocation.endLine
+      ) {
         this.locationTitle =
-            "${this.filepath}:[${this.fileLocation.startLine}-${this.fileLocation.endLine}]"
+          "${this.filepath}:[${this.fileLocation.startLine}-${this.fileLocation.endLine}]"
       } else {
         this.locationTitle = this.filepath
       }

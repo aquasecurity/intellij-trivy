@@ -8,6 +8,7 @@ plugins {
   alias(libs.plugins.changelog) // Gradle Changelog Plugin
   alias(libs.plugins.qodana) // Gradle Qodana Plugin
   alias(libs.plugins.kover) // Gradle Kover Plugin
+  id("com.ncorti.ktfmt.gradle") version "0.25.0"
 }
 
 group = providers.gradleProperty("pluginGroup").get()
@@ -63,7 +64,8 @@ intellijPlatform {
           with(it.lines()) {
             if (!containsAll(listOf(start, end))) {
               throw GradleException(
-                  "Plugin description section not found in README.md:\n$start ... $end")
+                  "Plugin description section not found in README.md:\n$start ... $end"
+              )
             }
             subList(indexOf(start) + 1, indexOf(end)).joinToString("\n").let(::markdownToHTML)
           }
@@ -87,6 +89,16 @@ intellijPlatform {
       sinceBuild = providers.gradleProperty("pluginSinceBuild")
       untilBuild = providers.gradleProperty("pluginUntilBuild")
     }
+  }
+
+  ktfmt {
+    // Google style - 2 space indentation & automatically adds/removes trailing commas
+    googleStyle()
+
+    // Exclude the build directory (including idea-sandbox) so ktfmt won't follow sandbox symlinks.
+    // The previous pattern `Regex("build*")` was incorrect (matches 'buil' + zero or more 'd').
+    // Use a regex that matches any path that starts with "build/" or is exactly "build".
+    srcSetPathExclusionPattern = Regex("^build(/.*)?")
   }
 
   signing {

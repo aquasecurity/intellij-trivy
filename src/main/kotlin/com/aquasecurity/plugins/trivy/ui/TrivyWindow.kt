@@ -61,11 +61,17 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
     val actionGroup = DefaultActionGroup("ACTION_GROUP", false)
 
     actionGroup.add(
-        actionManager.getAction("com.aquasecurity.plugins.trivy.actions.RunScannerAction"))
+      actionManager.getAction("com.aquasecurity.plugins.trivy.actions.RunScannerAction")
+    )
     actionGroup.add(
-        actionManager.getAction("com.aquasecurity.plugins.trivy.actions.ClearResultsAction"))
+      actionManager.getAction("com.aquasecurity.plugins.trivy.actions.ClearResultsAction")
+    )
     actionGroup.add(
-        actionManager.getAction("com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction"))
+      actionManager.getAction("com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction")
+    )
+    actionGroup.add(
+      actionManager.getAction("com.aquasecurity.plugins.trivy.actions.ShowScanOutputAction")
+    )
 
     val actionToolbar = actionManager.createActionToolbar("ACTION_TOOLBAR", actionGroup, true)
     actionToolbar.orientation = SwingConstants.VERTICAL
@@ -106,14 +112,17 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
     val rootNode = DefaultMutableTreeNode("Findings by type")
 
     findings.results.forEach(
-        Consumer { f: Result ->
-          if ((f.misconfigurations != null && f.misconfigurations!!.isNotEmpty()) ||
-              (f.vulnerabilities != null && f.vulnerabilities!!.isNotEmpty()) ||
-              (f.secrets != null && f.secrets!!.isNotEmpty()) ||
-              (f.sasts != null && f.sasts!!.isNotEmpty())) {
-            addOrUpdateTreeNode(f, fileNodes)
-          }
-        })
+      Consumer { f: Result ->
+        if (
+          (f.misconfigurations != null && f.misconfigurations!!.isNotEmpty()) ||
+            (f.vulnerabilities != null && f.vulnerabilities!!.isNotEmpty()) ||
+            (f.secrets != null && f.secrets!!.isNotEmpty()) ||
+            (f.sasts != null && f.sasts!!.isNotEmpty())
+        ) {
+          addOrUpdateTreeNode(f, fileNodes)
+        }
+      }
+    )
 
     fileNodes.forEach(Consumer { newChild: FileTreeNode? -> rootNode.add(newChild) })
 
@@ -122,11 +131,12 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
     this@TrivyWindow.findings?.isRootVisible = false
     this@TrivyWindow.findings?.cellRenderer = FindingTreeRenderer()
     this@TrivyWindow.findings?.addMouseListener(
-        object : MouseAdapter() {
-          override fun mouseClicked(me: MouseEvent) {
-            doMouseClicked(me, this@TrivyWindow.findings)
-          }
-        })
+      object : MouseAdapter() {
+        override fun mouseClicked(me: MouseEvent) {
+          doMouseClicked(me, this@TrivyWindow.findings)
+        }
+      }
+    )
   }
 
   fun getHighlightSeverity(severity: String): HighlightSeverity {
@@ -158,51 +168,51 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
     val visitedTitle = mutableListOf<String>()
 
     results
-        .sortedBy { it.filename }
-        .sortedByDescending { it.severity }
-        .forEach(
-            Consumer { cr: CommercialResult ->
-              if (cr.policyResults != null) {
-                for (result in
-                    cr.policyResults.filter {
-                      it.controlResult != null && it.controlResult.size > 0
-                    }) {
-                  if (result.controlResult != null && !visitedTitle.contains(result.policyName)) {
-                    visitedTitle.add(result.policyName)
-                    rootNode.add(PolicyTreeNode(result.policyName, result))
-                  }
-                  val policyNode =
-                      rootNode.children().toList().find {
-                        it is PolicyTreeNode && it.title == result.policyName
-                      } as PolicyTreeNode
-                  result.controlResult?.forEach { ctl ->
-                    val visitedKey = ctl.matchedData + cr.filename
-                    if (!visitedTitle.contains(visitedKey)) {
-                      policyNode.addControlResult(ctl, result, report, cr)
-                      visitedTitle.add(visitedKey)
-                    }
-                  }
+      .sortedBy { it.filename }
+      .sortedByDescending { it.severity }
+      .forEach(
+        Consumer { cr: CommercialResult ->
+          if (cr.policyResults != null) {
+            for (result in
+              cr.policyResults.filter { it.controlResult != null && it.controlResult.size > 0 }) {
+              if (result.controlResult != null && !visitedTitle.contains(result.policyName)) {
+                visitedTitle.add(result.policyName)
+                rootNode.add(PolicyTreeNode(result.policyName, result))
+              }
+              val policyNode =
+                rootNode.children().toList().find {
+                  it is PolicyTreeNode && it.title == result.policyName
+                } as PolicyTreeNode
+              result.controlResult?.forEach { ctl ->
+                val visitedKey = ctl.matchedData + cr.filename
+                if (!visitedTitle.contains(visitedKey)) {
+                  policyNode.addControlResult(ctl, result, report, cr)
+                  visitedTitle.add(visitedKey)
                 }
               }
-            })
+            }
+          }
+        }
+      )
 
     this.assurancePolicies = Tree(rootNode)
     this.assurancePolicies?.putClientProperty("JTree.lineStyle", "Horizontal")
     this.assurancePolicies?.isRootVisible = false
     this.assurancePolicies?.cellRenderer = FindingTreeRenderer()
     this.assurancePolicies?.addMouseListener(
-        object : MouseAdapter() {
-          override fun mouseClicked(me: MouseEvent) {
-            doMouseClicked(me, this@TrivyWindow.assurancePolicies)
-          }
-        })
+      object : MouseAdapter() {
+        override fun mouseClicked(me: MouseEvent) {
+          doMouseClicked(me, this@TrivyWindow.assurancePolicies)
+        }
+      }
+    )
 
     return
   }
 
   private fun addOrUpdateTreeNode(finding: Result, fileNodes: MutableList<FileTreeNode>) {
     val match =
-        fileNodes.stream().filter { r: FileTreeNode -> r.target == finding.target }.findFirst()
+      fileNodes.stream().filter { r: FileTreeNode -> r.target == finding.target }.findFirst()
     if (match.isPresent) {
       match.get().update(finding)
       return
@@ -242,11 +252,13 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
       return
     }
     val file =
-        VirtualFileManager.getInstance()
-            .refreshAndFindFileByNioPath(Paths.get(project.basePath, findingLocation.filename))
+      VirtualFileManager.getInstance()
+        .refreshAndFindFileByNioPath(Paths.get(project.basePath, findingLocation.filename))
     if (file == null || !file.exists()) {
       TrivyNotificationGroup.notifyInformation(
-          project, String.format("File %s cannot be opened", findingLocation.filename))
+        project,
+        String.format("File %s cannot be opened", findingLocation.filename),
+      )
       return
     }
 
@@ -256,7 +268,9 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
 
     val editor = FileEditorManager.getInstance(project).openTextEditor(ofd, true) ?: return
     editor.selectionModel.setBlockSelection(
-        LogicalPosition(startLine - 1, 0), LogicalPosition(endLine - 1, 1000))
+      LogicalPosition(startLine - 1, 0),
+      LogicalPosition(endLine - 1, 1000),
+    )
   }
 
   fun redraw() {

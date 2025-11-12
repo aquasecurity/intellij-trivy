@@ -13,10 +13,11 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.wm.ToolWindowManager
 import java.io.File
 import java.util.UUID.randomUUID
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.SwingUtilities
 
 object TrivyRunState {
-  var isRunning = false
+  var isRunning = AtomicBoolean(false)
 }
 
 /** RunScannerAction executes Trivy then calls update results */
@@ -27,7 +28,7 @@ class RunScannerAction : AnAction() {
     super.update(e)
 
     e.presentation.isEnabled =
-        com.aquasecurity.plugins.trivy.settings.TrivySettingState.instance.trivyInstalled
+      com.aquasecurity.plugins.trivy.settings.TrivySettingState.instance.trivyInstalled
   }
 
   override fun getActionUpdateThread(): ActionUpdateThread {
@@ -44,7 +45,7 @@ class RunScannerAction : AnAction() {
   }
 
   private fun runTrivy(project: Project) {
-    if (TrivyRunState.isRunning) {
+    if (TrivyRunState.isRunning.get()) {
       return
     }
 
@@ -53,18 +54,34 @@ class RunScannerAction : AnAction() {
     val trivyWindow = content?.component as? TrivyWindow ?: return
 
     try {
-      trivyWindow.showRunning()
-      TrivyRunState.isRunning = true
+      // Ensure UI updates happen on the EDT
+      if (SwingUtilities.isEventDispatchThread()) {
+        trivyWindow.showRunning()
+      } else {
+        ApplicationManager.getApplication().invokeLater { trivyWindow.showRunning() }
+      }
+
+      TrivyRunState.isRunning.set(true)
       val resultFile: File
       val pluginTempDir = File(PathManager.getSystemPath(), "Trivy")
       val id = randomUUID().toString()
       resultFile =
-          FileUtil.createTempFile(pluginTempDir, String.format("trivy-%s", id), ".json", true)
+        FileUtil.createTempFile(pluginTempDir, String.format("trivy-%s", id), ".json", true)
       val runner =
-          TrivyBackgroundRunTask(project, resultFile) { _, _ ->
-            ResultProcessor.updateResults(project, resultFile, trivyWindow)
-            TrivyRunState.isRunning = false
-          }
+        TrivyBackgroundRunTask(
+          project,
+          resultFile,
+          { p: Project, f: File ->
+            // success callback
+            ResultProcessor.updateResults(p, f, trivyWindow)
+            TrivyRunState.isRunning.set(false)
+          },
+          {
+            // failure callback
+            ResultProcessor.handleFailure(trivyWindow)
+            TrivyRunState.isRunning.set(false)
+          },
+        )
       if (SwingUtilities.isEventDispatchThread()) {
         ProgressManager.getInstance().run(runner)
       } else {
@@ -72,7 +89,7 @@ class RunScannerAction : AnAction() {
       }
     } catch (ex: Exception) {
       TrivyNotificationGroup.notifyError(project, ex.localizedMessage)
-      TrivyRunState.isRunning = false
+      TrivyRunState.isRunning.set(false)
     }
   }
 }

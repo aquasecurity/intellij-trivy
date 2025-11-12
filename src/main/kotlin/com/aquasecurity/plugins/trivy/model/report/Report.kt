@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.nio.file.Paths
 
 data class Report(
-    @JsonProperty("SchemaVersion") val schemaVersion: Long,
-    @JsonProperty("CreatedAt") val createdAt: String,
-    @JsonProperty("ArtifactName") val artifactName: String,
-    @JsonProperty("ArtifactType") val artifactType: String,
-    @JsonProperty("Metadata") val metadata: Metadata,
-    @JsonProperty("Results") val results: List<Result>?,
+  @JsonProperty("SchemaVersion") val schemaVersion: Long,
+  @JsonProperty("CreatedAt") val createdAt: String,
+  @JsonProperty("ArtifactName") val artifactName: String,
+  @JsonProperty("ArtifactType") val artifactType: String,
+  @JsonProperty("Metadata") val metadata: Metadata,
+  @JsonProperty("Results") val results: List<Result>?,
 ) {
   val project = com.intellij.openapi.project.ProjectManager.getInstance().openProjects.firstOrNull()
 
@@ -31,11 +31,11 @@ data class Report(
 
       try {
         val relativePath =
-            if (projectRoot != null) {
-              Paths.get(projectRoot).relativize(Paths.get(targetPath)).toString()
-            } else {
-              targetPath // fallback if project root is not available
-            }
+          if (projectRoot != null) {
+            Paths.get(projectRoot).relativize(Paths.get(targetPath)).toString()
+          } else {
+            targetPath // fallback if project root is not available
+          }
 
         return relativePath == filepath
       } catch (e: Exception) {

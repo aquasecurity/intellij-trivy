@@ -13,9 +13,9 @@ import java.nio.file.Paths
 import java.util.*
 
 internal class TrivyDownloadBinaryTask(
-    private val project: Project,
-    val initial: Boolean,
-    val callback: (() -> Unit)? = null
+  private val project: Project,
+  val initial: Boolean,
+  val callback: (() -> Unit)? = null,
 ) : Backgroundable(project, "Downloading Trivy", false), Runnable {
 
   override fun run(indicator: ProgressIndicator) {
@@ -84,13 +84,13 @@ internal class TrivyDownloadBinaryTask(
       osName = "linux"
     }
     PluginManagerCore.getPlugin(PluginId.getId("com.aquasecurity.plugins.intellij-Trivy"))
-        ?.pluginPath
-        ?.let {
-          val targetFile = Paths.get(it.toAbsolutePath().toString(), binaryTarget).toFile()
-          if (downloadBinary(project, osName, arch, suffix, targetFile, initial)) {
-            TrivySettingState.instance.trivyPath = targetFile.absolutePath
-            TrivyBinary.binaryFile = targetFile.absolutePath
-          }
+      ?.pluginPath
+      ?.let {
+        val targetFile = Paths.get(it.toAbsolutePath().toString(), binaryTarget).toFile()
+        if (downloadBinary(project, osName, arch, suffix, targetFile, initial)) {
+          TrivySettingState.instance.trivyPath = targetFile.absolutePath
+          TrivyBinary.binaryFile = targetFile.absolutePath
         }
+      }
   }
 }
