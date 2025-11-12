@@ -11,10 +11,10 @@ fun getLatestGithubTag(): String? {
   val client = HttpClient.newHttpClient()
 
   val request =
-      HttpRequest.newBuilder()
-          .uri(URI.create(url))
-          .header("Accept", "application/vnd.github.v3+json")
-          .build()
+    HttpRequest.newBuilder()
+      .uri(URI.create(url))
+      .header("Accept", "application/vnd.github.v3+json")
+      .build()
 
   val response = client.send(request, HttpResponse.BodyHandlers.ofInputStream())
 

@@ -1,9 +1,9 @@
 package com.aquasecurity.plugins.trivy.actions
 
 import com.aquasecurity.plugins.trivy.ui.TrivyScanOutputManager
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.ActionUpdateThread
 
 class ShowScanOutputAction : AnAction() {
   override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
@@ -19,5 +19,3 @@ class ShowScanOutputAction : AnAction() {
     e.presentation.description = "Show the Trivy scan output"
   }
 }
-
-

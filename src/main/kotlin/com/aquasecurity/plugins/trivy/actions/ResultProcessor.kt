@@ -17,9 +17,9 @@ import java.io.IOException
 
 object ResultProcessor {
 
-    fun handleFailure(trivyWindow: TrivyWindow) {
-        trivyWindow.redraw()
-    }
+  fun handleFailure(trivyWindow: TrivyWindow) {
+    trivyWindow.redraw()
+  }
 
   fun updateResults(project: Project, resultFile: File?, trivyWindow: TrivyWindow) {
     try {
@@ -48,13 +48,13 @@ object ResultProcessor {
       }
     } catch (e: IOException) {
       TrivyNotificationGroup.notifyError(
-          project,
-          "Failed to process the results file. ${e.localizedMessage}",
+        project,
+        "Failed to process the results file. ${e.localizedMessage}",
       )
     } catch (e: Exception) {
       TrivyNotificationGroup.notifyError(
-          project,
-          "An unexpected error occurred while processing the results. ${e.localizedMessage}",
+        project,
+        "An unexpected error occurred while processing the results. ${e.localizedMessage}",
       )
     } finally {
       trivyWindow.redraw()
@@ -70,9 +70,9 @@ object ResultProcessor {
       result.vulnerabilities?.forEach { vuln ->
         result.packages?.forEach { pkg ->
           if (
-              pkg.name == vuln.pkgName &&
-                  pkg.version == vuln.installedVersion &&
-                  !pkg.locations.isNullOrEmpty()
+            pkg.name == vuln.pkgName &&
+              pkg.version == vuln.installedVersion &&
+              !pkg.locations.isNullOrEmpty()
           ) {
             vuln.location = pkg.locations[0]
           }
@@ -84,65 +84,65 @@ object ResultProcessor {
   private fun processReport(project: Project, resultFile: File): Report {
     return try {
       val jsonFactory =
-          JsonFactory.builder().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION).build()
+        JsonFactory.builder().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION).build()
       val findingsMapper =
-          ObjectMapper(jsonFactory).apply {
-            disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
-            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            disable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)
-          }
+        ObjectMapper(jsonFactory).apply {
+          disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
+          disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+          disable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)
+        }
 
       // Register Kotlin module and configure Kotlin-specific features so Jackson will
       // be lenient with nulls for Kotlin types (treat null collections/maps as empty,
       // treat null as default, and disable strict null checks which otherwise fail
       // when JSON contains null for non-null Kotlin constructor parameters).
       val kotlinModule =
-          KotlinModule.Builder()
-              .configure(KotlinFeature.NullToEmptyCollection, true)
-              .configure(KotlinFeature.NullToEmptyMap, true)
-              .configure(KotlinFeature.NullIsSameAsDefault, true)
-              .build()
+        KotlinModule.Builder()
+          .configure(KotlinFeature.NullToEmptyCollection, true)
+          .configure(KotlinFeature.NullToEmptyMap, true)
+          .configure(KotlinFeature.NullIsSameAsDefault, true)
+          .build()
       findingsMapper.registerModule(kotlinModule)
 
       findingsMapper.readValue(resultFile, Report::class.java)
     } catch (e: IOException) {
       TrivyNotificationGroup.notifyError(
-          project,
-          "Failed to deserialize the results file. ${e.localizedMessage}",
+        project,
+        "Failed to deserialize the results file. ${e.localizedMessage}",
       )
       throw e
     }
   }
 
   private fun getAssuranceReport(
-      project: Project,
-      resultFile: File,
-      report: Report,
+    project: Project,
+    resultFile: File,
+    report: Report,
   ): AssuranceReport {
     return try {
       val jsonFactory =
-          JsonFactory.builder().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION).build()
+        JsonFactory.builder().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION).build()
       val findingsMapper =
-          ObjectMapper(jsonFactory).apply {
-            disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
-            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-          }
+        ObjectMapper(jsonFactory).apply {
+          disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
+          disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        }
 
       // Same Kotlin module configuration for assurance reports
       val kotlinModule =
-          KotlinModule.Builder()
-              .configure(KotlinFeature.NullToEmptyCollection, true)
-              .configure(KotlinFeature.NullToEmptyMap, true)
-              .configure(KotlinFeature.NullIsSameAsDefault, true)
-              .build()
+        KotlinModule.Builder()
+          .configure(KotlinFeature.NullToEmptyCollection, true)
+          .configure(KotlinFeature.NullToEmptyMap, true)
+          .configure(KotlinFeature.NullIsSameAsDefault, true)
+          .build()
       findingsMapper.registerModule(kotlinModule)
 
       val rep = findingsMapper.readValue(resultFile, AssuranceReport::class.java)
       AssuranceReport(report, rep.results)
     } catch (e: IOException) {
       TrivyNotificationGroup.notifyError(
-          project,
-          "Failed to deserialize the results file. ${e.localizedMessage}",
+        project,
+        "Failed to deserialize the results file. ${e.localizedMessage}",
       )
       throw e
     }

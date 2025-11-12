@@ -8,8 +8,8 @@ import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.XmlSerializerUtil
 
 @State(
-    name = "com.aquasecurity.plugins.trivy.settings.TrivySettingState",
-    storages = [Storage("trivy.xml")],
+  name = "com.aquasecurity.plugins.trivy.settings.TrivySettingState",
+  storages = [Storage("trivy.xml")],
 )
 @Service(Service.Level.APP)
 class TrivySettingState : PersistentStateComponent<TrivySettingState?> {

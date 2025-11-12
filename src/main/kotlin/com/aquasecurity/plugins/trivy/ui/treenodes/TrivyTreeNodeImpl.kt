@@ -16,7 +16,7 @@ class TrivyTreeNodeImpl(fileType: String, value: Any) : TrivyTreeNode, DefaultMu
 
   init {
     require(
-        value is Vulnerability || value is Misconfiguration || value is Secret || value is Sast
+      value is Vulnerability || value is Misconfiguration || value is Secret || value is Sast
     ) {
       "Value must be of type Vulnerability, Misconfiguration, Secret, or Sast"
     }

@@ -12,13 +12,13 @@ internal class FindingTreeRenderer : DefaultTreeCellRenderer() {
   }
 
   override fun getTreeCellRendererComponent(
-      tree: JTree,
-      value: Any,
-      sel: Boolean,
-      expanded: Boolean,
-      leaf: Boolean,
-      row: Int,
-      hasFocus: Boolean,
+    tree: JTree,
+    value: Any,
+    sel: Boolean,
+    expanded: Boolean,
+    leaf: Boolean,
+    row: Int,
+    hasFocus: Boolean,
   ): Component {
     super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus)
 

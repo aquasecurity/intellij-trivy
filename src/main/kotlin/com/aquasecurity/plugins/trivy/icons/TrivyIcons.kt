@@ -13,7 +13,7 @@ interface TrivyIcons {
 
     val Cargo: Icon = IconLoader.getIcon("/icons/cargo.svg", TrivyIcons::class.java)
     val CloudFormation: Icon =
-        IconLoader.getIcon("/icons/cloudformation.svg", TrivyIcons::class.java)
+      IconLoader.getIcon("/icons/cloudformation.svg", TrivyIcons::class.java)
     val Docker: Icon = IconLoader.getIcon("/icons/dockerfile.svg", TrivyIcons::class.java)
     val Gem: Icon = IconLoader.getIcon("/icons/ruby.svg", TrivyIcons::class.java)
     val Go: Icon = IconLoader.getIcon("/icons/go.svg", TrivyIcons::class.java)

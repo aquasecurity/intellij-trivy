@@ -11,16 +11,17 @@ class CredentialCheck {
   companion object {
 
     fun isValidCredentials(
-        project: Project,
-        apiKey: String,
-        apiSecret: String,
-        aquaUrl: String,
-        aquaAuthUrl: String,
+      project: Project,
+      apiKey: String,
+      apiSecret: String,
+      aquaUrl: String,
+      aquaAuthUrl: String,
+      notifyOnSuccess: Boolean = false,
     ): Boolean {
       if (apiKey.isBlank() || apiSecret.isBlank() || aquaUrl.isBlank() || aquaAuthUrl.isBlank()) {
         TrivyNotificationGroup.notifyError(
-            project,
-            "API Key, API Secret, Aqua URL, or Aqua Auth URL is blank.",
+          project,
+          "API Key, API Secret, Aqua URL, or Aqua Auth URL is blank.",
         )
         return false
       }
@@ -43,25 +44,30 @@ class CredentialCheck {
         val client = HttpClient.newHttpClient()
 
         val req =
-            HttpRequest.newBuilder()
-                .uri(URI.create(requestUrl))
-                .header("x-signature", hexString)
-                .header("x-timestamp", timestamp)
-                .header("x-api-key", apiKey)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(body))
-                .build()
+          HttpRequest.newBuilder()
+            .uri(URI.create(requestUrl))
+            .header("x-signature", hexString)
+            .header("x-timestamp", timestamp)
+            .header("x-api-key", apiKey)
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(body))
+            .build()
 
         val response = client.send(req, java.net.http.HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() == 200) {
-            TrivyNotificationGroup.notifyInformation(project, "Credentials are valid.")
+          // only notify on success if specified - this is to stop notification spam
+          if (notifyOnSuccess) {
+            TrivyNotificationGroup.notifyInformation(
+              project,
+              "Aqua Platform credentials are valid.",
+            )
+          }
           return true
         }
       } catch (e: Exception) {
-        TrivyNotificationGroup.notifyError(project, "Failed to validate credentials")
-        return false
+        // Ignore exceptions, will return false below
       }
-      TrivyNotificationGroup.notifyError(project, "Failed to validate credentials")
+      TrivyNotificationGroup.notifyError(project, "Failed to validate Aqua Platform credentials")
       return false
     }
   }

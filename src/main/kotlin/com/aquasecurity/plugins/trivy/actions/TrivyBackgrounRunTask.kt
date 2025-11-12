@@ -30,21 +30,17 @@ internal class TrivyBackgroundRunTask(
   companion object {
     private val LOG = Logger.getInstance(TrivyBackgroundRunTask::class.java)
   }
+
   override fun run(indicator: ProgressIndicator) {
     this.run()
   }
 
   override fun run() {
     val settings = TrivySettingState.instance
-    val projectSettings = TrivyProjectSettingState.getInstance(project)
 
-    // Check if result file already exists and is valid
-    if (resultFile.exists() && resultFile.length() > 0) {
-      LOG.info("Reusing existing Trivy results from ${resultFile.absolutePath}")
-      TrivyNotificationGroup.notifyInformation(project, "Using existing Trivy scan results. Delete results to run a new scan.")
-      SwingUtilities.invokeLater { callback.accept(this.project, this.resultFile) }
-      return
-    }
+    // Read the freshest `useAquaPlatform` value from project settings at the point
+    // we configure the command. Avoid creating a per-run message-bus connection
+    // which would otherwise be created for every run.
 
     val commandParts: MutableList<String?> = ArrayList()
     commandParts.add(settings.trivyPath)
@@ -62,12 +58,13 @@ internal class TrivyBackgroundRunTask(
       commandParts.add("--ignore-unfixed")
     }
 
-    if (projectSettings.useConfig && projectSettings.configPath != "") {
-      commandParts.add(String.format("--config=%s", projectSettings.configPath))
+    val projSettingsForPaths = TrivyProjectSettingState.getInstance(project)
+    if (projSettingsForPaths.useConfig && projSettingsForPaths.configPath != "") {
+      commandParts.add(String.format("--config=%s", projSettingsForPaths.configPath))
     }
 
-    if (projectSettings.useIgnore && projectSettings.ignorePath != "") {
-      commandParts.add(String.format("--ignorefile=%s", projectSettings.ignorePath))
+    if (projSettingsForPaths.useIgnore && projSettingsForPaths.ignorePath != "") {
+      commandParts.add(String.format("--ignorefile=%s", projSettingsForPaths.ignorePath))
     }
 
     // always set exit code to 0 to avoid interrupting the IDE
@@ -81,29 +78,40 @@ internal class TrivyBackgroundRunTask(
     val commandLine = GeneralCommandLine(commandParts)
     commandLine.setWorkDirectory(project.basePath)
 
-    if (!projectSettings.skipDirList.isEmpty()) {
+    if (!projSettingsForPaths.skipDirList.isEmpty()) {
       // combine the skip directories into a single comma separated string
-      val skipDirs = projectSettings.skipDirList.joinToString(separator = ",")
+      val skipDirs = projSettingsForPaths.skipDirList.joinToString(separator = ",")
       commandLine.addParameter("--skip-dirs=$skipDirs")
     }
 
-    if (projectSettings.useAquaPlatform) {
-      super.setTitle("Running Aqua Platform Scan")
-      configureCommandLineEnv(commandLine, projectSettings, resultFile)
+    if (TrivySettingState.instance.proxyAddressUrl.isNotEmpty()) {
+      commandLine.environment["HTTP_PROXY"] = TrivySettingState.instance.proxyAddressUrl
+      commandLine.environment["HTTPS_PROXY"] = TrivySettingState.instance.proxyAddressUrl
+    }
+    if (TrivySettingState.instance.caCertPath.isNotEmpty()) {
+      commandLine.environment["SSL_CERT_FILE"] = TrivySettingState.instance.caCertPath
+      commandLine.environment["CA_CERT"] = TrivySettingState.instance.caCertPath
+    }
 
-      // verify the credentials firts
+    // Use the freshest value for Aqua Platform at the point we configure the command
+    if (TrivyProjectSettingState.getInstance(project).useAquaPlatform) {
+      super.setTitle("Running Aqua Platform Scan")
+      // re-fetch current project settings to apply feature flags and config
+      val currentProjectSettings = TrivyProjectSettingState.getInstance(project)
+      configureCommandLineEnv(commandLine, currentProjectSettings, resultFile)
+      // verify the credentials first using the env we just configured
       if (
-          !CredentialCheck.isValidCredentials(
-              project,
-              commandLine.environment.get("AQUA_KEY") ?: "",
-              commandLine.environment.get("AQUA_SECRET") ?: "",
-              commandLine.environment.get("AQUA_URL") ?: "",
-              commandLine.environment.get("CSPM_URL") ?: "",
-          )
+        !CredentialCheck.isValidCredentials(
+          project,
+          commandLine.environment.get("AQUA_KEY") ?: "",
+          commandLine.environment.get("AQUA_SECRET") ?: "",
+          commandLine.environment.get("AQUA_URL") ?: "",
+          commandLine.environment.get("CSPM_URL") ?: "",
+        )
       ) {
         TrivyNotificationGroup.notifyError(
-            project,
-            "Invalid Aqua Platform credentials. Please check your settings.",
+          project,
+          "Invalid Aqua Platform credentials. Please check your settings.",
         )
         return
       }
@@ -119,7 +127,6 @@ internal class TrivyBackgroundRunTask(
 
     val handler = OSProcessHandler(process, commandLine.commandLineString)
 
-
     // Create console and set it up on EDT
     SwingUtilities.invokeLater {
       LOG.info("Creating console view on EDT")
@@ -132,41 +139,55 @@ internal class TrivyBackgroundRunTask(
       if (toolWindow != null) {
         LOG.info("Clearing existing content and adding new console")
         toolWindow.contentManager.removeAllContents(true)
-        val content = ContentFactory.getInstance().createContent(console.component, "Scan Output", false)
+        val content =
+          ContentFactory.getInstance().createContent(console.component, "Scan Output", false)
         toolWindow.contentManager.addContent(content)
         LOG.info("Attaching process to console")
         console.attachToProcess(handler)
         LOG.info("Console successfully attached to process")
       } else {
         LOG.warn("Trivy Scan Output tool window not found")
-        TrivyNotificationGroup.notifyInformation(project, "Trivy scan started. Click the scan output button to view results")
+        TrivyNotificationGroup.notifyInformation(
+          project,
+          "Trivy scan started. Click the scan output button to view results",
+        )
       }
     }
 
     try {
-      // Capture output (stdout+stderr) and wait for the process to finish so we can inspect exit code / panic
-      val output = ScriptRunnerUtil.getProcessOutput(
+      // Capture output (stdout+stderr) and wait for the process to finish so we can inspect
+      // exit code / panic
+      val output =
+        ScriptRunnerUtil.getProcessOutput(
           handler,
           ScriptRunnerUtil.STDOUT_OR_STDERR_OUTPUT_KEY_FILTER,
           100000000,
-      )
+        )
 
-      val exitCode = try {
-        process.waitFor()
-      } catch (e: InterruptedException) {
-        LOG.warn("Interrupted while waiting for process", e)
-        -1
-      }
+      val exitCode =
+        try {
+          process.waitFor()
+        } catch (e: InterruptedException) {
+          LOG.warn("Interrupted while waiting for process", e)
+          -1
+        }
 
-      val panicked = output.contains("panic:", ignoreCase = true) || output.contains("panic", ignoreCase = true)
+      val panicked =
+        output.lineSequence().any { it.trimStart().startsWith("panic:", ignoreCase = true) }
+
       val resultFileValid = resultFile.exists() && resultFile.length() > 0
       val failed = exitCode != 0 || panicked || !resultFileValid
 
       if (failed) {
-        LOG.warn("Trivy run failed or panicked. exitCode=$exitCode panicked=$panicked resultFileValid=$resultFileValid")
-        TrivyNotificationGroup.notifyError(project, "Trivy run failed or panicked. See scan output for details.", true)
-          SwingUtilities.invokeLater { failureCallback.accept(this.project) }
-
+        LOG.warn(
+          "Trivy run failed or panicked. exitCode=$exitCode panicked=$panicked resultFileValid=$resultFileValid"
+        )
+        TrivyNotificationGroup.notifyError(
+          project,
+          "Trivy run failed or panicked. See scan output for details.",
+          true,
+        )
+        SwingUtilities.invokeLater { failureCallback.accept(this.project) }
       } else {
         TrivyNotificationGroup.notifyInformation(project, "Trivy run completed, updating results")
         SwingUtilities.invokeLater { callback.accept(this.project, this.resultFile) }
@@ -177,9 +198,9 @@ internal class TrivyBackgroundRunTask(
   }
 
   private fun configureCommandLineEnv(
-      commandLine: GeneralCommandLine,
-      projectSettings: TrivyProjectSettingState,
-      resultFile: File,
+    commandLine: GeneralCommandLine,
+    projectSettings: TrivyProjectSettingState,
+    resultFile: File,
   ) {
 
     if (TrivySettingState.instance.region == "Custom") {
@@ -206,7 +227,7 @@ internal class TrivyBackgroundRunTask(
     commandLine.environment["AQUA_SECRET"] = TrivySettingState.instance.apiSecret
     commandLine.environment["TRIVY_RUN_AS_PLUGIN"] = "aqua"
     commandLine.environment["AQUA_ASSURANCE_EXPORT"] =
-        resultFile.absolutePath.replace(".json", "_assurance.json")
+      resultFile.absolutePath.replace(".json", "_assurance.json")
     commandLine.environment["TRIVY_SKIP_REPOSITORY_UPLOAD"] = "true"
     commandLine.environment["TRIVY_SKIP_RESULT_UPLOAD"] = "true"
     commandLine.environment["TRIVY_IDE_IDENTIFIER"] = "intellij"
@@ -222,14 +243,6 @@ internal class TrivyBackgroundRunTask(
     }
     if (projectSettings.enableSASTScanning) {
       commandLine.environment["SAST"] = "1"
-    }
-    if (TrivySettingState.instance.proxyAddressUrl.isNotEmpty()) {
-      commandLine.environment["HTTP_PROXY"] = TrivySettingState.instance.proxyAddressUrl
-      commandLine.environment["HTTPS_PROXY"] = TrivySettingState.instance.proxyAddressUrl
-    }
-    if (TrivySettingState.instance.caCertPath.isNotEmpty()) {
-      commandLine.environment["SSL_CERT_FILE"] = TrivySettingState.instance.caCertPath
-      commandLine.environment["CA_CERT"] = TrivySettingState.instance.caCertPath
     }
   }
 

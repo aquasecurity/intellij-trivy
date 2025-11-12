@@ -25,12 +25,12 @@ class TrivyBinary {
     @JvmStatic var binaryFile: String = ""
 
     fun downloadBinary(
-        project: Project,
-        os: String,
-        arch: String,
-        suffix: String,
-        target: File,
-        initial: Boolean,
+      project: Project,
+      os: String,
+      arch: String,
+      suffix: String,
+      target: File,
+      initial: Boolean,
     ): Boolean {
       if (target.exists() && initial) {
         println("Binary already exists at ${target.absolutePath}, setting as binary file")
@@ -48,13 +48,13 @@ class TrivyBinary {
       val tmpFile = kotlin.io.path.createTempFile("trivy-${os}-${arch}", targetSuffix).toFile()
       downloadFile("${releaseUrl}?os=${os}&arch=${arch}&type=${suffix}", tmpFile)
       val checksums =
-          fetchUrl("${checksumUrl}/v${latestTag}/trivy_${latestTag}_checksums.txt")
-              .split("\n")
-              .filter { it.isNotBlank() }
-              .map { it.trim() }
-              .map { it.split("\\s+".toRegex()) }
-              .filter { it.size == 2 }
-              .map { Pair(it[0], it[1]) }
+        fetchUrl("${checksumUrl}/v${latestTag}/trivy_${latestTag}_checksums.txt")
+          .split("\n")
+          .filter { it.isNotBlank() }
+          .map { it.trim() }
+          .map { it.split("\\s+".toRegex()) }
+          .filter { it.size == 2 }
+          .map { Pair(it[0], it[1]) }
 
       val calculatedChecksum = calculateChecksum(tmpFile)
       for (checksum in checksums) {
@@ -64,8 +64,8 @@ class TrivyBinary {
             break
           } else {
             TrivyNotificationGroup.notifyError(
-                project,
-                "No matching checksum found for downloaded file; download aborted.",
+              project,
+              "No matching checksum found for downloaded file; download aborted.",
             )
             return false
           }
@@ -126,11 +126,11 @@ class TrivyBinary {
 
       // Create a new output file with the name from Content-Disposition if different
       val finalOutputFile =
-          if (filename != outputFile.name) {
-            File(outputFile.parentFile, filename)
-          } else {
-            outputFile
-          }
+        if (filename != outputFile.name) {
+          File(outputFile.parentFile, filename)
+        } else {
+          outputFile
+        }
 
       connection.inputStream.use { input ->
         FileOutputStream(finalOutputFile).use { output -> input.copyTo(output) }
@@ -157,11 +157,11 @@ class TrivyBinary {
     private fun unTar(tarFile: File, targetFile: File) {
       val outputDir = createTempDirectory().toFile()
       val tarInput: InputStream =
-          if (tarFile.extension == "gz") {
-            GZIPInputStream(FileInputStream(tarFile))
-          } else {
-            FileInputStream(tarFile)
-          }
+        if (tarFile.extension == "gz") {
+          GZIPInputStream(FileInputStream(tarFile))
+        } else {
+          FileInputStream(tarFile)
+        }
       TarArchiveInputStream(tarInput).use { input ->
         var entry = input.getNextEntry()
         while (entry != null) {

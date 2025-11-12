@@ -9,7 +9,7 @@ import javax.swing.Icon
 import javax.swing.tree.DefaultMutableTreeNode
 
 class PolicyTreeNode(private val policyTitle: String, result: PolicyResult?) :
-    DefaultMutableTreeNode(), TrivyTreeNode {
+  DefaultMutableTreeNode(), TrivyTreeNode {
   private val policyDescription = result?.reason
 
   fun removeAnsiCodes(input: String): String {
@@ -18,16 +18,16 @@ class PolicyTreeNode(private val policyTitle: String, result: PolicyResult?) :
   }
 
   fun addControlResult(
-      controlResult: ControlResult,
-      result: PolicyResult,
-      report: Report,
-      cr: Result,
+    controlResult: ControlResult,
+    result: PolicyResult,
+    report: Report,
+    cr: Result,
   ) {
 
     val prettyTitle = removeAnsiCodes(controlResult.type)
 
     var existing =
-        children().toList().find { it is PolicyTreeNode && it.policyTitle == prettyTitle }
+      children().toList().find { it is PolicyTreeNode && it.policyTitle == prettyTitle }
     if (existing == null) {
       existing = PolicyTreeNode(prettyTitle, result)
       add(existing)
