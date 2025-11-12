@@ -1,3 +1,7 @@
+## [1.10.8]
+- Add support for the proxy and CA Certificate
+- Add an output window to see issues with the Trivy execution
+
 ## [1.10.7]
 
 - Add support for skip-dirs in the settings with defaults

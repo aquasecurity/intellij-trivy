@@ -21,7 +21,7 @@ class PolicyTreeNode(private val policyTitle: String, result: PolicyResult?) :
       controlResult: ControlResult,
       result: PolicyResult,
       report: Report,
-      cr: Result
+      cr: Result,
   ) {
 
     val prettyTitle = removeAnsiCodes(controlResult.type)

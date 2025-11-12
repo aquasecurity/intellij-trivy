@@ -10,5 +10,5 @@ constructor(
     @JsonProperty("type") val type: String,
     @JsonProperty("matched_data") val matchedData: String,
     @JsonProperty("location") val location: String,
-    @JsonProperty("target_line") val targetLine: Int?
+    @JsonProperty("target_line") val targetLine: Int?,
 )

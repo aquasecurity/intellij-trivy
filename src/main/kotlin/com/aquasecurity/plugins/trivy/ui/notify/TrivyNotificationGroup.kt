@@ -1,21 +1,34 @@
 package com.aquasecurity.plugins.trivy.ui.notify
 
+import com.aquasecurity.plugins.trivy.ui.TrivyScanOutputManager
+import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
 
 object TrivyNotificationGroup {
-  private val NOTIFICATION_GROUP = NotificationGroup.findRegisteredGroup("Trivy Notifications")
+  // Resolve the NotificationGroup on-demand to avoid accessing services during class initialization
+  private fun getNotificationGroup(): NotificationGroup? = NotificationGroup.findRegisteredGroup("Trivy Notifications")
 
-  fun notifyError(project: Project?, content: String) {
-    notify(project, content, NotificationType.ERROR)
+  fun notifyError(project: Project?, content: String, withShowOutputAction: Boolean = false) {
+    notify(project, content, NotificationType.ERROR, withShowOutputAction)
   }
 
-  fun notifyInformation(project: Project?, content: String) {
-    notify(project, content, NotificationType.INFORMATION)
+  fun notifyInformation(project: Project?, content: String, withShowOutputAction: Boolean = false) {
+    notify(project, content, NotificationType.INFORMATION, withShowOutputAction)
   }
 
-  private fun notify(project: Project?, content: String, notificationType: NotificationType) {
-    NOTIFICATION_GROUP?.createNotification(content, notificationType)!!.notify(project)
+  private fun notify(project: Project?, content: String, notificationType: NotificationType, withShowOutputAction: Boolean) {
+    val group = getNotificationGroup() ?: return
+    val notification = group.createNotification(content, notificationType)
+
+    if (withShowOutputAction && project != null) {
+      // Add a simple action that shows the Trivy Scan Output tool window when clicked
+      notification.addAction(
+        NotificationAction.createSimple("Show Scan Output") { TrivyScanOutputManager.showToolWindow(project) }
+      )
+    }
+
+    notification.notify(project)
   }
 }

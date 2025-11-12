@@ -15,7 +15,7 @@ import java.util.*
 internal class TrivyDownloadBinaryTask(
     private val project: Project,
     val initial: Boolean,
-    val callback: (() -> Unit)? = null
+    val callback: (() -> Unit)? = null,
 ) : Backgroundable(project, "Downloading Trivy", false), Runnable {
 
   override fun run(indicator: ProgressIndicator) {

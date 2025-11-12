@@ -182,7 +182,8 @@ class FindingsHelper : ScrollablePanel() {
               }
             }
           }
-        })
+        }
+    )
 
     // Enable text wrapping
     label.lineWrap = true

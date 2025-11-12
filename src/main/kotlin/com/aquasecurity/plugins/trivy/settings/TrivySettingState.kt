@@ -9,7 +9,8 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 
 @State(
     name = "com.aquasecurity.plugins.trivy.settings.TrivySettingState",
-    storages = [Storage("trivy.xml")])
+    storages = [Storage("trivy.xml")],
+)
 @Service(Service.Level.APP)
 class TrivySettingState : PersistentStateComponent<TrivySettingState?> {
   var trivyPath: String = "trivy"
@@ -30,6 +31,8 @@ class TrivySettingState : PersistentStateComponent<TrivySettingState?> {
   var region: String = "US"
   var customAquaUrl: String = ""
   var customAuthUrl: String = ""
+  var proxyAddressUrl: String = ""
+  var caCertPath: String = ""
 
   override fun getState(): TrivySettingState {
     return this

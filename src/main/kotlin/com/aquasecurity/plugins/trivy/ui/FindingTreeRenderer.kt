@@ -18,7 +18,7 @@ internal class FindingTreeRenderer : DefaultTreeCellRenderer() {
       expanded: Boolean,
       leaf: Boolean,
       row: Int,
-      hasFocus: Boolean
+      hasFocus: Boolean,
   ): Component {
     super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus)
 

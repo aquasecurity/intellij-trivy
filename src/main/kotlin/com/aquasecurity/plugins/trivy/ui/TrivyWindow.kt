@@ -61,11 +61,17 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
     val actionGroup = DefaultActionGroup("ACTION_GROUP", false)
 
     actionGroup.add(
-        actionManager.getAction("com.aquasecurity.plugins.trivy.actions.RunScannerAction"))
+        actionManager.getAction("com.aquasecurity.plugins.trivy.actions.RunScannerAction")
+    )
     actionGroup.add(
-        actionManager.getAction("com.aquasecurity.plugins.trivy.actions.ClearResultsAction"))
+        actionManager.getAction("com.aquasecurity.plugins.trivy.actions.ClearResultsAction")
+    )
     actionGroup.add(
-        actionManager.getAction("com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction"))
+        actionManager.getAction("com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction")
+    )
+    actionGroup.add(
+        actionManager.getAction("com.aquasecurity.plugins.trivy.actions.ShowScanOutputAction")
+    )
 
     val actionToolbar = actionManager.createActionToolbar("ACTION_TOOLBAR", actionGroup, true)
     actionToolbar.orientation = SwingConstants.VERTICAL
@@ -107,13 +113,16 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
 
     findings.results.forEach(
         Consumer { f: Result ->
-          if ((f.misconfigurations != null && f.misconfigurations!!.isNotEmpty()) ||
-              (f.vulnerabilities != null && f.vulnerabilities!!.isNotEmpty()) ||
-              (f.secrets != null && f.secrets!!.isNotEmpty()) ||
-              (f.sasts != null && f.sasts!!.isNotEmpty())) {
+          if (
+              (f.misconfigurations != null && f.misconfigurations!!.isNotEmpty()) ||
+                  (f.vulnerabilities != null && f.vulnerabilities!!.isNotEmpty()) ||
+                  (f.secrets != null && f.secrets!!.isNotEmpty()) ||
+                  (f.sasts != null && f.sasts!!.isNotEmpty())
+          ) {
             addOrUpdateTreeNode(f, fileNodes)
           }
-        })
+        }
+    )
 
     fileNodes.forEach(Consumer { newChild: FileTreeNode? -> rootNode.add(newChild) })
 
@@ -126,7 +135,8 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
           override fun mouseClicked(me: MouseEvent) {
             doMouseClicked(me, this@TrivyWindow.findings)
           }
-        })
+        }
+    )
   }
 
   fun getHighlightSeverity(severity: String): HighlightSeverity {
@@ -184,7 +194,8 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
                   }
                 }
               }
-            })
+            }
+        )
 
     this.assurancePolicies = Tree(rootNode)
     this.assurancePolicies?.putClientProperty("JTree.lineStyle", "Horizontal")
@@ -195,7 +206,8 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
           override fun mouseClicked(me: MouseEvent) {
             doMouseClicked(me, this@TrivyWindow.assurancePolicies)
           }
-        })
+        }
+    )
 
     return
   }
@@ -246,7 +258,9 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
             .refreshAndFindFileByNioPath(Paths.get(project.basePath, findingLocation.filename))
     if (file == null || !file.exists()) {
       TrivyNotificationGroup.notifyInformation(
-          project, String.format("File %s cannot be opened", findingLocation.filename))
+          project,
+          String.format("File %s cannot be opened", findingLocation.filename),
+      )
       return
     }
 
@@ -256,7 +270,9 @@ class TrivyWindow(project: Project) : SimpleToolWindowPanel(false, true) {
 
     val editor = FileEditorManager.getInstance(project).openTextEditor(ofd, true) ?: return
     editor.selectionModel.setBlockSelection(
-        LogicalPosition(startLine - 1, 0), LogicalPosition(endLine - 1, 1000))
+        LogicalPosition(startLine - 1, 0),
+        LogicalPosition(endLine - 1, 1000),
+    )
   }
 
   fun redraw() {

@@ -10,6 +10,9 @@
         <toolWindow id="Trivy Explorer" secondary="true" icon="/icons/trivy_16.svg"
                     anchor="left"
                     factoryClass="com.aquasecurity.plugins.trivy.ui.TrivyWindowFactory"/>
+        <toolWindow id="Trivy Scan Output" secondary="true" icon="/icons/trivy_16.svg"
+                    anchor="bottom"
+                    factoryClass="com.aquasecurity.plugins.trivy.ui.TrivyScanOutputWindowFactory"/>
         <notificationGroup id="Trivy Notifications" displayType="BALLOON"/>
         <projectConfigurable parentId="tools"
                                  instance="com.aquasecurity.plugins.trivy.settings.TrivySettingsConfigurable"
@@ -31,6 +34,10 @@
         <action id="com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction" icon="AllIcons.General.Settings"
                 class="com.aquasecurity.plugins.trivy.actions.ShowTrivySettingsAction" text="Show settings"
                 description="Show Settings dialog"/>
+        <action id="com.aquasecurity.plugins.trivy.actions.ShowScanOutputAction"
+                icon="AllIcons.Debugger.Console"
+                class="com.aquasecurity.plugins.trivy.actions.ShowScanOutputAction" text="Show Scan Output"
+                description="Show the Trivy scan output window"/>
         <action id="com.aquasecurity.plugins.trivy.actions.InstallTrivyAction"
                 icon="AllIcons.Actions.Download"
                 class="com.aquasecurity.plugins.trivy.actions.InstallTrivyAction" text="Install Trivy"

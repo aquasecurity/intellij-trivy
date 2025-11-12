@@ -30,7 +30,7 @@ class TrivyBinary {
         arch: String,
         suffix: String,
         target: File,
-        initial: Boolean
+        initial: Boolean,
     ): Boolean {
       if (target.exists() && initial) {
         println("Binary already exists at ${target.absolutePath}, setting as binary file")
@@ -64,7 +64,9 @@ class TrivyBinary {
             break
           } else {
             TrivyNotificationGroup.notifyError(
-                project, "No matching checksum found for downloaded file; download aborted.")
+                project,
+                "No matching checksum found for downloaded file; download aborted.",
+            )
             return false
           }
         }

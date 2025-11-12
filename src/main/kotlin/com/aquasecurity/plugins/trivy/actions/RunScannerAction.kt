@@ -16,6 +16,7 @@ import java.util.UUID.randomUUID
 import javax.swing.SwingUtilities
 
 object TrivyRunState {
+  @Volatile
   var isRunning = false
 }
 
@@ -53,7 +54,13 @@ class RunScannerAction : AnAction() {
     val trivyWindow = content?.component as? TrivyWindow ?: return
 
     try {
-      trivyWindow.showRunning()
+      // Ensure UI updates happen on the EDT
+      if (SwingUtilities.isEventDispatchThread()) {
+        trivyWindow.showRunning()
+      } else {
+        ApplicationManager.getApplication().invokeLater { trivyWindow.showRunning() }
+      }
+
       TrivyRunState.isRunning = true
       val resultFile: File
       val pluginTempDir = File(PathManager.getSystemPath(), "Trivy")
@@ -61,10 +68,20 @@ class RunScannerAction : AnAction() {
       resultFile =
           FileUtil.createTempFile(pluginTempDir, String.format("trivy-%s", id), ".json", true)
       val runner =
-          TrivyBackgroundRunTask(project, resultFile) { _, _ ->
-            ResultProcessor.updateResults(project, resultFile, trivyWindow)
-            TrivyRunState.isRunning = false
-          }
+          TrivyBackgroundRunTask(
+              project,
+              resultFile,
+              { p: Project, f: File ->
+                // success callback
+                ResultProcessor.updateResults(p, f, trivyWindow)
+                TrivyRunState.isRunning = false
+              },
+              {
+                // failure callback
+                ResultProcessor.handleFailure( trivyWindow)
+                TrivyRunState.isRunning = false
+              }
+          )
       if (SwingUtilities.isEventDispatchThread()) {
         ProgressManager.getInstance().run(runner)
       } else {

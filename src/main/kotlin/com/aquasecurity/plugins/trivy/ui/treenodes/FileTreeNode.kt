@@ -43,10 +43,12 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
               if (findingNode.isPresent) {
                 val node = findingNode.get()
                 node.add(
-                    LocationTreeNode(result.target.toString(), result.type.toString(), ms, true))
+                    LocationTreeNode(result.target.toString(), result.type.toString(), ms, true)
+                )
               }
             }
-          })
+          }
+      )
       visited.forEach(Consumer { newChild: LocationTreeNode? -> this.add(newChild) })
     }
 
@@ -56,9 +58,11 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
       result.vulnerabilities = result.vulnerabilities!!.sortedBy { it.severity }
       result.vulnerabilities!!.forEach(
           Consumer { vulnerability: Vulnerability ->
-            if (visited.stream().noneMatch { v: TrivyTreeNodeImpl ->
-              v.title == vulnerability.pkgName
-            }) {
+            if (
+                visited.stream().noneMatch { v: TrivyTreeNodeImpl ->
+                  v.title == vulnerability.pkgName
+                }
+            ) {
               visited.add(TrivyTreeNodeImpl(result.type.toString(), vulnerability))
             }
             val findingNode =
@@ -69,9 +73,11 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
             if (findingNode.isPresent) {
               val node = findingNode.get()
               node.add(
-                  LocationTreeNode(result.target.toString(), result.type.toString(), vulnerability))
+                  LocationTreeNode(result.target.toString(), result.type.toString(), vulnerability)
+              )
             }
-          })
+          }
+      )
       visited.forEach(Consumer { newChild: TrivyTreeNodeImpl? -> this.add(newChild) })
     }
 
@@ -83,9 +89,11 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
           Consumer { secret: Secret ->
             if (visited.stream().noneMatch { v: LocationTreeNode -> v.title == secret.title }) {
               visited.add(
-                  LocationTreeNode(result.target.toString(), result.type.toString(), secret))
+                  LocationTreeNode(result.target.toString(), result.type.toString(), secret)
+              )
             }
-          })
+          }
+      )
       visited.forEach(Consumer { newChild: LocationTreeNode? -> this.add(newChild) })
     }
 
@@ -108,7 +116,8 @@ class FileTreeNode(result: Result?) : DefaultMutableTreeNode(), TrivyTreeNode {
               this.target = relativePath
               visited.add(LocationTreeNode(relativePath, result.type.toString(), sast))
             }
-          })
+          }
+      )
       visited.forEach(Consumer { newChild: LocationTreeNode? -> this.add(newChild) })
     }
   }

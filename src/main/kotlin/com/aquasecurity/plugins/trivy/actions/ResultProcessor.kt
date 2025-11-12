@@ -9,13 +9,18 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.StreamReadFeature
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
- import com.fasterxml.jackson.module.kotlin.KotlinFeature
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.intellij.openapi.project.Project
 import java.io.File
 import java.io.IOException
 
 object ResultProcessor {
+
+    fun handleFailure(trivyWindow: TrivyWindow) {
+        trivyWindow.redraw()
+    }
+
   fun updateResults(project: Project, resultFile: File?, trivyWindow: TrivyWindow) {
     try {
       if (resultFile == null || !resultFile.exists()) {
@@ -24,10 +29,10 @@ object ResultProcessor {
       }
 
       // check if the results file is empty
-        if (resultFile.length() == 0L) {
+      if (resultFile.length() == 0L) {
         TrivyNotificationGroup.notifyError(project, "The results file is empty.")
         return
-        }
+      }
 
       val projectSettings = TrivyProjectSettingState.getInstance(project)
       val report = processReport(project, resultFile)
@@ -43,11 +48,14 @@ object ResultProcessor {
       }
     } catch (e: IOException) {
       TrivyNotificationGroup.notifyError(
-          project, "Failed to process the results file. ${e.localizedMessage}")
+          project,
+          "Failed to process the results file. ${e.localizedMessage}",
+      )
     } catch (e: Exception) {
       TrivyNotificationGroup.notifyError(
           project,
-          "An unexpected error occurred while processing the results. ${e.localizedMessage}")
+          "An unexpected error occurred while processing the results. ${e.localizedMessage}",
+      )
     } finally {
       trivyWindow.redraw()
     }
@@ -61,9 +69,11 @@ object ResultProcessor {
     report.results.forEach { result ->
       result.vulnerabilities?.forEach { vuln ->
         result.packages?.forEach { pkg ->
-          if (pkg.name == vuln.pkgName &&
-              pkg.version == vuln.installedVersion &&
-              !pkg.locations.isNullOrEmpty()) {
+          if (
+              pkg.name == vuln.pkgName &&
+                  pkg.version == vuln.installedVersion &&
+                  !pkg.locations.isNullOrEmpty()
+          ) {
             vuln.location = pkg.locations[0]
           }
         }
@@ -86,17 +96,20 @@ object ResultProcessor {
       // be lenient with nulls for Kotlin types (treat null collections/maps as empty,
       // treat null as default, and disable strict null checks which otherwise fail
       // when JSON contains null for non-null Kotlin constructor parameters).
-      val kotlinModule = KotlinModule.Builder()
-          .configure(KotlinFeature.NullToEmptyCollection, true)
-          .configure(KotlinFeature.NullToEmptyMap, true)
-          .configure(KotlinFeature.NullIsSameAsDefault, true)
-          .build()
+      val kotlinModule =
+          KotlinModule.Builder()
+              .configure(KotlinFeature.NullToEmptyCollection, true)
+              .configure(KotlinFeature.NullToEmptyMap, true)
+              .configure(KotlinFeature.NullIsSameAsDefault, true)
+              .build()
       findingsMapper.registerModule(kotlinModule)
 
       findingsMapper.readValue(resultFile, Report::class.java)
     } catch (e: IOException) {
       TrivyNotificationGroup.notifyError(
-          project, "Failed to deserialize the results file. ${e.localizedMessage}")
+          project,
+          "Failed to deserialize the results file. ${e.localizedMessage}",
+      )
       throw e
     }
   }
@@ -104,7 +117,7 @@ object ResultProcessor {
   private fun getAssuranceReport(
       project: Project,
       resultFile: File,
-      report: Report
+      report: Report,
   ): AssuranceReport {
     return try {
       val jsonFactory =
@@ -116,18 +129,21 @@ object ResultProcessor {
           }
 
       // Same Kotlin module configuration for assurance reports
-      val kotlinModule = KotlinModule.Builder()
-          .configure(KotlinFeature.NullToEmptyCollection, true)
-          .configure(KotlinFeature.NullToEmptyMap, true)
-          .configure(KotlinFeature.NullIsSameAsDefault, true)
-          .build()
+      val kotlinModule =
+          KotlinModule.Builder()
+              .configure(KotlinFeature.NullToEmptyCollection, true)
+              .configure(KotlinFeature.NullToEmptyMap, true)
+              .configure(KotlinFeature.NullIsSameAsDefault, true)
+              .build()
       findingsMapper.registerModule(kotlinModule)
 
       val rep = findingsMapper.readValue(resultFile, AssuranceReport::class.java)
       AssuranceReport(report, rep.results)
     } catch (e: IOException) {
       TrivyNotificationGroup.notifyError(
-          project, "Failed to deserialize the results file. ${e.localizedMessage}")
+          project,
+          "Failed to deserialize the results file. ${e.localizedMessage}",
+      )
       throw e
     }
   }
