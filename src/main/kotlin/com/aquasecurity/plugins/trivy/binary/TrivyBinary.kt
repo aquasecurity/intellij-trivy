@@ -46,7 +46,7 @@ class TrivyBinary {
       }
 
       val tmpFile = kotlin.io.path.createTempFile("trivy-${os}-${arch}", targetSuffix).toFile()
-      downloadFile("${releaseUrl}?os=${os}&arch=${arch}&type=${suffix}", tmpFile)
+      downloadFile("${releaseUrl}?client=jetbrains&os=${os}&arch=${arch}&type=${suffix}", tmpFile)
       val checksums =
         fetchUrl("${checksumUrl}/v${latestTag}/trivy_${latestTag}_checksums.txt")
           .split("\n")
